@@ -258,7 +258,7 @@ def get_check_anooucement_of_coinbase():
 
 
 def parse_bian_title(title:str=""):
-    if "币安上市" in title:
+    if "币安上市" in title or "币安创新区上市" in title:
         index_s = title.find('（')
         index_e = title.find("）")
         coin_name_s =title[index_s+1:index_e]
