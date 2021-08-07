@@ -2,6 +2,7 @@
 
 import datetime
 import os
+import sys
 from email.mime.text import MIMEText
 from email.header import Header
 from smtplib import SMTP_SSL
@@ -16,7 +17,10 @@ from enum import Enum
 
 
 def log(msg:str="kong msg"): #level:LOG_LEVEL=LOG_LEVEL.INFO,
-    file = open("/Users/huxi/Desktop/altcoin_trend_rank.txt", "w+")
+    path = ""
+    if sys.platform=='linux':
+        path = "/root/"
+    file = open(path+"altcoin_trend_rank.txt", "w+")
     time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     print("[" + time + "]:\n" + msg)
     # print(msg)
@@ -63,8 +67,9 @@ def send_email(mail_msg:str,mail_title:str='数字货币_活跃交易'):
     smtp.quit()
 
 def check_and_update_msg(msg_id:str="kong msg",exc_name:str=""):
-    # path = "new_msg_id_folder"
-    path = "/Users/huxi/Desktop/new_msg_id_folder/"
+    path = "new_msg_id_folder"
+    if sys.platform=='linux':
+        path = "/root"
     isExists = os.path.exists(path)
     # 判断结果
     if not isExists:
@@ -74,7 +79,7 @@ def check_and_update_msg(msg_id:str="kong msg",exc_name:str=""):
         os.makedirs(path,mode=0x777,exist_ok=True)
         log("信息缓存文件夹"+ path + ' 创建成功')
 
-    file = open(path+exc_name+"_new_msg_id.txt", "r+") #r+ 和w+ 都具有读写权限，w+在NULL会新创建新文件，原始内容抹除
+    file = open(path+'/'+exc_name+"_new_msg_id.txt", "r+") #r+ 和w+ 都具有读写权限，w+在NULL会新创建新文件，原始内容抹除
     last_msg_id = file.readline()
     print("读取消息id" +last_msg_id)
     if last_msg_id != msg_id:

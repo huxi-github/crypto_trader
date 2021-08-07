@@ -153,9 +153,9 @@ def get_check_anooucement_of_binance_fiat():
             )
 
     articles = data_arry['data']['catalogs'][0]['articles']
-    # if not check_and_update_msg(str(articles[0]['id']),"binance_fliat"):
-    #     print("没有新发布文章")
-    #     return
+    if not check_and_update_msg(str(articles[0]['id']),"binance_fliat"):
+        print("没有新发布文章")
+        return
     n = 0
     for arti in articles:
         id = arti['id']
