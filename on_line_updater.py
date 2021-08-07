@@ -264,7 +264,6 @@ def get_check_anooucement_of_coinbase():
     # print(json_data)
     arti_list = json_data['payload']['references']['Post']
     first_arti_title= str(arti_list.keys())
-    print("最新文章"+first_arti_title+"。。。。。。。。。。。")
     if not check_and_update_msg(first_arti_title,"coinbase"):
         print("没有新发布文章")
         return
@@ -454,7 +453,7 @@ def do_main_thing():
         # get_check_anooucement_of_bittrex()
         get_check_anooucement_of_coinbase()
 
-        print("等待" + str(int(SCAN_NEW_ARTI_INTERVAL_IN_SEC/60))+ "min 再次检查")
+        log("等待" + str(int(SCAN_NEW_ARTI_INTERVAL_IN_SEC/60))+ "min 再次检查")
         time.sleep(SCAN_NEW_ARTI_INTERVAL_IN_SEC)
 
 
@@ -472,7 +471,7 @@ def do_main_thing_indaemon():
             get_check_anooucement_of_ftx()
             get_check_anooucement_of_coinbase()
 
-            print("等待 " + str(SCAN_NEW_ARTI_INTERVAL_IN_SEC / 60) + "min 再次检查")
+            log("等待 " + str(SCAN_NEW_ARTI_INTERVAL_IN_SEC / 60) + "min 再次检查")
             time.sleep(SCAN_NEW_ARTI_INTERVAL_IN_SEC)
 
 
