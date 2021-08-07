@@ -131,14 +131,40 @@ def get_check_anooucement_of_binance():
     # if not check_and_update_msg(str(articles[0]['id']),"binance"):
     #     print("没有新发布文章")
     #     return
+    n = 1
     for arti in articles:
         title =arti['title']
         code = arti['code']
-        log("title:" + title)
+        log("第"+ str(n) +"条消息:")
         coin_name_arr = parse_bian_title(title,code)
         for coin_name in coin_name_arr:
             check_online_list_on_other_exchange(coin_name,"Binance","币安")
+        n = n+1
 
+def get_check_anooucement_of_binance_fiat():
+    print("法币交易")
+    data_arry = get_simple_web_data(
+            base_url=BINANCE_WEB_BASE,
+            http_method="GET",
+            path="/bapi/composite/v1/public/cms/article/list/query",
+            params="type=1&catalogId=50&pageNo=1&pageSize=15",
+            extr_header={'lang': 'zh-CN'}
+            )
+
+    articles = data_arry['data']['catalogs'][0]['articles']
+    # if not check_and_update_msg(str(articles[0]['id']),"binance_fliat"):
+    #     print("没有新发布文章")
+    #     return
+    n = 0
+    for arti in articles:
+        id = arti['id']
+        title =arti['title']
+        code = arti['code']
+        log("第" + str(n) + "条消息:")
+        coin_name_arr = parse_bian_title(title,code)
+        for coin_name in coin_name_arr:
+            check_online_list_on_other_exchange(coin_name,"Binance","币安")
+        n=n+1
 
 
 def get_check_anooucement_of_huobi():
@@ -268,39 +294,47 @@ def get_annance_content_of_bian(code):
 
 
 def parse_bian_title(title:str="",code:str=""):
+    print("消息标题："+title)
     coin_name_arr = []
     if "币安上市" in title or "币安创新区上市" in title:
         index_s = title.find('（')
         index_e = title.find("）")
         coin_name_s =title[index_s+1:index_e]
-        print("货币简写"+coin_name_s)
+        print("提取货币简写"+coin_name_s)
         coin_name_arr.append(coin_name_s)
         return coin_name_arr
 
-    elif "币安新增" in title and "交易对" in title:
+    elif "币安新增" in title and "交易对" in title\
+       or"币安上线" in title and "交易对" in title:
         content=get_annance_content_of_bian(code)
         if "币安将于" in content and "上线" in content:
             index_s = content.find('币安将于')
             index_e = content.find("上线")
             index_ee = content.find("交易对")
-            on_line_date = content[index_s+1:index_e]
-            pairs_str = content[index_e+1:index_ee]
+            on_line_date = content[index_s+4:index_e].strip()
+            pairs_str = content[index_e+2:index_ee].strip()
+            # print("on_line_date: " + on_line_date)
+            # print("pairs_str: "+pairs_str)
             if "USDT" in pairs_str or "BUSD" in pairs_str:
                 pair_grp= pairs_str.split('、')
                 for pair in pair_grp:
                     if pair.find('USDT')>0:
                         index = pair.find('USDT')
                         coin_name_s = pair[0:index-1]
-                        print("货币简写" + coin_name_s)
                         coin_name_arr.append(coin_name_s)
                     elif pair.find('BUSD') > 0:
                         index = pair.find('BUSD')
                         coin_name_s = pair[0:index-1]
-                        print("货币简写" + coin_name_s)
                         coin_name_arr.append(coin_name_s)
+
+        if len(coin_name_arr)!=0:
+            print("提取货币简写" + str(coin_name_arr)+"\n")
+        else:
+            print("没有可交易货币...\n")
         return coin_name_arr
 
     else:
+        print("非上新通知...\n")
         return coin_name_arr
 
 def parse_huobi_title(title:str=""):
@@ -377,6 +411,7 @@ def check_online_list_on_other_exchange(coin_name,prepare_exc,prepare_exc_Chines
                "codes[]=gdax&" #coinbase 标识代码gdax
                "pairs=true"
             )
+    print("检查结果：")
     print("---------------"+coin_name+"-------------------------------")
     on_listed_exch =[]
     for exchange in data_arry['exchanges']:
@@ -389,12 +424,13 @@ def check_online_list_on_other_exchange(coin_name,prepare_exc,prepare_exc_Chines
             "HUSD_" + coin_name in pairs:   ####okex
             print("【"+prepare_exc+"】"+coin_name+"已经在交易所："+ex_name+"上线")
             on_listed_exch.append(ex_name)
-    print("---------------" + coin_name + "-------check_end------------")
-    print("检查结果：")
+    print("---------------" + coin_name + "-------check_end------------\n")
+
     if  prepare_exc not in on_listed_exch:
         print(coin_name +"近期将上线["+prepare_exc_Chinese+"]交易所，目前已经上线该币的交易所有:"+str(on_listed_exch),
           "交易所上新通知")
         if len(on_listed_exch) !=0:
+            log("发送通知邮件..")
             send_email(coin_name + "近期将上线[" + prepare_exc_Chinese + "]交易所，目前已经上线该币的交易所有:" + str(on_listed_exch),
                   "交易所上新通知")
 
@@ -403,6 +439,7 @@ def check_online_list_on_other_exchange(coin_name,prepare_exc,prepare_exc_Chines
 def do_main_thing():
     # while(True):
         get_check_anooucement_of_binance()
+        get_check_anooucement_of_binance_fiat()
         # get_check_anooucement_of_huobi()
         # get_check_anooucement_of_kubi()
         # get_check_anooucement_of_ftx()
@@ -421,6 +458,7 @@ def do_main_thing_indaemon():
     with daemon.DaemonContext(stdout=logfile,stderr=logfile) as context:
         while(True):
             get_check_anooucement_of_binance()
+            get_check_anooucement_of_binance_fiat()
             get_check_anooucement_of_huobi()
             get_check_anooucement_of_kubi()
             get_check_anooucement_of_ftx()
