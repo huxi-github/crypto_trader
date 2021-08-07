@@ -128,6 +128,7 @@ def get_check_anooucement_of_binance():
             )
 
     articles = data_arry['data']['articles']
+    print("最新文章："+str(articles[0]['title']))
     if not check_and_update_msg(str(articles[0]['id']),"binance"):
         print("没有新发布文章")
         return
@@ -148,11 +149,12 @@ def get_check_anooucement_of_binance_fiat():
             base_url=BINANCE_WEB_BASE,
             http_method="GET",
             path="/bapi/composite/v1/public/cms/article/list/query",
-            params="type=1&catalogId=50&pageNo=1&pageSize=15",
+            params="type=1&catalogId=50&pageNo=1&pageSize=3",
             extr_header={'lang': 'zh-CN'}
             )
 
     articles = data_arry['data']['catalogs'][0]['articles']
+    print("最新文章：" + str(articles[0]['title']))
     if not check_and_update_msg(str(articles[0]['id']),"binance_fliat"):
         print("没有新发布文章")
         return
@@ -189,6 +191,7 @@ def get_check_anooucement_of_huobi():
             )
 
     articles = data_arry['data']['list']
+    print("最新文章：" + str(articles[0]['title']))
     if not check_and_update_msg(str(articles[0]['id']),"huobi"):
         print("没有新发布文章")
         return
@@ -210,6 +213,7 @@ def get_check_anooucement_of_kubi():
             params="page=1&pageSize=2&category=listing&lang=zh_CN"
             )
     articles = data_arry['items']
+    print("最新文章：" + str(articles[0]['title']))
     if not check_and_update_msg(str(articles[0]['id']),"kubi"):
         print("没有新发布文章")
         return
@@ -234,7 +238,7 @@ def get_check_anooucement_of_ftx():
             )
     arti_list = html_obj.find('li.article-list-item')
     first_arti_title= arti_list[0].text
-    print("最新文章"+first_arti_title+"。。。。。。。。。。。")
+    print("当前最新文章"+first_arti_title+"。。。。。。。。。。。")
     if not check_and_update_msg(first_arti_title,"ftx"):
         print("没有新发布文章")
         return
