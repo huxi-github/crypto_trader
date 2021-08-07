@@ -128,9 +128,9 @@ def get_check_anooucement_of_binance():
             )
 
     articles = data_arry['data']['articles']
-    # if not check_and_update_msg(str(articles[0]['id']),"binance"):
-    #     print("没有新发布文章")
-    #     return
+    if not check_and_update_msg(str(articles[0]['id']),"binance"):
+        print("没有新发布文章")
+        return
     n = 1
     for arti in articles:
         title =arti['title']
@@ -247,9 +247,9 @@ def get_check_anooucement_of_ftx():
         # log("信息发布时间:" + news_publish_time)
         coin_name = parse_ftx_title(title)
         if coin_name!=" ":
-            check_online_list_on_other_exchange(coin_name,"FTX","FTX")
+            check_online_list_on_other_exchange(coin_name,"FTX","FTX",link)
         chek_num = chek_num +1
-        if chek_num>1:break
+        if chek_num>2:break
 
 #https://medium.com/_/api/collections/c114225aeaf7/stream?to=1628091783718&page=2
 def get_check_anooucement_of_coinbase():
@@ -258,7 +258,7 @@ def get_check_anooucement_of_coinbase():
             base_url="https://medium.com",
             http_method="GET",
             path="/_/api/collections/c114225aeaf7/stream",
-            params="to=1628091783718&page=2"
+            params="to=1628091783718&page=1"
             )
 
     # print(json_data)
@@ -268,7 +268,7 @@ def get_check_anooucement_of_coinbase():
     if not check_and_update_msg(first_arti_title,"coinbase"):
         print("没有新发布文章")
         return
-    chek_num=0
+    n = 1
     for (arti_id,arti) in arti_list.items():
         title = arti['title']
         # print(title)
@@ -277,11 +277,12 @@ def get_check_anooucement_of_coinbase():
     # #     # news_publish_time = arti['publish_at']
     # #
     # #     # log("信息发布时间:" + news_publish_time)
+        log("第" + str(n) + "条消息:")
+        print(title)
         coin_name_arr = parse_coinbase_title(title)
         for coin_name in coin_name_arr:
             check_online_list_on_other_exchange(coin_name,"Coinbase Pro (GDAX)","coinbase")
-        # chek_num = chek_num +1
-        # if chek_num>3:break
+        n = n +1
 
 
 def get_annance_content_of_bian(code):
@@ -427,7 +428,7 @@ def check_online_list_on_other_exchange(coin_name,prepare_exc,prepare_exc_Chines
             on_listed_exch.append(ex_name)
     print("-----------------"+coin_name+"-------check_end--------------")
 
-    if  prepare_exc in on_listed_exch:
+    if prepare_exc in on_listed_exch:
         print("已经在本交易所上线，不发送通知\n")
         return 
         
@@ -445,19 +446,21 @@ def do_main_thing():
     # while(True):
         get_check_anooucement_of_binance()
         get_check_anooucement_of_binance_fiat()
-        # get_check_anooucement_of_huobi()
-        # get_check_anooucement_of_kubi()
-        # get_check_anooucement_of_ftx()
-        # # get_check_anooucement_of_okcoin()
-        # # get_check_anooucement_of_gate_io()
-        # # get_check_anooucement_of_bittrex()
-        # get_check_anooucement_of_coinbase()
-        # time.sleep(SCAN_NEW_ARTI_INTERVAL_IN_SEC)
+        get_check_anooucement_of_huobi()
+        get_check_anooucement_of_kubi()
+        get_check_anooucement_of_ftx()
+        # get_check_anooucement_of_okcoin()
+        # get_check_anooucement_of_gate_io()
+        # get_check_anooucement_of_bittrex()
+        get_check_anooucement_of_coinbase()
 
-def do_main_thing_indaemon():
+        print("等待" + str(int(SCAN_NEW_ARTI_INTERVAL_IN_SEC/60))+ "min 再次检查")
+        time.sleep(SCAN_NEW_ARTI_INTERVAL_IN_SEC)
+
+
 # 2.后台进程版本 ，linux服务器上，跑所需要的
 #参考https://www.codenong.com/13106221/
-
+def do_main_thing_indaemon():
 # pid_f = "/root/daemon_on_line_updater.pid"
     logfile = open('/root/daemon.log', 'w')
     with daemon.DaemonContext(stdout=logfile,stderr=logfile) as context:
@@ -468,6 +471,8 @@ def do_main_thing_indaemon():
             get_check_anooucement_of_kubi()
             get_check_anooucement_of_ftx()
             get_check_anooucement_of_coinbase()
+
+            print("等待 " + str(SCAN_NEW_ARTI_INTERVAL_IN_SEC / 60) + "min 再次检查")
             time.sleep(SCAN_NEW_ARTI_INTERVAL_IN_SEC)
 
 
