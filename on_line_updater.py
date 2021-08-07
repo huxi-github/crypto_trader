@@ -425,16 +425,19 @@ def check_online_list_on_other_exchange(coin_name,prepare_exc,prepare_exc_Chines
             "HUSD_" + coin_name in pairs:   ####okex
             print("【"+prepare_exc+"】"+coin_name+"已经在交易所："+ex_name+"上线")
             on_listed_exch.append(ex_name)
-    print("---------------" + coin_name + "-------check_end------------\n")
+    print("-----------------"+coin_name+"-------check_end--------------")
 
-    if  prepare_exc not in on_listed_exch:
-        print(coin_name +"近期将上线["+prepare_exc_Chinese+"]交易所，目前已经上线该币的交易所有:"
-             +str(on_listed_exch)+"\n通知链接 "+link,
-          "交易所上新通知")
-        log("发送通知邮件..")
-        send_email(coin_name + "近期将上线[" + prepare_exc_Chinese + "]交易所，目前已经上线该币的交易所有:"
-                   + str(on_listed_exch)+"\n通知链接 "+link,
-                  "交易所上新通知")
+    if  prepare_exc in on_listed_exch:
+        print("已经在本交易所上线，不发送通知\n")
+        return 
+        
+    print(coin_name +"近期将上线["+prepare_exc_Chinese+"]交易所，目前已经上线该币的交易所有:"
+         +str(on_listed_exch)+"\n通知链接 "+link,
+      "交易所上新通知")
+    log("发送通知邮件..")
+    send_email(coin_name + "近期将上线[" + prepare_exc_Chinese + "]交易所，目前已经上线该币的交易所有:"
+               + str(on_listed_exch)+"\n通知链接 "+link,
+              "交易所上新通知")
 
 
 #前台进程版本  （日志打印在控制台）
