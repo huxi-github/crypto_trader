@@ -135,10 +135,11 @@ def get_check_anooucement_of_binance():
     for arti in articles:
         title =arti['title']
         code = arti['code']
+        link = BINANCE_WEB_BASE + "/zh-CN/support/announcement/" + code
         log("第"+ str(n) +"条消息:")
         coin_name_arr = parse_bian_title(title,code)
         for coin_name in coin_name_arr:
-            check_online_list_on_other_exchange(coin_name,"Binance","币安")
+            check_online_list_on_other_exchange(coin_name,"Binance","币安",link)
         n = n+1
 
 def get_check_anooucement_of_binance_fiat():
@@ -160,10 +161,11 @@ def get_check_anooucement_of_binance_fiat():
         id = arti['id']
         title =arti['title']
         code = arti['code']
+        link =BINANCE_WEB_BASE+"/zh-CN/support/announcement/"+code
         log("第" + str(n) + "条消息:")
         coin_name_arr = parse_bian_title(title,code)
         for coin_name in coin_name_arr:
-            check_online_list_on_other_exchange(coin_name,"Binance","币安")
+            check_online_list_on_other_exchange(coin_name,"Binance","币安",link)
         n=n+1
 
 
@@ -342,9 +344,8 @@ def parse_huobi_title(title:str=""):
         index_s = title.find("上线新币")
         index_e = title.find('（')
         if index_e ==-1 :
-            index_e = title.find('(')
-
-        coin_name_s =title[index_s+4:index_e]
+            return " "
+        coin_name_s =title[index_s+len("上线新币"):index_e]
         print("货币简写"+coin_name_s)
         return coin_name_s
     else:
@@ -393,7 +394,7 @@ def parse_coinbase_title(title:str=""):
     else:
         return []
 
-def check_online_list_on_other_exchange(coin_name,prepare_exc,prepare_exc_Chinese):
+def check_online_list_on_other_exchange(coin_name,prepare_exc,prepare_exc_Chinese,link:str=""):
     # print("检查其他交易所上线情况")
     #deal excpetion
     if coin_name=="SHIB":
@@ -427,11 +428,12 @@ def check_online_list_on_other_exchange(coin_name,prepare_exc,prepare_exc_Chines
     print("---------------" + coin_name + "-------check_end------------\n")
 
     if  prepare_exc not in on_listed_exch:
-        print(coin_name +"近期将上线["+prepare_exc_Chinese+"]交易所，目前已经上线该币的交易所有:"+str(on_listed_exch),
+        print(coin_name +"近期将上线["+prepare_exc_Chinese+"]交易所，目前已经上线该币的交易所有:"
+             +str(on_listed_exch)+"\n通知链接 "+link,
           "交易所上新通知")
-        if len(on_listed_exch) !=0:
-            log("发送通知邮件..")
-            send_email(coin_name + "近期将上线[" + prepare_exc_Chinese + "]交易所，目前已经上线该币的交易所有:" + str(on_listed_exch),
+        log("发送通知邮件..")
+        send_email(coin_name + "近期将上线[" + prepare_exc_Chinese + "]交易所，目前已经上线该币的交易所有:"
+                   + str(on_listed_exch)+"\n通知链接 "+link,
                   "交易所上新通知")
 
 
