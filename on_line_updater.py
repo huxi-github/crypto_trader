@@ -255,6 +255,34 @@ def get_check_anooucement_of_ftx():
         chek_num = chek_num +1
         if chek_num>2:break
 
+#https://www.okex.com/support/hc/zh-cn/sections/115000447632-%E6%96%B0%E5%B8%81%E4%B8%8A%E7%BA%BF
+def get_check_anooucement_of_okcoin():
+    print("获取okcoin交易所通知————————————————————————————————————")
+    html_obj = get_simple_web_html(
+            base_url="https://www.okex.com",
+            http_method="GET",
+            path="/support/hc/zh-cn/sections/115000447632-%E6%96%B0%E5%B8%81%E4%B8%8A%E7%BA%BF",
+            )
+    arti_list = html_obj.find('li.article-list-item')
+    first_arti_title= arti_list[0].text
+    print("当前最新文章"+first_arti_title)
+    if not check_and_update_msg(first_arti_title,"okcoin"):
+        print("没有新发布文章")
+        return
+    print()
+    chek_num=0
+    for arti in arti_list:
+        title = arti.text
+        link=arti.url
+        # news_publish_time = arti['publish_at']
+
+        # log("信息发布时间:" + news_publish_time)
+        coin_name = parse_okcoin_title(title)
+        if coin_name!=" ":
+            check_online_list_on_other_exchange(coin_name,"OKEx","ok交易所",link)
+        chek_num = chek_num +1
+        if chek_num>2:break
+
 #https://medium.com/_/api/collections/c114225aeaf7/stream?to=1628091783718&page=2
 def get_check_anooucement_of_coinbase():
     print("获取coinbase交易所通知————————————————————————————————————")
@@ -380,6 +408,20 @@ def parse_ftx_title(title:str=""):
     else:
         return " "
 
+def parse_okcoin_title(title: str = ""):
+    print("消息标题：" + title)
+    if "欧易OKEx上线" in title:
+        index_s = title.find('(')
+        index_e = title.find(")")
+        if index_s == -1 or index_e == -1:
+            return " "
+        coin_name_s = title[index_s + 1:index_e]
+        print("货币简写" + coin_name_s)
+        return coin_name_s
+    else:
+        return " "
+
+
 def parse_coinbase_title(title:str=""):
     if "launching on Coinbase" in title:
         coin_name_arr =[]
@@ -452,7 +494,7 @@ def do_main_thing():
         get_check_anooucement_of_huobi()
         get_check_anooucement_of_kubi()
         get_check_anooucement_of_ftx()
-        # get_check_anooucement_of_okcoin()
+        get_check_anooucement_of_okcoin()
         # get_check_anooucement_of_gate_io()
         # get_check_anooucement_of_bittrex()
         get_check_anooucement_of_coinbase()
@@ -473,6 +515,7 @@ def do_main_thing_indaemon():
             get_check_anooucement_of_huobi()
             get_check_anooucement_of_kubi()
             get_check_anooucement_of_ftx()
+            get_check_anooucement_of_okcoin()
             get_check_anooucement_of_coinbase()
 
             log("等待 " + str(SCAN_NEW_ARTI_INTERVAL_IN_SEC / 60) + "min 再次检查")
