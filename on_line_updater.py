@@ -48,7 +48,7 @@ def get_simple_web_data(base_url:str,http_method: str, path: str, payload: any =
             response.raise_for_status()  # 如果响应状态码不是 200，就主动抛出异常
         except requests.RequestException as e:
             log("服务器超时重连4次失败:" + requrll + "错误:"+str(e))
-            send_email("服务器超时重连3次失败:" + requrll + "错误:"+ str(e))
+            send_email("服务器超时重连3次失败:" + requrll + "错误:"+ str(e),"新闻服务器网络问题")
             log("等待 10s ...重连... ")
             time.sleep(10)
             not_get_respon =True
@@ -66,7 +66,7 @@ def get_simple_web_data(base_url:str,http_method: str, path: str, payload: any =
             log("requrll:" + requrll)
             log("resp:" + response.text)
             log("解析出错" + str(e1))
-            send_email("解析出错" + response.text)
+            send_email("解析出错" + response.text,"新闻服务器网络问题")
             log("等待 5s ...重连... ")
             time.sleep(5)
             not_get_respon =True
@@ -107,7 +107,7 @@ def get_simple_web_html(base_url:str,http_method: str, path: str, payload: any =
             response.raise_for_status()  # 如果响应状态码不是 200，就主动抛出异常
         except requests.RequestException as e:
             log("服务器超时重连4次失败:" + requrll + "错误:"+str(e))
-            send_email("服务器超时重连3次失败:" + requrll + "错误:"+ str(e))
+            send_email("新闻服务器超时重连3次失败:" + requrll + "错误:"+ str(e),"新闻服务器网络问题")
             log("等待 10s ...重连... ")
             time.sleep(10)
             # goto .begin
@@ -160,7 +160,6 @@ def get_check_anooucement_of_binance_fiat():
         return
     n = 0
     for arti in articles:
-        id = arti['id']
         title =arti['title']
         code = arti['code']
         link =BINANCE_WEB_BASE+"/zh-CN/support/announcement/"+code
