@@ -1,4 +1,4 @@
-
+import sys
 import time
 import requests
 import json
@@ -523,8 +523,10 @@ def do_main_thing_indaemon():
 
 #前台进程版本  （日志打印在控制台）
 if __name__ == '__main__':
-    do_main_thing()
-    # do_main_thing_indaemon()
+    if sys.platform=='linux':
+        do_main_thing_indaemon()
+    else:
+        do_main_thing()
 
 
 
