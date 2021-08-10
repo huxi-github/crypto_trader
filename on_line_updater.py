@@ -220,13 +220,11 @@ def get_check_anooucement_of_kubi():
         # id = arti['id']
         title =arti['title']
         news_publish_time = arti['publish_at']
-
-        # log("id:"+str(id))
-        # log("title:" + title)
+        link = "https://www.kucoin.com/news/"+arti['path']
         log("信息发布时间:" + news_publish_time)
         coin_name = parse_kubi_title(title)
         if coin_name!=" ":
-            check_online_list_on_other_exchange(coin_name,"KuCoin","库币")
+            check_online_list_on_other_exchange(coin_name,"KuCoin","库币",link)
 #https://help.ftx.com/hc/zh-cn/sections/360007186612-%E4%B8%8A%E6%96%B0%E5%85%AC%E5%91%8A
 def get_check_anooucement_of_ftx():
     print("获取FTX交易所通知————————————————————————————————————")
@@ -330,11 +328,13 @@ def parse_bian_title(title:str="",code:str=""):
     print("消息标题："+title)
     coin_name_arr = []
     if "币安上市" in title or "币安创新区上市" in title:
-        index_s = title.find('（')
-        index_e = title.find("）")
-        coin_name_s =title[index_s+1:index_e]
-        print("提取货币简写"+coin_name_s)
-        coin_name_arr.append(coin_name_s)
+        index_e =0 #第一次从开头查找
+        while title.find('（',index_e+1)!=-1:
+            index_s = title.find('（',index_e+1)
+            index_e = title.find("）",index_e+1)
+            coin_name_s =title[index_s+1:index_e]
+            print("提取货币简写"+coin_name_s)
+            coin_name_arr.append(coin_name_s)
         return coin_name_arr
 
     elif "币安新增" in title and "交易对" in title\
