@@ -24,7 +24,7 @@ def log(msg:str="kong msg"): #level:LOG_LEVEL=LOG_LEVEL.INFO,
     time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     print("[" + time + "]:\n" + msg)
     # print(msg)
-    # file.write("[" + time + "][d]:"+ msg + "\n")
+    file.write("[" + time + "][d]:"+ msg + "\n")
     file.close()
 
 def warn(msg:str="kong warning msg"):
@@ -83,7 +83,8 @@ def check_and_update_msg(msg_id:str="kong msg",exc_name:str=""):
     last_msg_id = file.readline()
     print("读取消息id" +last_msg_id)
     if last_msg_id != msg_id:
-        file.seek(0,0)
+        file = open(path + '/' + exc_name + "_new_msg_id.txt", "w+") #重新创建一个同名空文件覆盖，写入，相当于删除了旧消息
+        # file.seek(0,0)
         file.write(str(msg_id))
         file.close()
         return True
