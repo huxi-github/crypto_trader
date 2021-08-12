@@ -1,5 +1,6 @@
 # coding: utf-8
 
+from playsound import playsound
 import datetime
 import os
 from pathlib import Path
@@ -7,6 +8,8 @@ import sys
 from email.mime.text import MIMEText
 from email.header import Header
 from smtplib import SMTP_SSL
+# 语音播报模块
+import pyttsx3
 
 from enum import Enum
 
@@ -31,6 +34,22 @@ def log(msg:str="kong msg"): #level:LOG_LEVEL=LOG_LEVEL.INFO,
     print("[" + time + "]:\n" + msg)
     # print(msg)
     # file.write("[" + time + "][d]:"+ msg + "\n") #暂时不用这个文件
+    file.close()
+
+#//记录日志,指定文件
+def log_to_file(msg:str="kong msg",file_name:str="aaa"):
+    pre_path = "log"
+    if sys.platform=='linux':
+        pre_path = "/root"
+    log_f_path = pre_path+'/'+file_name+".txt" #全路径
+    if not os.path.exists(log_f_path):
+        print("新文件,创建"+log_f_path)
+        file = open(log_f_path, "a+") #1.没有则创建 2.追加写入
+    else:
+        file = open(log_f_path, "a")  # 1.读写,追加
+    time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    print("写入日志[" + time + "]:\n" + msg)
+    file.write("[" + time + "][I]:"+ msg + "\n") #暂此方法需要写入文件
     file.close()
 
 def warn(msg:str="kong warning msg"):
@@ -97,6 +116,27 @@ def check_and_update_msg(msg_id:str="kong msg",exc_name:str=""):
     else:
         return False
 
+def read_news_title_with_speaker(texts:str="测试文本"):
+    # 模块初始化
+    engine = pyttsx3.init()
+    rate = engine.getProperty('rate')
+    print(rate)
+    engine.setProperty('rate', rate - 50)
+    # 设置发音大小，范围为0.0-1.0
+    volume = engine.getProperty('volume')
+    engine.setProperty('volume', 0.7)
+    # 男生普通话发音
+    engine.setProperty(
+        'voice', "com.apple.speech.synthesis.voice.ting-ting.premium")
+    playsound('alert.mp3')
+    # 添加朗读文本
+    engine.say(texts)
+    # 等待语音播报完毕
+    engine.runAndWait()
+
+
 if __name__ == '__main__':
-    send_email(" 尝试启动 交易对 BUSD_TLM ")
+    # send_email(" 尝试启动 交易对 BUSD_TLM ")
+    read_news_title_with_speaker("test")
+    log_to_file("新币上线","lastest_news_bbb")
 
