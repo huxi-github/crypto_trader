@@ -2,6 +2,7 @@
 
 import datetime
 import os
+from pathlib import Path
 import sys
 from email.mime.text import MIMEText
 from email.header import Header
@@ -17,14 +18,19 @@ from enum import Enum
 
 
 def log(msg:str="kong msg"): #level:LOG_LEVEL=LOG_LEVEL.INFO,
-    path = ""
+    path = "log/"
     if sys.platform=='linux':
         path = "/root/"
-    file = open(path+"altcoin_trend_rank.txt", "w+")
+    path_log = Path(path+"altcoin_trend_rank.txt")
+    if not path_log.exists():
+        print("第一次执行，创建日志文件..")
+        file = open(path+"altcoin_trend_rank.txt", "a+") #1.没有则创建 2.追加写入
+    else:
+        file = open(path + "altcoin_trend_rank.txt", "a")  # 1.读写,追加
     time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     print("[" + time + "]:\n" + msg)
     # print(msg)
-    file.write("[" + time + "][d]:"+ msg + "\n")
+    # file.write("[" + time + "][d]:"+ msg + "\n") #暂时不用这个文件
     file.close()
 
 def warn(msg:str="kong warning msg"):

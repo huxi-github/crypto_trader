@@ -506,7 +506,9 @@ def do_main_thing():
 #参考https://www.codenong.com/13106221/
 def do_main_thing_indaemon():
 # pid_f = "/root/daemon_on_line_updater.pid"
-    logfile = open('/root/daemon.log', 'w')
+    cur_time = datetime.datetime.now().strftime("%Y%m%d_%H_%M_%S")
+    log_file_path ="/root/daemon_"+cur_time+".log"
+    logfile = open(log_file_path, 'w')
     with daemon.DaemonContext(stdout=logfile,stderr=logfile) as context:
         while(True):
             get_check_anooucement_of_binance()
