@@ -242,13 +242,13 @@ def get_check_anooucement_of_ftx():
     chek_num=0
     for arti in arti_list:
         title = arti.text
-        link=arti.absolute_links
+        # link=arti.absolute_links
         # news_publish_time = arti['publish_at']
 
         # log("信息发布时间:" + news_publish_time)
         coin_name = parse_ftx_title(title)
         if coin_name!=" ":
-            check_online_list_on_other_exchange(coin_name,"FTX","FTX",link)
+            check_online_list_on_other_exchange(coin_name,"FTX","FTX")
         chek_num = chek_num +1
         if chek_num>2:break
 
