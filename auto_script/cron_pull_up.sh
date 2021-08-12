@@ -1,5 +1,6 @@
 #!/bin/sh
 
+# for test_api.py
 NUM0=`ps -ef | grep -i 'test_api.py' | grep -v "grep" | wc -l`  #查看程序进程是否存活，结果为0为不存活，非0为存活
 
 if [ $NUM0 -eq 0 ]; then
@@ -10,4 +11,3 @@ if [ $NUM0 -eq 0 ]; then
 else
     echo "test_api.py already running"
 fi
-echo
