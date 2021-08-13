@@ -3,6 +3,8 @@ import sys
 import time
 import requests
 import json
+
+from playsound import playsound
 from requests.adapters import HTTPAdapter
 from util import log ,send_email,check_and_update_msg,read_news_title_with_speaker
 from requests_html import HTMLSession
@@ -286,22 +288,21 @@ def get_check_anooucement_of_okcoin():
 #https://medium.com/_/api/collections/c114225aeaf7/stream?to=1628091783718&page=2
 def get_check_anooucement_of_coinbase():
     print("获取coinbase交易所通知————————————————————————————————————")
-    json_data = get_simple_web_data(
-            base_url="https://medium.com",
-            http_method="GET",
-            path="/_/api/collections/c114225aeaf7/stream",
-            params="to=1628091783718&page=1"
+    html_obj = get_simple_web_html(
+            base_url="https://blog.coinbase.com",
+             http_method="GET",
+            path="/institutional-pro/home"
             )
+    arti_list = html_obj.find('div.u-letterSpacingTight.u-lineHeightTighter.u-breakWord.u-textOverflowEllipsis.u-lineClamp4.u-fontSize30.u-size12of12.u-xs-size12of12.u-xs-fontSize24')
+    first_arti_title= arti_list[0].text
+    print("当前最新文章"+first_arti_title+"。。。。。。。。。。。")
 
-    # print(json_data)
-    arti_list = json_data['payload']['references']['Post']
-    first_arti_title= str(arti_list.keys())
     if not check_and_update_msg(first_arti_title,"coinbase"):
         print("没有新发布文章")
         return
     n = 1
-    for (arti_id,arti) in arti_list.items():
-        title = arti['title']
+    for arti in arti_list:
+        title = arti.text
         # print(title)
         # print(arti_id)
         # log("信息发布时间:" + news_publish_time)
@@ -422,7 +423,7 @@ def parse_okcoin_title(title: str = ""):
 
 
 def parse_coinbase_title(title:str=""):
-    if "launching on Coinbase" in title:
+    if "launching on Coinbase" in title:#不是avaiible
         coin_name_arr =[]
         index_e =0
         while index_e!=-1:
@@ -484,13 +485,14 @@ def check_online_list_on_other_exchange(coin_name,prepare_exc,prepare_exc_Chines
                + str(on_listed_exch)+"\n通知链接 "+link,
               "交易所上新通知")
     log("朗读上币新闻标题..")
-    read_news_title_with_speaker(prepare_exc_Chinese+"新闻"+coin_name+"近期将上线"+prepare_exc_Chinese+"交易所，目前已经上线该币的交易所有:"
+    playsound('alert.mp3')
+    read_news_title_with_speaker(prepare_exc_Chinese + "上线新闻。。"+"数字货币 ("+coin_name+")近期将上线"+prepare_exc_Chinese+"交易所，目前已经上线该币的交易所有:"
                + str(on_listed_exch))
 
 
 #前台进程版本  （日志打印在控制台）
 def do_main_thing():
-    # while(True):
+    # while(True):#cron脚本里面 保证 5min在执行
         get_check_anooucement_of_binance()
         get_check_anooucement_of_binance_fiat()
         get_check_anooucement_of_huobi()
@@ -502,7 +504,7 @@ def do_main_thing():
         get_check_anooucement_of_coinbase()
 
         log("等待" + str(int(SCAN_NEW_ARTI_INTERVAL_IN_SEC/60))+ "min 再次检查")
-        time.sleep(SCAN_NEW_ARTI_INTERVAL_IN_SEC)
+        # time.sleep(SCAN_NEW_ARTI_INTERVAL_IN_SEC)
 
 
 # 2.后台进程版本 ，linux服务器上，跑所需要的
