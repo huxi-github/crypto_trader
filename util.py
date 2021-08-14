@@ -128,7 +128,6 @@ def read_news_title_with_speaker(texts:str="测试文本"):
     # 男生普通话发音
     engine.setProperty(
         'voice', "com.apple.speech.synthesis.voice.ting-ting.premium")
-    playsound('alert.mp3')
     # 添加朗读文本
     engine.say(texts)
     # 等待语音播报完毕
@@ -136,7 +135,7 @@ def read_news_title_with_speaker(texts:str="测试文本"):
 
 
 if __name__ == '__main__':
-    # send_email(" 尝试启动 交易对 BUSD_TLM ")
-    read_news_title_with_speaker("test")
-    log_to_file("新币上线","lastest_news_bbb")
+    send_email(" 尝试启动 交易对 BUSD_TLM ")
+    # read_news_title_with_speaker("test")
+    # log_to_file("新币上线","lastest_news_bbb")
 

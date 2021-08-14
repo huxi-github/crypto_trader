@@ -1,4 +1,5 @@
 import datetime
+import os
 import sys
 import time
 import requests
@@ -11,6 +12,8 @@ from requests_html import HTMLSession
 from bs4 import BeautifulSoup
 import daemon
 from daemon import pidfile
+from config import *
+from p3comas_bot_util import update_pair_of_line_bot
 
 
 SCAN_NEW_ARTI_INTERVAL_IN_SEC =60*5
@@ -135,16 +138,19 @@ def get_check_anooucement_of_binance():
     if not check_and_update_msg(str(articles[0]['id']),"binance"):
         print("没有新发布文章")
         return
-    n = 1
     for arti in articles:
         title =arti['title']
         code = arti['code']
         link = BINANCE_WEB_BASE + "/zh-CN/support/announcement/" + code
-        log("第"+ str(n) +"条消息:")
-        coin_name_arr = parse_bian_title(title,code)
+        # log("第"+ str(n) +"条消息:")
+        pair_map = {}
+        coin_name_arr = parse_bian_title(title, code, pair_map)
+        n = 0
         for coin_name in coin_name_arr:
+            if  bool(pair_map): #  币币交易的信息需要区分
+                creat_new_on_line_deal_of_dca_bot(coin_name, pair_map,n)
             check_online_list_on_other_exchange(coin_name,"Binance","币安",link)
-        n = n+1
+            n = n + 1
         if 1:break
 
 def get_check_anooucement_of_binance_fiat():
@@ -162,17 +168,31 @@ def get_check_anooucement_of_binance_fiat():
     if not check_and_update_msg(str(articles[0]['id']),"binance_fliat"):
         print("没有新发布文章")
         return
-    n = 0
     for arti in articles:
         title =arti['title']
         code = arti['code']
         link =BINANCE_WEB_BASE+"/zh-CN/support/announcement/"+code
-        log("第" + str(n) + "条消息:")
-        coin_name_arr = parse_bian_title(title,code)
+        pair_map ={}
+        coin_name_arr = parse_bian_title(title,code,pair_map)
+        n = 0
         for coin_name in coin_name_arr:
+            creat_new_on_line_deal_of_dca_bot(coin_name, pair_map,n)
             check_online_list_on_other_exchange(coin_name,"Binance","币安",link)
-        n=n+1
+            n = n + 1
+
         if 1:break
+
+def creat_new_on_line_deal_of_dca_bot(coin_name:str='',pair_map:dict={},num:int=0):
+
+    if num >=2: #目前只准备了两个机器人
+        return
+    quote=pair_map[coin_name]
+    pair_name = quote+'_'+coin_name
+    on_line_deal_bot_id = NEW_ON_LINE_BOT_IDS[num]
+    update_pair_of_line_bot(pair_name,on_line_deal_bot_id)
+    log("成功创建上线机器人订单，等待确认入场")
+    read_news_title_with_speaker("币安上新,成功创建交易对"+pair_name+"机器人订单，等待确认入场")
+    os.system(OPEN_ONLINE_DEAL_URL_CMDS[num])
 
 
 def get_check_anooucement_of_huobi():
@@ -330,8 +350,8 @@ def get_annance_content_of_bian(code):
     print("消息内容:"+arti_content.text)
     return arti_content.text
 
-
-def parse_bian_title(title:str="",code:str=""):
+#code 作用是访问，新闻的实际连接，获取新闻内容
+def parse_bian_title(title:str="",code:str="",pair_dic:dict={}):
     print("消息标题："+title)
     coin_name_arr = []
     if "币安上市" in title or "币安创新区上市" in title:
@@ -360,10 +380,12 @@ def parse_bian_title(title:str="",code:str=""):
                         index = pair.find('USDT')
                         coin_name_s = pair[0:index-1]
                         coin_name_arr.append(coin_name_s)
+                        pair_dic[coin_name_s]='BUSD'  #反向的
                     elif pair.find('BUSD') > 0:
                         index = pair.find('BUSD')
                         coin_name_s = pair[0:index-1]
                         coin_name_arr.append(coin_name_s)
+                        pair_dic[coin_name_s]='USDT'
 
         if len(coin_name_arr)!=0:
             print("提取货币简写" + str(coin_name_arr)+"\n")
@@ -506,7 +528,6 @@ def check_online_list_on_other_exchange(coin_name,prepare_exc,prepare_exc_Chines
 
 #前台进程版本  （日志打印在控制台）
 def do_main_thing():
-    # while(True):#cron脚本里面 保证 5min在执行
         get_check_anooucement_of_binance()
         get_check_anooucement_of_binance_fiat()
         get_check_anooucement_of_huobi()
@@ -518,7 +539,6 @@ def do_main_thing():
         get_check_anooucement_of_coinbase()
 
         log("等待" + str(int(SCAN_NEW_ARTI_INTERVAL_IN_SEC/60))+ "min 再次检查")
-        # time.sleep(SCAN_NEW_ARTI_INTERVAL_IN_SEC)
 
 
 # 2.后台进程版本 ，linux服务器上，跑所需要的
