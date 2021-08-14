@@ -145,7 +145,7 @@ def get_check_anooucement_of_binance():
         for coin_name in coin_name_arr:
             check_online_list_on_other_exchange(coin_name,"Binance","币安",link)
         n = n+1
-        if n>3 :break
+        if 1:break
 
 def get_check_anooucement_of_binance_fiat():
     print("法币交易")
@@ -172,7 +172,7 @@ def get_check_anooucement_of_binance_fiat():
         for coin_name in coin_name_arr:
             check_online_list_on_other_exchange(coin_name,"Binance","币安",link)
         n=n+1
-        if n > 3: break
+        if 1:break
 
 
 def get_check_anooucement_of_huobi():
@@ -199,6 +199,7 @@ def get_check_anooucement_of_huobi():
     if not check_and_update_msg(str(articles[0]['id']),"huobi"):
         print("没有新发布文章")
         return
+    num=1
     for arti in articles:
         # id = arti['id']
         title =arti['title']
@@ -207,6 +208,8 @@ def get_check_anooucement_of_huobi():
         coin_name = parse_huobi_title(title)
         if coin_name!=" ":
             check_online_list_on_other_exchange(coin_name,"Huobi","火币")
+        num = num+1
+        if 1:break
 
 def get_check_anooucement_of_kubi():
     print("获取库币交易所通知————————————————————————————————————")
@@ -230,6 +233,7 @@ def get_check_anooucement_of_kubi():
         coin_name = parse_kubi_title(title)
         if coin_name!=" ":
             check_online_list_on_other_exchange(coin_name,"KuCoin","库币",link)
+        if 1:break
 #https://help.ftx.com/hc/zh-cn/sections/360007186612-%E4%B8%8A%E6%96%B0%E5%85%AC%E5%91%8A
 def get_check_anooucement_of_ftx():
     print("获取FTX交易所通知————————————————————————————————————")
@@ -255,7 +259,7 @@ def get_check_anooucement_of_ftx():
         if coin_name!=" ":
             check_online_list_on_other_exchange(coin_name,"FTX","FTX")
         chek_num = chek_num +1
-        if chek_num>2:break
+        if 1:break
 
 #https://www.okex.com/support/hc/zh-cn/sections/115000447632-%E6%96%B0%E5%B8%81%E4%B8%8A%E7%BA%BF
 def get_check_anooucement_of_okcoin():
@@ -283,7 +287,7 @@ def get_check_anooucement_of_okcoin():
         if coin_name!=" ":
             check_online_list_on_other_exchange(coin_name,"OKEx","ok交易所",link)
         chek_num = chek_num +1
-        if chek_num>2:break
+        if 1:break
 
 #https://medium.com/_/api/collections/c114225aeaf7/stream?to=1628091783718&page=2
 def get_check_anooucement_of_coinbase():
