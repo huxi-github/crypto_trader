@@ -212,12 +212,12 @@ def get_check_anooucement_of_huobi():
         if 1:break
 
 def get_check_anooucement_of_kubi():
-    print("获取库币交易所通知————————————————————————————————————")
+    print("获取库币交易所新闻消息————————————————————————————————————")
     data_arry = get_simple_web_data(
             base_url="https://www.kucoin.com",
             http_method="GET",
             path="/_api/cms/articles",
-            params="page=1&pageSize=1&category=listing&lang=zh_CN"
+            params="page=1&pageSize=1&lang=zh_CN"#去掉 过滤参数 category,包含所有消息 new_list/new_pair
             )
     articles = data_arry['items']
     print("最新文章：" + str(articles[0]['title']))
@@ -233,7 +233,7 @@ def get_check_anooucement_of_kubi():
         coin_name = parse_kubi_title(title)
         if coin_name!=" ":
             check_online_list_on_other_exchange(coin_name,"KuCoin","库币",link)
-        if 1:break
+        if 1:break  #依然只读最新一条
 #https://help.ftx.com/hc/zh-cn/sections/360007186612-%E4%B8%8A%E6%96%B0%E5%85%AC%E5%91%8A
 def get_check_anooucement_of_ftx():
     print("获取FTX交易所通知————————————————————————————————————")
@@ -394,6 +394,16 @@ def parse_kubi_title(title:str=""):
         if index_s == -1 or index_e == -1:
             return " "
         coin_name_s =title[index_s+1:index_e]
+        print("货币简写"+coin_name_s)
+        return coin_name_s
+    elif "KuCoin即将上线" in title\
+            and "交易对"  in title:
+        index_s = title.find('KuCoin即将上线')
+        index_e = title.find("交易对")
+        pair_name =title[index_s+len("KuCoin即将上线"):index_e]
+        print("交易对简写"+pair_name)
+        sep = pair_name.find('/')
+        coin_name_s = pair_name[0:sep]
         print("货币简写"+coin_name_s)
         return coin_name_s
     else:
