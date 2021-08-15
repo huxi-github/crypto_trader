@@ -522,7 +522,7 @@ def check_online_list_on_other_exchange(coin_name,prepare_exc,prepare_exc_Chines
               "交易所上新通知")
     log("朗读上币新闻标题..")
     playsound('alert.mp3')
-    read_news_title_with_speaker(prepare_exc_Chinese + "上线新闻。。"+"数字货币 ("+coin_name+")近期将上线"+prepare_exc_Chinese+"交易所，目前已经上线该币的交易所有:"
+    read_news_title_with_speaker(prepare_exc_Chinese + "上线新闻。。"+"数字货币 ("+list(coin_name)+")近期将上线"+prepare_exc_Chinese+"交易所，目前已经上线该币的交易所有:"
                + str(on_listed_exch))
 
 
