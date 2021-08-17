@@ -7,7 +7,7 @@ import json
 
 from playsound import playsound
 from requests.adapters import HTTPAdapter
-from util import log ,send_email,check_and_update_msg,read_news_title_with_speaker
+from util import log, send_email, check_and_update_msg, read_news_title_with_speaker, exch_to_chinese
 from requests_html import HTMLSession
 from bs4 import BeautifulSoup
 import daemon
@@ -508,11 +508,22 @@ def check_online_list_on_other_exchange(coin_name,prepare_exc,prepare_exc_Chines
             print("【"+prepare_exc+"】"+coin_name+"已经在交易所："+ex_name+"上线")
             on_listed_exch.append(ex_name)
     print("-----------------"+coin_name+"-------check_end--------------")
+    on_listed_exch_CN =[]
+    for ch_name_en in on_listed_exch:
+        if not on_listed_exch_CN == '':
+            on_listed_exch_CN.append(exch_to_chinese(ch_name_en))
+
 
     # if prepare_exc in on_listed_exch:
     #     print("已经在本交易所上线，不发送通知\n")
         # return
 
+    if prepare_exc=="Coinbase Pro (GDAX)" and \
+          "Binance" in on_listed_exch:
+        print("coin_base上线新币 在币安创建上市消息订单")
+        read_news_title_with_speaker("coin_base上线新币, 在币安创建"+str(list(coin_name))+"订单")
+        creat_new_on_line_deal_of_dca_bot(coin_name, {coin_name:'BUSD'},0)
+        
     print(coin_name +"近期将上线["+prepare_exc_Chinese+"]交易所，目前已经上线该币的交易所有:"
          +str(on_listed_exch)+"\n通知链接 "+link,
       "交易所上新通知")
@@ -522,8 +533,8 @@ def check_online_list_on_other_exchange(coin_name,prepare_exc,prepare_exc_Chines
               "交易所上新通知")
     log("朗读上币新闻标题..")
     playsound('alert.mp3')
-    read_news_title_with_speaker(prepare_exc_Chinese + "上线新闻。。"+"数字货币 ("+list(coin_name)+")近期将上线"+prepare_exc_Chinese+"交易所，目前已经上线该币的交易所有:"
-               + str(on_listed_exch))
+    read_news_title_with_speaker(prepare_exc_Chinese + "上线新闻。。"+"数字货币 ("+str(list(coin_name))+")近期将上线"+prepare_exc_Chinese+"交易所，目前已经上线该币的交易所有:"
+               + str(on_listed_exch_CN))
 
 
 #前台进程版本  （日志打印在控制台）

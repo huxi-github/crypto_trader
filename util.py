@@ -133,9 +133,31 @@ def read_news_title_with_speaker(texts:str="测试文本"):
     # 等待语音播报完毕
     engine.runAndWait()
 
+def exch_to_chinese(exc_name_en):
+    # dic={"Binance":"币安", "FTX": "FTX", "KuCoin":"酷币","Gate.io":"Gate io",
+    #      "Huobi": "火币","OKEx":"欧易","Coinbase Pro (GDAX)":"Coinbase"}
+    if exc_name_en=="Binance":
+        return "币安"
+    elif exc_name_en=="FTX":
+        return "FTX"
+    elif exc_name_en=="KuCoin":
+        return "酷币"
+    elif exc_name_en=="Gate.io":
+        return "芝麻开门"
+    elif exc_name_en=="Huobi":
+        return "火币"
+    elif exc_name_en=="OKEx":
+        return "欧易"
+    elif exc_name_en=="Coinbase Pro (GDAX)":
+        return "Coinbase"
+    else:
+        return "错误的交易所名称"
+
+
+
 
 if __name__ == '__main__':
-    send_email(" 尝试启动 交易对 BUSD_TLM ")
-    # read_news_title_with_speaker("test")
+    # send_email(" 尝试启动 交易对 BUSD_TLM ")
+    read_news_title_with_speaker("test")
     # log_to_file("新币上线","lastest_news_bbb")
 
