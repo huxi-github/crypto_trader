@@ -148,7 +148,7 @@ def get_check_anooucement_of_binance():
         n = 0
         for coin_name in coin_name_arr:
             if  bool(pair_map): #  币币交易的信息需要区分
-                creat_new_on_line_deal_of_dca_bot(coin_name, pair_map,n)
+                creat_new_online_deal_bot_of_binance(coin_name, pair_map,n)
             check_online_list_on_other_exchange(coin_name,"Binance","币安",link)
             n = n + 1
         if 1:break
@@ -176,22 +176,22 @@ def get_check_anooucement_of_binance_fiat():
         coin_name_arr = parse_bian_title(title,code,pair_map)
         n = 0
         for coin_name in coin_name_arr:
-            creat_new_on_line_deal_of_dca_bot(coin_name, pair_map,n)
+            creat_new_online_deal_bot_of_binance(coin_name, pair_map,n)
             check_online_list_on_other_exchange(coin_name,"Binance","币安",link)
             n = n + 1
 
         if 1:break
 
-def creat_new_on_line_deal_of_dca_bot(coin_name:str='',pair_map:dict={},num:int=0):
+def creat_new_online_deal_bot_of_binance(coin_name:str='',pair_map:dict={},num:int=0):
 
-    if num >=2: #目前只准备了两个机器人
+    if num >=4: #目前只准备了4个机器人
         return
     quote=pair_map[coin_name]
     pair_name = quote+'_'+coin_name
     on_line_deal_bot_id = NEW_ON_LINE_BOT_IDS[num]
-    update_pair_of_line_bot(pair_name,on_line_deal_bot_id)
-    log("成功创建上线机器人订单，等待确认入场")
-    read_news_title_with_speaker("币安上新,成功创建交易对"+pair_name+"机器人订单，等待确认入场")
+    update_pair_of_line_bot(pair_name,on_line_deal_bot_id,num)
+    log("成功创建上线机器人"+pair_name+"订单，等待确认入场")
+    read_news_title_with_speaker("在币安交易所成功创建"+str(list(coin_name))+"订单，等待确认入场")
     os.system(OPEN_ONLINE_DEAL_URL_CMDS[num])
 
 
@@ -330,11 +330,14 @@ def get_check_anooucement_of_coinbase():
         # print(title)
         # print(arti_id)
         # log("信息发布时间:" + news_publish_time)
+        link = "https://blog.coinbase.com/institutional-pro/home"
         log("第" + str(n) + "条消息:")
         print(title)
+        coin_n =0 #一条消息多个币
         coin_name_arr = parse_coinbase_title(title)
         for coin_name in coin_name_arr:
-            check_online_list_on_other_exchange(coin_name,"Coinbase Pro (GDAX)","coinbase")
+            check_online_list_on_other_exchange(coin_name,"Coinbase Pro (GDAX)","coinbase",link,coin_n)
+            coin_n =coin_n +1
         n = n + 1
         if n > 3: break
 
@@ -476,7 +479,7 @@ def parse_coinbase_title(title:str=""):
     else:
         return []
 
-def check_online_list_on_other_exchange(coin_name,prepare_exc,prepare_exc_Chinese,link:str=""):
+def check_online_list_on_other_exchange(coin_name,prepare_exc,prepare_exc_Chinese,link:str="",coin_n:int=0):
     # print("检查其他交易所上线情况")
     #deal excpetion
     if coin_name=="SHIB":
@@ -497,6 +500,7 @@ def check_online_list_on_other_exchange(coin_name,prepare_exc,prepare_exc_Chines
     print("检查结果：")
     print("---------------"+coin_name+"-------------------------------")
     on_listed_exch =[]
+    on_listed_pair_quote = ""
     for exchange in data_arry['exchanges']:
         ex_name = exchange["name"]
         pairs = exchange['data']['pairs']
@@ -507,6 +511,13 @@ def check_online_list_on_other_exchange(coin_name,prepare_exc,prepare_exc_Chines
             "HUSD_" + coin_name in pairs:   ####okex
             print("【"+prepare_exc+"】"+coin_name+"已经在交易所："+ex_name+"上线")
             on_listed_exch.append(ex_name)
+            if ex_name=="Binance":
+                if "BUSD_"+coin_name in pairs:
+                    on_listed_pair_quote="BUSD"
+                elif "USDT_" + coin_name in pairs:
+                    on_listed_pair_quote = "USDT"
+                else:
+                    on_listed_pair_quote =" "
     print("-----------------"+coin_name+"-------check_end--------------")
     on_listed_exch_CN =[]
     for ch_name_en in on_listed_exch:
@@ -521,8 +532,9 @@ def check_online_list_on_other_exchange(coin_name,prepare_exc,prepare_exc_Chines
     if prepare_exc=="Coinbase Pro (GDAX)" and \
           "Binance" in on_listed_exch:
         print("coin_base上线新币 在币安创建上市消息订单")
-        read_news_title_with_speaker("coin_base上线新币, 在币安创建"+str(list(coin_name))+"订单")
-        creat_new_on_line_deal_of_dca_bot(coin_name, {coin_name:'BUSD'},0)
+        read_news_title_with_speaker("coin_base上线了币安新币")
+        map_pair = {coin_name:on_listed_pair_quote}
+        creat_new_online_deal_bot_of_binance(coin_name, map_pair,coin_n)
         
     print(coin_name +"近期将上线["+prepare_exc_Chinese+"]交易所，目前已经上线该币的交易所有:"
          +str(on_listed_exch)+"\n通知链接 "+link,
