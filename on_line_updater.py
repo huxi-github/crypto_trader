@@ -135,7 +135,7 @@ def get_check_anooucement_of_binance():
 
     articles = data_arry['data']['articles']
     print("最新文章："+str(articles[0]['title']))
-    if not check_and_update_msg(str(articles[0]['id']),"binance"):
+    if not check_and_update_msg(str(articles[0]['title']),"binance"):
         print("没有新发布文章")
         return
     for arti in articles:
@@ -165,7 +165,7 @@ def get_check_anooucement_of_binance_fiat():
 
     articles = data_arry['data']['catalogs'][0]['articles']
     print("最新文章：" + str(articles[0]['title']))
-    if not check_and_update_msg(str(articles[0]['id']),"binance_fliat"):
+    if not check_and_update_msg(str(articles[0]['title']),"binance_fliat"):
         print("没有新发布文章")
         return
     for arti in articles:
@@ -216,7 +216,7 @@ def get_check_anooucement_of_huobi():
 
     articles = data_arry['data']['list']
     print("最新文章：" + str(articles[0]['title']))
-    if not check_and_update_msg(str(articles[0]['id']),"huobi"):
+    if not check_and_update_msg(str(articles[0]['title']),"huobi"):
         print("没有新发布文章")
         return
     num=1
@@ -241,7 +241,7 @@ def get_check_anooucement_of_kubi():
             )
     articles = data_arry['items']
     print("最新文章：" + str(articles[0]['title']))
-    if not check_and_update_msg(str(articles[0]['id']),"kubi"):
+    if not check_and_update_msg(str(articles[0]['title']),"kubi"):
         print("没有新发布文章")
         return
     for arti in articles:
@@ -512,7 +512,7 @@ def check_online_list_on_other_exchange(coin_name,prepare_exc,prepare_exc_Chines
     # if prepare_exc in on_listed_exch:
     #     print("已经在本交易所上线，不发送通知\n")
         # return
-        
+
     print(coin_name +"近期将上线["+prepare_exc_Chinese+"]交易所，目前已经上线该币的交易所有:"
          +str(on_listed_exch)+"\n通知链接 "+link,
       "交易所上新通知")
