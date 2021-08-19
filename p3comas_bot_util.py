@@ -9,17 +9,17 @@ p3c = Py3Commas(key='08e94c4768d44f3a9a6f14f68f86a2a63d3dfe67f18c4f28905afad93df
                        '2c18c487240ec0')
 # PATCH /ver1/bots/{bot_id}/update
 # 更新机器人设置
-def update_pair_of_line_bot(coin_pair:str='',bot_id:str=''):
+def update_pair_of_line_bot(coin_pair:str='',bot_id:str='',num:int=0):
     response1 = p3c.request(
         entity='bots',
         action='update',
             _id=bot_id,#"5150456",
         payload={
-                 "name" :"One_Deal_For_Binance_New_Online_Pair",
+                 "name" :"One_Deal_For_Binance_New_Online_Pair"+str(num),
                  "pairs":coin_pair,
-                 "base_order_volume":500,
-                 "take_profit":5,  #上线订单 TP 可设置大些
-                 "safety_order_volume":500,
+                 "base_order_volume":1500,
+                 "take_profit":7,  #上线订单 TP 可设置大些
+                 "safety_order_volume":1000,
                  "martingale_volume_coefficient":1.18,#Safety order volume倍数
                  "martingale_step_coefficient":1,# Safety order间隔倍数
                  "max_safety_orders":10,  #风险意识， 不要 制造不要的灾难>=12
