@@ -147,9 +147,7 @@ def get_check_anooucement_of_binance():
         coin_name_arr = parse_bian_title(title, code, pair_map)
         n = 0
         for coin_name in coin_name_arr:
-            if  bool(pair_map): #  币币交易的信息需要区分
-                creat_new_online_deal_bot_of_binance(coin_name, pair_map,n)
-            check_online_list_on_other_exchange(coin_name,"Binance","币安",link)
+            check_online_list_on_other_exchange(coin_name,"Binance","币安",link,n)
             n = n + 1
         if 1:break
 
@@ -176,8 +174,7 @@ def get_check_anooucement_of_binance_fiat():
         coin_name_arr = parse_bian_title(title,code,pair_map)
         n = 0
         for coin_name in coin_name_arr:
-            creat_new_online_deal_bot_of_binance(coin_name, pair_map,n)
-            check_online_list_on_other_exchange(coin_name,"Binance","币安",link)
+            check_online_list_on_other_exchange(coin_name,"Binance","币安",link,n)
             n = n + 1
 
         if 1:break
@@ -529,10 +526,9 @@ def check_online_list_on_other_exchange(coin_name,prepare_exc,prepare_exc_Chines
     #     print("已经在本交易所上线，不发送通知\n")
         # return
 
-    if prepare_exc=="Coinbase Pro (GDAX)" and \
-          "Binance" in on_listed_exch:
-        print("coin_base上线新币 在币安创建上市消息订单")
-        read_news_title_with_speaker("coin_base上线了币安新币")
+    if "Binance" in on_listed_exch:
+        print(prepare_exc_Chinese+"上线新币 在币安创建上市消息订单")
+        read_news_title_with_speaker(prepare_exc_Chinese+"上线了币安新币")
         map_pair = {coin_name:on_listed_pair_quote}
         creat_new_online_deal_bot_of_binance(coin_name, map_pair,coin_n)
         
