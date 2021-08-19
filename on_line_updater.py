@@ -555,11 +555,12 @@ def do_main_thing():
         get_check_anooucement_of_binance_fiat()
         get_check_anooucement_of_huobi()
         get_check_anooucement_of_kubi()
-        get_check_anooucement_of_ftx()
         get_check_anooucement_of_okcoin()
         # get_check_anooucement_of_gate_io()
         # get_check_anooucement_of_bittrex()
         get_check_anooucement_of_coinbase()
+        # get_check_anooucement_of_ftx() #排到后面可能因为 反爬虫被拒绝
+        #FTX 交易所，上新直接不预告，上完了才有公布结果无意义
 
         log("等待" + str(int(SCAN_NEW_ARTI_INTERVAL_IN_SEC/60))+ "min 再次检查")
 
