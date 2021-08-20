@@ -179,6 +179,12 @@ def get_check_anooucement_of_binance_fiat():
 
         if 1:break
 
+
+def convert_some_USDT():
+    os.system(CMD_GO_TO_USDT_EXCHNAGE_PAGE)
+    pass
+
+
 def creat_new_online_deal_bot_of_binance(coin_name:str='',pair_map:dict={},num:int=0):
 
     if num >=4: #目前只准备了4个机器人
@@ -187,6 +193,8 @@ def creat_new_online_deal_bot_of_binance(coin_name:str='',pair_map:dict={},num:i
     pair_name = quote+'_'+coin_name
     on_line_deal_bot_id = NEW_ON_LINE_BOT_IDS[num]
     update_pair_of_line_bot(pair_name,on_line_deal_bot_id,num)
+    if quote=="USDT":
+        convert_some_USDT()
     log("成功创建上线机器人"+pair_name+"订单，等待确认入场")
     read_news_title_with_speaker("在币安交易所成功创建"+str(list(coin_name))+"订单，等待确认入场")
     os.system(OPEN_ONLINE_DEAL_URL_CMDS[num])
