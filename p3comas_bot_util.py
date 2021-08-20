@@ -17,8 +17,8 @@ def update_pair_of_line_bot(coin_pair:str='',bot_id:str='',num:int=0):
         payload={
                  "name" :"One_Deal_For_Binance_New_Online_Pair"+str(num),
                  "pairs":coin_pair,
-                 "base_order_volume":1500,
-                 "take_profit":7,  #上线订单 TP 可设置大些
+                 "base_order_volume":2000, #base设置大
+                 "take_profit":2,  #上线订单，单向行情，TP 大小不影响，可多次小交易
                  "safety_order_volume":1000,
                  "martingale_volume_coefficient":1.18,#Safety order volume倍数
                  "martingale_step_coefficient":1,# Safety order间隔倍数
@@ -26,7 +26,7 @@ def update_pair_of_line_bot(coin_pair:str='',bot_id:str='',num:int=0):
                  "active_safety_orders_count":1,
                  "safety_order_step_percentage":2,
                  "take_profit_type":"total",
-                 "strategy_list":"%5B%7B%22strategy%22%3A%22manual%22%7D%5D", #manual  nostop==>%5B%7B%22strategy%22%3A%22nonstop%22%7D%5D
+                 "strategy_list":"%5B%7B%22strategy%22%3A%22nostop%22%7D%5D", #manual  nostop==>%5B%7B%22strategy%22%3A%22nonstop%22%7D%5D
                  "bot_id":bot_id
                  }
     )
