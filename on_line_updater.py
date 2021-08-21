@@ -7,7 +7,7 @@ import json
 
 from playsound import playsound
 from requests.adapters import HTTPAdapter
-from util import log, send_email, check_and_update_msg, read_news_title_with_speaker, exch_to_chinese
+from util import log, send_email, check_and_update_msg, read_news_title_with_speaker, exch_to_chinese, log_to_file
 from requests_html import HTMLSession
 from bs4 import BeautifulSoup
 import daemon
@@ -39,8 +39,10 @@ def get_simple_web_data(base_url:str,http_method: str, path: str, payload: any =
     s.mount('https://', HTTPAdapter(max_retries=3))
 
     not_get_respon =True
-
-    while not_get_respon :
+    sleep_try_times_left =2
+    sleep_try_parse_times_left = 2
+    json_obj = {}
+    while not_get_respon and sleep_try_times_left>0 and sleep_try_parse_times_left>0:
         not_get_respon = False
         try:
             response = s.request(
@@ -58,6 +60,7 @@ def get_simple_web_data(base_url:str,http_method: str, path: str, payload: any =
             log("等待 10s ...重连... ")
             time.sleep(10)
             not_get_respon =True
+            sleep_try_times_left =sleep_try_times_left -1
             continue #重新连接网络
 
 
@@ -65,7 +68,6 @@ def get_simple_web_data(base_url:str,http_method: str, path: str, payload: any =
         if "</x>" in resp_text:
             index_s= resp_text.find("</x>")
             resp_text = resp_text[index_s+4:]
-        json_obj = {}
         try:
             json_obj = json.loads(resp_text)
         except (IndexError, IndentationError) as e1:
@@ -76,9 +78,12 @@ def get_simple_web_data(base_url:str,http_method: str, path: str, payload: any =
             log("等待 5s ...重连... ")
             time.sleep(5)
             not_get_respon =True
+            sleep_try_parse_times_left = sleep_try_parse_times_left - 1
             continue #重新连接请求网络
 
-        return json_obj
+    if not_get_respon: #重连次数超时 造成的 主动退出循环
+        json_obj ={"net_erro":"多次请求无果，放弃本次请求，避免大量发邮件"}
+    return json_obj
 
 # @with_goto
 def get_simple_web_html(base_url:str,http_method: str, path: str, payload: any = None, params: str = '',extr_header: any = None):
@@ -97,10 +102,12 @@ def get_simple_web_html(base_url:str,http_method: str, path: str, payload: any =
     s = HTMLSession()
     s.mount('http://', HTTPAdapter(max_retries=3))
     s.mount('https://', HTTPAdapter(max_retries=3))
-    # label .begin
+
     not_get_respon =True
-    while not_get_respon :
-        not_get_respon = False
+    sleep_try_times_left =2
+    response=None
+    while not_get_respon and sleep_try_times_left>0:
+
         try:
             response = s.request(
                 method=http_method,
@@ -116,11 +123,15 @@ def get_simple_web_html(base_url:str,http_method: str, path: str, payload: any =
             send_email("新闻服务器超时重连3次失败:" + requrll + "错误:"+ str(e),"新闻服务器网络问题")
             log("等待 10s ...重连... ")
             time.sleep(10)
-            # goto .begin
             not_get_respon = True
+            sleep_try_times_left = sleep_try_times_left -1
             continue # 调到while 处来进行再一次网络请求
 
-        return response.html
+        print("获取数据成功")
+        not_get_respon = False
+    if not_get_respon:#请求次数超限，导致的退出
+        return "net_erro"
+    return response.html
 
 
 def get_check_anooucement_of_binance():
@@ -132,6 +143,9 @@ def get_check_anooucement_of_binance():
             params="catalogId=48&pageNo=1&pageSize=1",
             extr_header={'lang': 'zh-CN'}
             )
+    if "net_erro" in data_arry:
+        log_to_file("binance新闻服务器暂时不可用,跳过","net_erro_on_line_updater")
+        return
 
     articles = data_arry['data']['articles']
     print("最新文章："+str(articles[0]['title']))
@@ -161,6 +175,9 @@ def get_check_anooucement_of_binance_fiat():
             extr_header={'lang': 'zh-CN'}
             )
 
+    if "net_erro" in data_arry:
+        log_to_file("binance_fiat新闻服务器暂时不可用,跳过","net_erro_on_line_updater")
+        return
     articles = data_arry['data']['catalogs'][0]['articles']
     print("最新文章：" + str(articles[0]['title']))
     if not check_and_update_msg(str(articles[0]['title']),"binance_fliat"):
@@ -218,6 +235,9 @@ def get_check_anooucement_of_huobi():
                     "twoLevelId": 360000039942
                     }
             )
+    if "net_erro" in data_arry:
+        log_to_file("火币新闻服务器暂时不可用,跳过","net_erro_on_line_updater")
+        return
 
     articles = data_arry['data']['list']
     print("最新文章：" + str(articles[0]['title']))
@@ -244,6 +264,9 @@ def get_check_anooucement_of_kubi():
             path="/_api/cms/articles",
             params="page=1&pageSize=1&lang=zh_CN"#去掉 过滤参数 category,包含所有消息 new_list/new_pair
             )
+    if "net_erro" in data_arry:
+        log_to_file("酷币新闻服务器暂时不可用,跳过","net_erro_on_line_updater")
+        return
     articles = data_arry['items']
     print("最新文章：" + str(articles[0]['title']))
     if not check_and_update_msg(str(articles[0]['title']),"kubi"):
@@ -267,6 +290,9 @@ def get_check_anooucement_of_ftx():
             http_method="GET",
             path="/hc/zh-cn/sections/360007186612-%E4%B8%8A%E6%96%B0%E5%85%AC%E5%91%8A",
             )
+    if "net_erro" in html_obj:
+        log_to_file("FTX交易所新闻服务器暂时不可用,跳过","net_erro_on_line_updater")
+        return
     arti_list = html_obj.find('li.article-list-item')
     first_arti_title= arti_list[0].text
     print("当前最新文章"+first_arti_title+"。。。。。。。。。。。")
@@ -294,6 +320,9 @@ def get_check_anooucement_of_okcoin():
             http_method="GET",
             path="/support/hc/zh-cn/sections/115000447632-%E6%96%B0%E5%B8%81%E4%B8%8A%E7%BA%BF",
             )
+    if "net_erro" in html_obj:
+        log_to_file("欧易交易所新闻服务器暂时不可用,跳过","net_erro_on_line_updater")
+        return
     arti_list = html_obj.find('li.article-list-item')
     first_arti_title= arti_list[0].text
     print("当前最新文章"+first_arti_title)
@@ -322,6 +351,9 @@ def get_check_anooucement_of_coinbase():
              http_method="GET",
             path="/institutional-pro/home"
             )
+    if "net_erro" in html_obj:
+        log_to_file("coinbase新闻服务器暂时不可用,跳过","net_erro_on_line_updater")
+        return
     arti_list = html_obj.find('div.u-letterSpacingTight.u-lineHeightTighter.u-breakWord.u-textOverflowEllipsis.u-lineClamp4.u-fontSize30.u-size12of12.u-xs-size12of12.u-xs-fontSize24')
     first_arti_title= arti_list[0].text
     print("当前最新文章"+first_arti_title+"。。。。。。。。。。。")
