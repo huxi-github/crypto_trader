@@ -36,6 +36,11 @@ APIS = {
         'cancel_all_deals': ('POST', '{id}/cancel_all_deals'),
         'show': ('GET', '{id}/show')
     },
+    'deals': {
+        '': ('GET', ''),
+        'add_funds': ('POST', '{id}/add_funds'),
+        'show': ('GET', '{id}/show')
+    },
     'marketplace': {
         'items': ('GET', 'items'),
         'signals': ('GET', '{id}/signals')

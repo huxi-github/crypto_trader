@@ -1,4 +1,5 @@
 # coding: utf-8
+import math
 
 from playsound import playsound
 import datetime
@@ -10,6 +11,7 @@ from email.header import Header
 from smtplib import SMTP_SSL
 # 语音播报模块
 import pyttsx3
+import numpy as np
 
 from enum import Enum
 
@@ -41,7 +43,7 @@ def log_to_file(msg:str="kong msg",file_name:str="aaa"):
     pre_path = "log"
     if sys.platform=='linux':
         pre_path = "/root"
-    log_f_path = pre_path+'/'+file_name+".txt" #全路径
+    log_f_path = pre_path+'/'+file_name #全路径
     if not os.path.exists(log_f_path):
         print("新文件,创建"+log_f_path)
         file = open(log_f_path, "a+") #1.没有则创建 2.追加写入
@@ -88,7 +90,7 @@ def send_email(mail_msg:str,mail_title:str='数字货币_活跃交易'):
     msg["Subject"] = Header(mail_title, 'utf-8')
     msg["From"] = sender_qq_mail
     msg["To"] = receiver
-    smtp.sendmail(sender_qq_mail, receiver, msg.as_string())
+    # smtp.sendmail(sender_qq_mail, receiver, msg.as_string())
     smtp.quit()
 
 def check_and_update_msg(msg_id:str="kong msg",exc_name:str=""):
@@ -154,10 +156,46 @@ def exch_to_chinese(exc_name_en):
         return "错误的交易所名称"
 
 
+def SMA(data, smaPeriod):
+    sma = []
+    count = 0
+    for i in range(len(data)):
+        if data[i] is None:
+            sma.append(None)
+        else:
+            count += 1
+            if count < smaPeriod:
+                sma.append(None)
+            else:
+                sma.append(np.mean(data[i-smaPeriod+1:i+1]))
+
+    return np.array(sma)
+
+def SMA_ank(data,smaPeriod):
+    slope=[]
+    count = 0
+    for i in range(1,len(data)):#1 开始
+        if data[i] is None or data[i-1] is None:
+            slope.append(None)
+        else:
+            slop_=(data[i]-data[i-1])/(smaPeriod)
+            slope.append(slop_)
+
+    # angle_norm = math.atan((ma7 / ma7_last - 1)*100)*180/3.1415926
+    print(slope)
+    return slope
+
+
 
 
 if __name__ == '__main__':
     # send_email(" 尝试启动 交易对 BUSD_TLM ")
-    read_news_title_with_speaker("test")
+    # read_news_title_with_speaker("test")
     # log_to_file("新币上线","lastest_news_bbb")
+    # date=[1,2,4,8,16,32,64,128,256,512]
+    # sma=SMA(date,2)
+    sma=[1,2,4,6,8,10,12,14,16,18]
+    print(sma)
+    SMA_ank(sma,7)
+
 

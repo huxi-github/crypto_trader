@@ -580,7 +580,7 @@ def check_online_list_on_other_exchange(coin_name,prepare_exc,prepare_exc_Chines
                + str(on_listed_exch)+"\n通知链接 "+link,
               "交易所上新通知")
     log("朗读上币新闻标题..")
-    playsound('alert.mp3')
+    playsound('audio/alert.mp3')
     read_news_title_with_speaker(prepare_exc_Chinese + "上线新闻。。"+"数字货币 ("+str(list(coin_name))+")近期将上线"+prepare_exc_Chinese+"交易所，目前已经上线该币的交易所有:"
                + str(on_listed_exch_CN))
 
@@ -590,15 +590,15 @@ def do_main_thing():
         get_check_anooucement_of_binance()
         get_check_anooucement_of_binance_fiat()
         get_check_anooucement_of_huobi()
-        get_check_anooucement_of_kubi()
-        get_check_anooucement_of_okcoin()
+        # get_check_anooucement_of_kubi()
+        # get_check_anooucement_of_okcoin()
         # get_check_anooucement_of_gate_io()
         # get_check_anooucement_of_bittrex()
         get_check_anooucement_of_coinbase()
         # get_check_anooucement_of_ftx() #排到后面可能因为 反爬虫被拒绝
         #FTX 交易所，上新直接不预告，上完了才有公布结果无意义
 
-        log("等待" + str(int(SCAN_NEW_ARTI_INTERVAL_IN_SEC/60))+ "min 再次检查")
+        # log("等待" + str(int(SCAN_NEW_ARTI_INTERVAL_IN_SEC/60))+ "min 再次检查")
 
 
 # 2.后台进程版本 ，linux服务器上，跑所需要的
@@ -618,7 +618,7 @@ def do_main_thing_indaemon():
             get_check_anooucement_of_okcoin()
             get_check_anooucement_of_coinbase()
 
-            log("等待 " + str(SCAN_NEW_ARTI_INTERVAL_IN_SEC / 60) + "min 再次检查")
+            # log("等待 " + str(SCAN_NEW_ARTI_INTERVAL_IN_SEC / 60) + "min 再次检查")
             time.sleep(SCAN_NEW_ARTI_INTERVAL_IN_SEC)
 
 
@@ -627,7 +627,6 @@ if __name__ == '__main__':
     if sys.platform=='linux':
         do_main_thing_indaemon()
     else:
-        do_main_thing()
-
+        do_main_thing()    
 
 

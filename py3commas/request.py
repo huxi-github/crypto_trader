@@ -44,13 +44,14 @@ class Py3Commas:
                     querstr = querstr +'&'+ str(key) + '=' + str(payload[key])
             log("querstr:" + querstr)
             signature = self._generate_signature(path, querstr)
-            print("APIKEY:" + self.key)
-            print("Signature:" + signature)
+            # print("APIKEY:" + self.key)
+            # print("Signature:" + signature)
             requrll = API_URL + API_VERSION + path+'?'+querstr
+        print("requrll==【"+http_method+"】"+requrll)
         label .begin
         s = requests.Session()
-        s.mount('http://', HTTPAdapter(max_retries=4))
-        s.mount('https://', HTTPAdapter(max_retries=4))
+        s.mount('http://', HTTPAdapter(max_retries=5))
+        s.mount('https://', HTTPAdapter(max_retries=5))
         try:
             response = s.request(
                 method=http_method,
@@ -60,7 +61,7 @@ class Py3Commas:
                     'Signature': signature,
                     'Content-Type':'application/x-www-form-urlencoded'
                 }#,data=payload  # python 字典 解析 对应Content-Type +全部放在 url_param 里面
-                ,timeout=(2,3)
+                ,timeout=6
             )
             response_text = response.text
             response.raise_for_status()  # 如果响应状态码不是 200，就主动抛出异常 （过于武断）
@@ -81,7 +82,7 @@ class Py3Commas:
 
         json_obj ={}
         try:
-            print("解析resp_json="+response_text)
+            # print("解析resp_json="+response_text)
             json_obj = json.loads(response_text)
         except (IndexError, IndentationError) as e1:
             log("requrll:" + requrll)
@@ -123,7 +124,7 @@ class Py3Commas:
                 payload=payload
             )
 
-    @with_goto
+    # @with_goto
     def request_binance_data(self, http_method: str, path: str, payload: any = None,params: str = ''):
         requrll = ''
         if http_method=="GET":
@@ -143,50 +144,64 @@ class Py3Commas:
             log("querstr:" + querstr)
             requrll = BINANCE_API_BASE + path
 
-        label .begin
-        print("2222requrll="+requrll)
-        s = requests.Session()
-        s.mount('http://', HTTPAdapter(max_retries=3))
-        s.mount('https://', HTTPAdapter(max_retries=3))
-        try:
-            response = s.request(
-                method=http_method,
-                url=requrll,
-                headers={
-                    'APIKEY': self.key,
-                    'Signature': signature,
-                    'Content-Type':'application/x-www-form-urlencoded'
-                }
-                # ,data=payload  # python 字典 解析 对应Content-Type +全部放在 url_param 里面
-                ,timeout=(3,2)
-            )
-            response.raise_for_status()  # 如果响应状态码不是 200，就主动抛出异常
-        except requests.RequestException as e:
-            if "HTTPSConnectionPool" in str(e) and\
-                "Max retries exceeded" in str(e) :
-                log("币安服务器超时重连3次失败:" + requrll +"\n错误:"+ str(e))
-                log("等待 5s ...重连... ")
-                send_email("币安服务器超时(VPN时延过大)重连3次失败:"+requrll+"错误:"+str(e)+"等待 5s ...重连")
-                time.sleep(5)
-                goto .begin
-            else:
-                log("币安服务器超时重连3次失败____:" + requrll + "\n错误:" + str(e))
-                log("等待 5s ...重连... ")
-                send_email("币安服务器超时(VPN时延过大)重连3次失败_____xxx:" + requrll + "错误:" + str(e)+"等待 5s ...重连")
-                time.sleep(5)
-                goto.begin
-        log("requrll:" + requrll)
-        json_obj ={}
-        try:
-            json_obj = json.loads(response.text)
-        except (IndexError, IndentationError) as e1:
+        # label .begin
+        get_response =False
+        sleep_retry_times_left =2
+        sleep_parse_retry_times_left = 2
+        response = None
+        json_obj = {}
+        while not get_response and sleep_retry_times_left>0 and sleep_parse_retry_times_left>0:
+            print("2222requrll="+requrll)
+            s = requests.Session()
+            s.mount('http://', HTTPAdapter(max_retries=3))
+            s.mount('https://', HTTPAdapter(max_retries=3))
+            try:
+                response = s.request(
+                    method=http_method,
+                    url=requrll,
+                    headers={
+                        'APIKEY': self.key,
+                        'Signature': signature,
+                        'Content-Type':'application/x-www-form-urlencoded'
+                    }
+                    # ,data=payload  # python 字典 解析 对应Content-Type +全部放在 url_param 里面
+                    ,timeout=(3,2)
+                )
+                response.raise_for_status()  # 如果响应状态码不是 200，就主动抛出异常
+            except requests.RequestException as e:
+                if "HTTPSConnectionPool" in str(e) and\
+                    "Max retries exceeded" in str(e) :
+                    log("币安服务器超时重连3次失败:" + requrll +"\n错误:"+ str(e))
+                    log("等待 5s ...重连... ")
+                    send_email("币安服务器超时(VPN时延过大)重连3次失败:"+requrll+"错误:"+str(e)+"等待 5s ...重连")
+                    time.sleep(5)
+                    # goto .begin
+                    sleep_retry_times_left = sleep_retry_times_left-1
+                    continue
+                else:
+                    log("币安服务器超时重连3次失败____:" + requrll + "\n错误:" + str(e))
+                    log("等待 5s ...重连... ")
+                    send_email("币安服务器超时(VPN时延过大)重连3次失败_____xxx:" + requrll + "错误:" + str(e)+"等待 5s ...重连")
+                    time.sleep(5)
+                    # goto.begin
+                    continue
             log("requrll:" + requrll)
-            log("resp:" + response.text)
-            log("解析出错" + str(e1))
-            send_email("resp_json解析出错 "+response.text)
-            log("等待 2s ...重新请求... ")
-            time.sleep(2)
-            goto .begin
+
+            try:
+                json_obj = json.loads(response.text)
+            except (IndexError, IndentationError) as e1:
+                log("requrll:" + requrll)
+                log("resp:" + response.text)
+                log("解析出错" + str(e1))
+                send_email("resp_json解析出错 "+response.text)
+                log("等待 2s ...重新请求... ")
+                time.sleep(2)
+                # goto .begin
+                sleep_parse_retry_times_left = sleep_parse_retry_times_left - 1
+                continue
+            get_response=True
+        if not get_response or json_obj == {}:
+            json_obj ={'net_erro':'多次尝试网络出错'}
         return json_obj
 
     @with_goto

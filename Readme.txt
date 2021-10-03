@@ -3,7 +3,7 @@
 2.将new_msg_id_folder 目录和文件 cp到 守护进程运行目录
 
 二.运行方法
-cd 当前文件夹
+cd crypto目录
 venv/bin/python3 /Users/huxi/Desktop/crypto/on_line_updater.py
 
 三。部署mac 可以通过paral win 环境传输文件到服务器
