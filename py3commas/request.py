@@ -7,7 +7,6 @@ from requests.adapters import HTTPAdapter
 import urllib3
 import time
 
-from goto import with_goto
 
 from .config import API_URL, API_VERSION, APIS, BINANCE_API_BASE,BINANCE_WEB_BASE
 from util import send_email,log
@@ -29,7 +28,6 @@ class Py3Commas:
         signature = hmac.new(byte_key, message, hashlib.sha256).hexdigest()
         return signature
 
-    @with_goto# for 3comas  为 开启订单准备的
     def _make_request(self, http_method: str, path: str, params: any, payload: any):
         requrll = ''
         if http_method=="GET":
@@ -48,7 +46,6 @@ class Py3Commas:
             # print("Signature:" + signature)
             requrll = API_URL + API_VERSION + path+'?'+querstr
         print("requrll==【"+http_method+"】"+requrll)
-        label .begin
         s = requests.Session()
         s.mount('http://', HTTPAdapter(max_retries=5))
         s.mount('https://', HTTPAdapter(max_retries=5))
@@ -91,7 +88,6 @@ class Py3Commas:
             send_email("解析出错"+response.text)
             log("等待 3s ...重连... ")
             time.sleep(3)
-            goto .begin
         return json_obj
 
     def request(self, entity: str, action: str = '', _id: str = None, payload: any = None,param: str = ''):
@@ -144,7 +140,6 @@ class Py3Commas:
             log("querstr:" + querstr)
             requrll = BINANCE_API_BASE + path
 
-        # label .begin
         get_response =False
         sleep_retry_times_left =2
         sleep_parse_retry_times_left = 2
@@ -175,7 +170,6 @@ class Py3Commas:
                     log("等待 5s ...重连... ")
                     send_email("币安服务器超时(VPN时延过大)重连3次失败:"+requrll+"错误:"+str(e)+"等待 5s ...重连")
                     time.sleep(5)
-                    # goto .begin
                     sleep_retry_times_left = sleep_retry_times_left-1
                     continue
                 else:
@@ -183,7 +177,6 @@ class Py3Commas:
                     log("等待 5s ...重连... ")
                     send_email("币安服务器超时(VPN时延过大)重连3次失败_____xxx:" + requrll + "错误:" + str(e)+"等待 5s ...重连")
                     time.sleep(5)
-                    # goto.begin
                     continue
             log("requrll:" + requrll)
 
@@ -204,7 +197,6 @@ class Py3Commas:
             json_obj ={'net_erro':'多次尝试网络出错'}
         return json_obj
 
-    @with_goto
     def get_binance_web_data(self, http_method: str, path: str, payload: any = None,params: str = ''):
         requrll = ''
         if http_method=="GET":
@@ -224,7 +216,6 @@ class Py3Commas:
             log("querstr:" + querstr)
             requrll = BINANCE_API_BASE + path
 
-        label .begin
         s = requests.Session()
         s.mount('http://', HTTPAdapter(max_retries=3))
         s.mount('https://', HTTPAdapter(max_retries=3))
@@ -242,9 +233,8 @@ class Py3Commas:
         except requests.RequestException as e:
             log("服务器超时重连4次失败:" + requrll +"错误："+ str(e))
             send_email("服务器超时重连3次失败:"+requrll+str(e))
-            log("等待 5s ...重连... ")
+            log("放弃")#("等待 5s ...重连... ")
             time.sleep(5)
-            goto .begin
         log("requrll:" + requrll)
         json_obj ={}
         try:
@@ -254,7 +244,6 @@ class Py3Commas:
             log("resp:" + response.text)
             log("解析出错" + str(e1))
             send_email("解析出错"+response.text)
-            log("等待 3s ...重试... ")
+            log("放弃")#log("等待 3s ...重试... ")
             time.sleep(3)
-            goto .begin
         return json_obj
