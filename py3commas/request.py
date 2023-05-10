@@ -7,6 +7,7 @@ from requests.adapters import HTTPAdapter
 import urllib3
 import time
 
+# from goto import with_goto
 
 from .config import API_URL, API_VERSION, APIS, BINANCE_API_BASE,BINANCE_WEB_BASE
 from util import send_email,log
@@ -42,10 +43,11 @@ class Py3Commas:
                     querstr = querstr +'&'+ str(key) + '=' + str(payload[key])
             log("querstr:" + querstr)
             signature = self._generate_signature(path, querstr)
-            # print("APIKEY:" + self.key)
-            # print("Signature:" + signature)
+            print("APIKEY:" + self.key)
+            print("Signature:" + signature)
             requrll = API_URL + API_VERSION + path+'?'+querstr
         print("requrll==【"+http_method+"】"+requrll)
+        # label .begin
         s = requests.Session()
         s.mount('http://', HTTPAdapter(max_retries=5))
         s.mount('https://', HTTPAdapter(max_retries=5))
@@ -74,7 +76,7 @@ class Py3Commas:
             if "HTTPSConnectionPool" in str(e):
                 log("连接3commas服务器(出错)原因超时："+ str(e))
                 print("等待3commas 交易,..重连了重连4次...放弃...是开启订单..秒级操作，条件可能有变.. .. 检查再决定是否开启,发封邮件记录事件")
-                send_email("3commas服务器超时重连4次(2,3)，网络问题出错:"+requrll+"\n异常错误:"+str(e)) #[上一层发邮件]
+                # send_email("3commas服务器超时重连4次(2,3)，网络问题出错:"+requrll+"\n异常错误:"+str(e)) #[上一层发邮件]
                 response_text = '{"net_timeout":"345","desc":"网络拥塞"}'
 
         json_obj ={}
@@ -85,7 +87,7 @@ class Py3Commas:
             log("requrll:" + requrll)
             log("resp:" + response_text)
             log("解析出错" + str(e1))
-            send_email("解析出错"+response.text)
+            # send_email("解析出错"+response.text)
             log("等待 3s ...重连... ")
             time.sleep(3)
         return json_obj
@@ -168,14 +170,14 @@ class Py3Commas:
                     "Max retries exceeded" in str(e) :
                     log("币安服务器超时重连3次失败:" + requrll +"\n错误:"+ str(e))
                     log("等待 5s ...重连... ")
-                    send_email("币安服务器超时(VPN时延过大)重连3次失败:"+requrll+"错误:"+str(e)+"等待 5s ...重连")
+                    # send_email("币安服务器超时(VPN时延过大)重连3次失败:"+requrll+"错误:"+str(e)+"等待 5s ...重连")
                     time.sleep(5)
                     sleep_retry_times_left = sleep_retry_times_left-1
                     continue
                 else:
                     log("币安服务器超时重连3次失败____:" + requrll + "\n错误:" + str(e))
                     log("等待 5s ...重连... ")
-                    send_email("币安服务器超时(VPN时延过大)重连3次失败_____xxx:" + requrll + "错误:" + str(e)+"等待 5s ...重连")
+                    # send_email("币安服务器超时(VPN时延过大)重连3次失败_____xxx:" + requrll + "错误:" + str(e)+"等待 5s ...重连")
                     time.sleep(5)
                     continue
             log("requrll:" + requrll)
@@ -186,7 +188,7 @@ class Py3Commas:
                 log("requrll:" + requrll)
                 log("resp:" + response.text)
                 log("解析出错" + str(e1))
-                send_email("resp_json解析出错 "+response.text)
+                # send_email("resp_json解析出错 "+response.text)
                 log("等待 2s ...重新请求... ")
                 time.sleep(2)
                 # goto .begin
@@ -197,6 +199,7 @@ class Py3Commas:
             json_obj ={'net_erro':'多次尝试网络出错'}
         return json_obj
 
+    # @with_goto
     def get_binance_web_data(self, http_method: str, path: str, payload: any = None,params: str = ''):
         requrll = ''
         if http_method=="GET":
@@ -216,6 +219,7 @@ class Py3Commas:
             log("querstr:" + querstr)
             requrll = BINANCE_API_BASE + path
 
+        # label .begin
         s = requests.Session()
         s.mount('http://', HTTPAdapter(max_retries=3))
         s.mount('https://', HTTPAdapter(max_retries=3))
@@ -232,9 +236,10 @@ class Py3Commas:
             response.raise_for_status()  # 如果响应状态码不是 200，就主动抛出异常
         except requests.RequestException as e:
             log("服务器超时重连4次失败:" + requrll +"错误："+ str(e))
-            send_email("服务器超时重连3次失败:"+requrll+str(e))
+            # send_email("服务器超时重连3次失败:"+requrll+str(e))
             log("放弃")#("等待 5s ...重连... ")
             time.sleep(5)
+            # goto .begin
         log("requrll:" + requrll)
         json_obj ={}
         try:
@@ -243,7 +248,8 @@ class Py3Commas:
             log("requrll:" + requrll)
             log("resp:" + response.text)
             log("解析出错" + str(e1))
-            send_email("解析出错"+response.text)
+            # send_email("解析出错"+response.text)
             log("放弃")#log("等待 3s ...重试... ")
             time.sleep(3)
+            # goto .begin
         return json_obj
