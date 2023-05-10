@@ -247,7 +247,7 @@ def check_is_near_fibonacci_price_of_TODAY(symbol:str=""):
         print("day_cur=" + str(cur)+" day_open="+str(open))
 
         print("当日价格小于开盘价")
-        read_news_title_with_speaker("当天行情是 负值，不入场")
+        # read_news_title_with_speaker("当天行情是 负值，不入场")
         return True
 
     limit:str = str(int(24*60/15))#'#str(int(24*60/15))  /24h
@@ -309,39 +309,39 @@ def check_is_near_fibonacci_price_of_TODAY(symbol:str=""):
 
     if cur_from_day_high_in_mins <=15: #15min
         if 0 < position and position < 0.236:
-            read_news_title_with_speaker("最高点后的0-15分钟,进入斐波区间")#回落
+            # read_news_title_with_speaker("最高点后的0-15分钟,进入斐波区间")#回落
             log_to_file("最高点后的0-15分钟,进入斐波区间 ", "trigered_pair/pairs_" + day + ".log")
             return False
         if -0.1 < position and position <= 0:
-            read_news_title_with_speaker("最高点后的0-15分钟，持续爆拉升突破前高...")
+            # read_news_title_with_speaker("最高点后的0-15分钟，持续爆拉升突破前高...")
             log_to_file("最高点后的0-15分钟，持续爆拉升突破前高... ", "trigered_pair/pairs_" + day + ".log")
             return False
         if position<-0.1:
-            read_news_title_with_speaker("最高点后的0-15分钟，持续爆拉升突破前高10%...")
+            # read_news_title_with_speaker("最高点后的0-15分钟，持续爆拉升突破前高10%...")
             log_to_file("最高点后的0-15分钟，持续爆拉升突破前高10%...", "trigered_pair/pairs_" + day + ".log")
             log_to_file("high_24h=" + str(high_24h) + " cur=" + str(cur), "trigered_pair/pairs_" + day + ".log")
             return False
         if position>0.236:
-            read_news_title_with_speaker("最高点后的0-15分钟，进入斐波区间下面的拉升")
+            # read_news_title_with_speaker("最高点后的0-15分钟，进入斐波区间下面的拉升")
             log_to_file("最高点后的0-15分钟，进入斐波区间下面的拉升 ", "trigered_pair/pairs_" + day + ".log")
             log_to_file("high_24h=" + str(high_24h) + " cur=" + str(cur), "trigered_pair/pairs_" + day + ".log")
             return False
     elif 15 <cur_from_day_high_in_mins and cur_from_day_high_in_mins <=45: #45min
         if 0 < position and position < 0.236:
-            read_news_title_with_speaker("最高点后的15-45分钟 ， 进入斐波区间")
+            # read_news_title_with_speaker("最高点后的15-45分钟 ， 进入斐波区间")
             log_to_file("最高点后的15-45分钟 ， 跌落后进入斐波区间 ", "trigered_pair/pairs_" + day + ".log")
             return True
         if -0.1 < position and position <= 0:
-            read_news_title_with_speaker("最高点后的15-45分钟 ，拉升突破前高...")
+            # read_news_title_with_speaker("最高点后的15-45分钟 ，拉升突破前高...")
             log_to_file("最高点后的15-45分钟 ，拉升突破前高...", "trigered_pair/pairs_" + day + ".log")
             return True
         if position<-0.1:
-            read_news_title_with_speaker("最高点后的15-45分钟，拉升突破前高10%...")
+            # read_news_title_with_speaker("最高点后的15-45分钟，拉升突破前高10%...")
             log_to_file("最高点后的15-45分钟，拉升突破前高10%... ", "trigered_pair/pairs_" + day + ".log")
             log_to_file("high_24h=" + str(high_24h) + " cur=" + str(cur), "trigered_pair/pairs_" + day + ".log")
             return False
         if position>0.236:
-            read_news_title_with_speaker("最高点后的15-45分钟，再次进入斐波区间前的拉升")
+            # read_news_title_with_speaker("最高点后的15-45分钟，再次进入斐波区间前的拉升")
             log_to_file("高点后的15-45分钟，再次进入斐波区间前的拉升 ", "trigered_pair/pairs_" + day + ".log")
             log_to_file("high_24h=" + str(high_24h) + " cur=" + str(cur), "trigered_pair/pairs_" + day + ".log")
             return False
@@ -349,27 +349,27 @@ def check_is_near_fibonacci_price_of_TODAY(symbol:str=""):
         log_to_file("最高点后的"+str(cur_from_day_high_in_mins)[0:4]+"分钟， 拉升  ", "trigered_pair/pairs_" + day + ".log")
         log_to_file("LeftTime="+str(LT)[0:4]+"分钟，RightTime="+str(RT)[0:4]+"分钟", "trigered_pair/pairs_" + day + ".log")
         log_to_file("左右时间比为: "+str(LT/RT)+"比1", "trigered_pair/pairs_" + day + ".log")
-        read_news_title_with_speaker("左右时间比为: "+str(int(LT/RT))+"比1,距离上次高点:"+readable_time(cur_from_day_high_in_mins))
+        # read_news_title_with_speaker("左右时间比为: "+str(int(LT/RT))+"比1,距离上次高点:"+readable_time(cur_from_day_high_in_mins))
 
         if LT/RT>1.5 or LT<30 :
-            read_news_title_with_speaker("判断为下跌趋势临时回弹，放弃")
+            # read_news_title_with_speaker("判断为下跌趋势临时回弹，放弃")
             return True
 
         if 0 < position and position < 0.236:
-            read_news_title_with_speaker("最高点后的45分钟之后， 大低谷回落 再次 进入斐波区间")
+            # read_news_title_with_speaker("最高点后的45分钟之后， 大低谷回落 再次 进入斐波区间")
             log_to_file("最高点后的45分钟之后， 大低谷回落 再次 进入斐波区间 ", "trigered_pair/pairs_" + day + ".log")
             return True
         if -0.1 < position and position <= 0:
-            read_news_title_with_speaker("最高点后的45 分钟之后，短期持续爆拉升突破前高...")
+            # read_news_title_with_speaker("最高点后的45 分钟之后，短期持续爆拉升突破前高...")
             log_to_file("最高点后的45 分钟之后，短期持续爆拉升突破前高... ", "trigered_pair/pairs_" + day + ".log")
             return True
         if  position<-0.1:
-            read_news_title_with_speaker("最高点后的45 分钟之后，持续爆拉升突破前高10%...")
+            # read_news_title_with_speaker("最高点后的45 分钟之后，持续爆拉升突破前高10%...")
             log_to_file("最高点后的45 分钟之后，持续爆拉升突破前高10%... ", "trigered_pair/pairs_" + day + ".log")
             log_to_file("high_24h=" + str(high_24h) + " cur=" + str(cur), "trigered_pair/pairs_" + day + ".log")
             return False
         if position>0.236:
-            read_news_title_with_speaker("最高点后的45 分钟之后，斐波区间下面的拉升")
+            # read_news_title_with_speaker("最高点后的45 分钟之后，斐波区间下面的拉升")
             log_to_file("最高点后的45 分钟之后，斐波区间下面的拉升", "trigered_pair/pairs_" + day + ".log")
             log_to_file("high_24h=" + str(high_24h) + " cur=" + str(cur), "trigered_pair/pairs_" + day + ".log")
             return False
@@ -498,13 +498,14 @@ def  start_just_one_deal_of_pair_muti_bot(coin_pair:str=""):
     #             "查看实时模拟:https://cn.tradingview.com/chart/oLP03YDC/?symbol=BINANCE%3A"+key)
 
     print("开启mutil-pair-bot 一单，交易对:" + coin_pair)
+    read_news_title_with_speaker("开启DCA交易单，交易对:" + str(coin_pair))
     day = datetime.datetime.now().strftime("%Y-%m-%d")
     log_to_file(coin_pair+" trigerd","trigered_pair/pairs_"+day+".log")
                                                         # price_change_10m = get_symbol_change_of_last_frame_s(coin_pair, "5m",'2')#10min级别 检查
-    re=check_is_near_fibonacci_price_of_TODAY(coin_pair)
-    if re:
-        read_news_title_with_speaker(coin_pair +"判定为菲波那切区间内,放弃") #菲波那切区间 包含假突破
-        return
+    # re=check_is_near_fibonacci_price_of_TODAY(coin_pair)
+    # if re:
+    #     read_news_title_with_speaker(coin_pair +"判定为菲波那切区间内,放弃") #菲波那切区间 包含假突破
+    #     return
     start_new_deal(coin_pair)
     # log("模拟账户同时创建订单"+coin_pair)
     # start_new_deal_test_account(coin_pair)
@@ -662,7 +663,7 @@ if __name__ == '__main__':
         1.BTC 设定的阻力位价格
         2.BTC 大盘当天行情
         '''
-
+        # read_news_title_with_speaker("时间判断")
         do_time_period_select()
         do_the_select_and_decision_fast()
         log("等待 " + str(POLL_INTERVAL_IN_SEC / 60) + "min 再次查找")
