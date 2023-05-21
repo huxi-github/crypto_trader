@@ -69,7 +69,7 @@ def send_email(mail_msg:str,mail_title:str='数字货币_活跃交易'):
     # sender_qq为发件人的qq号码
     sender_qq = '1324907549'
     # pwd为qq邮箱的授权码
-    pwd = 'orxxpakxjfqkgdai'
+    pwd = 'svtusvclhvjgibea'
     # 发件人的邮箱
     sender_qq_mail = '1324907549@qq.com'
     # 收件人邮箱
@@ -90,7 +90,7 @@ def send_email(mail_msg:str,mail_title:str='数字货币_活跃交易'):
     msg["Subject"] = Header(mail_title, 'utf-8')
     msg["From"] = sender_qq_mail
     msg["To"] = receiver
-    # smtp.sendmail(sender_qq_mail, receiver, msg.as_string())
+    smtp.sendmail(sender_qq_mail, receiver, msg.as_string())
     smtp.quit()
 
 def check_and_update_msg(msg_id:str="kong msg",exc_name:str=""):
@@ -189,13 +189,13 @@ def SMA_ank(data,smaPeriod):
 
 
 if __name__ == '__main__':
-    # send_email(" 尝试启动 交易对 BUSD_TLM ")
+    send_email(" 尝试启动 交易对 BUSD_TLM ")
     # read_news_title_with_speaker("test")
     # log_to_file("新币上线","lastest_news_bbb")
     # date=[1,2,4,8,16,32,64,128,256,512]
     # sma=SMA(date,2)
     sma=[1,2,4,6,8,10,12,14,16,18]
     print(sma)
-    SMA_ank(sma,7)
+    # SMA_ank(sma,7)
 
 
