@@ -285,7 +285,7 @@ if __name__ == '__main__':
         except Exception as e:
             print(f"GUI发生异常: {e}")
             log("网络问题崩溃,等待 " + str(PROXY_ERRO_INTERVAL_IN_SEC / 60) + "min 再次查找")
-            time.sleep(POLL_INTERVAL_IN_SEC)
+            time.sleep(PROXY_ERRO_INTERVAL_IN_SEC)
             continue
 
 
