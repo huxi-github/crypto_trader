@@ -29,6 +29,7 @@ golobal_data ="golobal_data"+Frame_level
 #速度配置
 POLL_INTERVAL_IN_SEC =60*15
 SCAN_NEW_ARTI_INTERVAL_IN_SEC =60*5
+PROXY_ERRO_INTERVAL_IN_SEC =60*1
 CHOSE_RANGE=50
 
 # 6615账户的 key 和 secr
@@ -181,6 +182,7 @@ def do_the_select_and_decision_fast():
                 Entry_pri[coin_pair] = float(data["Close"].iloc[-1])
                 Last_Entry_TICKDate[coin_pair] = pd.to_datetime(data['Date'].iloc[-1]/1000,unit='s')
                 log_to_file(coin_pair + "符合5UP条件@"+str(Entry_pri[coin_pair])+"启动的交易符号：" + str(sel_coin_global),log_to_file_path)
+                send_email(coin_pair + "符合5UP条件@"+str(Entry_pri[coin_pair])+"启动的交易符号：" + str(sel_coin_global),log_to_file_path)
                 do_data_store()
         else:
             print(coin_pair + "不符合5UP条件")
@@ -252,6 +254,13 @@ def init_form_data_store():
 
 
 
+def start_the_filter():
+    init_form_data_store() 
+    do_the_select_and_decision_fast()
+    log("等待 " + str(POLL_INTERVAL_IN_SEC / 60) + "min 再次查找")
+    time.sleep(POLL_INTERVAL_IN_SEC)
+
+
 if __name__ == '__main__':
     #  拉盘启动模拟账户交易
     #意外终止读取 上次存储的数据
@@ -260,18 +269,24 @@ if __name__ == '__main__':
     # print("------- sel_coin_global="+str(sel_coin_global))
     # print("------- Staic="+str(Staic))
     # print("------- Last_Entry_TICKDate="+str(Last_Entry_TICKDate))
-    while (True):
-        '''
-        时间判断 8：am  and 18：pam
-        '''
-        # do_time_period_select()
-        do_the_select_and_decision_fast()
-        log("等待 " + str(POLL_INTERVAL_IN_SEC / 60) + "min 再次查找")
-        time.sleep(POLL_INTERVAL_IN_SEC)
+    # while (True):
 
 
-
-
+    # 循环监测GUI的运行状态
+    while True:
+        try:
+            '''
+            # 时间判断 8：am  and 18：pam
+            '''
+            # do_time_period_select()
+            do_the_select_and_decision_fast()
+            log("等待 " + str(POLL_INTERVAL_IN_SEC / 60) + "min 再次查找")
+            time.sleep(POLL_INTERVAL_IN_SEC)
+        except Exception as e:
+            print(f"GUI发生异常: {e}")
+            log("网络问题崩溃,等待 " + str(PROXY_ERRO_INTERVAL_IN_SEC / 60) + "min 再次查找")
+            time.sleep(POLL_INTERVAL_IN_SEC)
+            continue
 
 
     # data = get_symbol_data_of_last_frame_s("JASMYBUSD", "1h", '105')

@@ -10,7 +10,7 @@ from config import *
 import pandas as pd
 
 #全局可持久化变量
-sel_coin_global=[]
+sel_coin_global=["BTCUSDT"]
 Entry_pri={"BTCUSDT":30000}
 Last_Entry_TICKDate={"BTCUSDT":"2020-03-12 15:22:00"}
 # inital_dollers =10000
