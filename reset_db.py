@@ -15,23 +15,21 @@
 
 
 #### golobal_data.db 数据库展示
-import shelve
+import shelve 
 Frame_level= '1h'
 golobal_data ="golobal_data"+Frame_level
 
 print("初始化历史数据..."+golobal_data)
 with shelve.open(golobal_data) as db:
+    for key, value in db.items():
+        print ('键 {} = {}'.format(key, value))
 
-    if 'sel_coin_global' in db:
-        sel_coin_global = db['sel_coin_global']
-        print(" sel_coin_global="+str(sel_coin_global))
-        # db['sel_coin_global']= []
-    if 'Entry_pri' in db:
-        Entry_pri = db['Entry_pri'] 
-        print(" Entry_pri="+str(Entry_pri))
-    if 'Static' in db:
-        Static = db['Static']
-        print(" Static="+str(Static))
+    # db['Entry_pri'] ={}
+    # db['Last_Entry_TICKDate']={}
+    # db['sel_coin_global']=[] 
+    # db['lose_count']=0
+    # db['win_count']=0
+    # db['Staic']={"inital_dollers":10000,"current_balance":10000,"win_count":0,"lose_count":0}
 
 
 #### golobal_data1h.db 数据库展示,数据库清零
@@ -44,10 +42,10 @@ with shelve.open(golobal_data) as db:
     for key, value in db.items():
         print ('键 {} = {}'.format(key, value))
 
-    db['Entry_pri'] ={}
-    db['Last_Entry_TICKDate']={}
-    db['sel_coin_global']=[] 
-    db['lose_count']=0
-    db['win_count']=0
-    db['Staic']=0
+    # db['Entry_pri'] ={}
+    # db['Last_Entry_TICKDate']={}
+    # db['sel_coin_global']=[] 
+    # db['lose_count']=0
+    # db['win_count']=0
+    # db['Staic']={"inital_dollers":10000,"current_balance":10000,"win_count":0,"lose_count":0}
 

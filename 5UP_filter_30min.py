@@ -13,8 +13,6 @@ import pandas as pd
 sel_coin_global=[]
 Entry_pri={"BTCUSDT":30000}
 Last_Entry_TICKDate={"BTCUSDT":"2020-03-12 15:22:00"}
-# inital_dollers =10000
-# current_balance =inital_dollers
 Staic={"inital_dollers":10000,"current_balance":10000,"win_count":0,"lose_count":0}
 
 
