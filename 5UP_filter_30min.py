@@ -10,6 +10,8 @@ from config import *
 import muti_dca_deal_creator
 from muti_dca_deal_creator import start_new_deal,p3c
 import pandas as pd
+import DealMgr
+from DealMgr import DEALMGR
 
 
 #全局可持久化变量
@@ -33,6 +35,7 @@ SCAN_NEW_ARTI_INTERVAL_IN_SEC =60*5
 PROXY_ERRO_INTERVAL_IN_SEC =60*1
 CHOSE_RANGE=25#5.28 15:41 修改 50 改成 25
 
+DealMgr = DEALMGR('trade_list_30m_sqlite3.db')
 
 # ///////GET /api/v3/ticker/24hr
 def get_top_coin():
@@ -149,7 +152,11 @@ def do_the_select_and_decision_fast():
                 Last_Entry_TICKDate[coin_pair] = pd.to_datetime(data['Date'].iloc[-1]/1000,unit='s')
                 log_to_file(coin_pair + "符合5UP条件@"+str(Entry_pri[coin_pair])+"启动的交易符号：" + str(sel_coin_global),log_to_file_path)
                 send_email(coin_pair + "符合5UP条件@"+str(Entry_pri[coin_pair])+"启动的交易符号：" + str(sel_coin_global),log_to_file_path)
+                start_new_deal(coin_pair) 
+                DealMgr.create_deal(coin_pair,Entry_pri[coin_pair])
                 do_data_store()
+            else:
+                print(coin_pair+"有尚未结束的交易单...,不重复进入")
         else:
             print(coin_pair + "不符合5UP条件")
         # if len(sel)>=1:
@@ -158,9 +165,9 @@ def do_the_select_and_decision_fast():
     print("start doing finish_check of in_trade_deal")
     for coin_pair_t in sel_coin_global:
         print("do finish_check of :"+coin_pair_t)
-        data=get_symbol_data_of_last_frame_s(coin_pair_t,Frame_level,'2')
+        data=get_symbol_data_of_last_frame_s(coin_pair_t,Frame_level,'1')
         do_deal_finish_check(data,coin_pair_t)
-        time.sleep(0.3)
+        time.sleep(0.1)
 
 def do_5_continous_up_Analysis(data):
     if data['Close'].iloc[-6] < data['Close'].iloc[-5]\
@@ -182,20 +189,24 @@ def do_deal_finish_check(data,coin_pair):
             Staic['win_count'] = Staic['win_count'] + 1
             print("after add"+str(Staic['win_count']))
             log_to_file(coin_pair + "止盈+++++@"+str(Entry_pri[coin_pair]*(100+SP_per)/100), log_to_file_path)
-            send_email(coin_pair + "止盈+++++@"+str(Entry_pri[coin_pair]*(100+SP_per)/100), log_to_file_path)
             log_to_file("策略盈利"+str(Staic['win_count'])+"次  止损"+str(Staic['lose_count'])+"次", log_to_file_path)
+            send_email(coin_pair + "止盈+++++@"+str(Entry_pri[coin_pair]*(100+SP_per)/100), log_to_file_path)
             sel_coin_global.remove(coin_pair)
+            DealMgr.close_deal(coin_pair,Entry_pri[coin_pair]*(100+SP_per)/100)
             del Entry_pri[coin_pair]
             do_data_store()
         elif float(data['Low'].iloc[-1]) < Entry_pri[coin_pair]*(100-SL_per)/100:
             print(coin_pair+"止损@"+str(Entry_pri[coin_pair]*(100-SL_per)/100))
             Staic['lose_count'] = Staic['lose_count'] + 1
             log_to_file(coin_pair + "止损——————@"+str(Entry_pri[coin_pair]*(100-SL_per)/100), log_to_file_path)
-            send_email(coin_pair + "止损——————@"+str(Entry_pri[coin_pair]*(100-SL_per)/100), log_to_file_path)
             log_to_file("策略盈利"+str(Staic['win_count'])+"次  止损"+str(Staic['lose_count'])+"次", log_to_file_path)
+            send_email(coin_pair + "止损——————@"+str(Entry_pri[coin_pair]*(100-SL_per)/100), log_to_file_path)
             sel_coin_global.remove(coin_pair)
             del Entry_pri[coin_pair]
+            DealMgr.close_deal(coin_pair,Entry_pri[coin_pair]*(100-SL_per)/100)
             do_data_store()
+        else:
+            print(coin_pair+"没有止盈止损")
 
 
 def do_data_store():
