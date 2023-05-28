@@ -6,11 +6,8 @@ import time
 POLL_INTERVAL_IN_SEC =3
 SCAN_NEW_ARTI_INTERVAL_IN_SEC =60*5
 #模拟账户的 key 和 secr
-p3c = Py3Commas(key='xx',
-                secret='xx'
-                       ' '
-                       ' '
-                       ' ')
+p3c = Py3Commas(key='66c9780e46034bfebc6ce13cf825cd6e6693cc498d4b426bb43b2c6e90325c8f',
+                secret='092675269ac7898de6f4db34d3ff1265da712efe14995cc5243027afe363c2ace2c666906abb970f8f25a774397b56c6af53c152254de9cf857518b9ea4ddac9c4a7d1c28f853a2e00db1ed9bc06ad55eb6aa08090f35816fa6915b2cc2ca241de063bd6')
 
 # ///////POST /ver1/bots/{bot_id}/start_new_deal  [仅仅对 muti-pair 机器人使用这个接口 可用]
 def start_new_deal(coin_pair:str=""):# from  3commas network
@@ -22,11 +19,11 @@ def start_new_deal(coin_pair:str=""):# from  3commas network
         entity='bots',
         action='start_new_deal',
             # _id="4228101",
-                _id="4740610",
+                _id="11358971",
         payload={"pair":symbol_pair,
                 "skip_signal_checks":"true",
                  "skip_open_deals_checks":"false", #是否跳过界面上的 检查相同交易对并发数目的检查[比较安全]
-                 "bot_id":"4740610"
+                 "bot_id":"11358971"
                  }
     )
 
@@ -98,6 +95,17 @@ def start_just_one_deal_of_pair_muti_bot(coin_pair:str=""):
     # ////// 打印该币 是否支持杠杆---
 
 
+# ///////GET /api/v3/klines
+def get_symbol_data_of_last_frame_s(symbol:str="",watch_interval:str="1h",limit:str='99'):
+    data_list_arry = p3c.request_binance_data(
+            http_method="GET",
+            path="/api/v3/klines",
+            params="symbol="+symbol+"&interval="+watch_interval+"&limit="+limit
+            )
+    names=['Date', 'Open','High','Low','Close','Volume','close_Date','volume_usdt','8','9','10','11']
+    pd_data = pd.DataFrame(data_list_arry)
+    pd_data.columns= names
+    return pd_data #所有的收盘价
 
 def do_the_select_and_decision_fast():
     cur_time = datetime.datetime.now().strftime("%H:%M")

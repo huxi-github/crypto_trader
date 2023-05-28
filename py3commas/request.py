@@ -148,7 +148,7 @@ class Py3Commas:
         response = None
         json_obj = {}
         while not get_response and sleep_retry_times_left>0 and sleep_parse_retry_times_left>0:
-            print("2222requrll="+requrll)
+            # print("2222requrll="+requrll)
             s = requests.Session()
             s.mount('http://', HTTPAdapter(max_retries=3))
             s.mount('https://', HTTPAdapter(max_retries=3))

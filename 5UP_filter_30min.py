@@ -7,7 +7,10 @@ import datetime
 import time
 from config import *
 
+import muti_dca_deal_creator
+from muti_dca_deal_creator import start_new_deal,p3c
 import pandas as pd
+
 
 #全局可持久化变量
 sel_coin_global=[]
@@ -28,14 +31,8 @@ golobal_data ="golobal_data"+Frame_level
 POLL_INTERVAL_IN_SEC =60*15
 SCAN_NEW_ARTI_INTERVAL_IN_SEC =60*5
 PROXY_ERRO_INTERVAL_IN_SEC =60*1
-CHOSE_RANGE=50
+CHOSE_RANGE=25#5.28 15:41 修改 50 改成 25
 
-# 6615账户的 key 和 secr
-p3c = Py3Commas(key='xxx',
-                secret='xxx'
-                       ' '
-                       ' '
-                       ' ')
 
 # ///////GET /api/v3/ticker/24hr
 def get_top_coin():
@@ -186,8 +183,13 @@ def do_the_select_and_decision_fast():
             print(coin_pair + "不符合5UP条件")
         # if len(sel)>=1:
             # read_news_title_with_speaker("同时上涨数量15分之"+str(len(sel))+"个,行情可能转好...")
-        do_deal_finish_check(data,coin_pair)
-        time.sleep(2)
+        time.sleep(1)
+    print("start doing finish_check of in_trade_deal")
+    for coin_pair_t in sel_coin_global:
+        print("do finish_check of :"+coin_pair_t)
+        data=get_symbol_data_of_last_frame_s(coin_pair_t,Frame_level,'2')
+        do_deal_finish_check(data,coin_pair_t)
+        time.sleep(0.3)
 
 def do_5_continous_up_Analysis(data):
     if data['Close'].iloc[-6] < data['Close'].iloc[-5]\
@@ -209,6 +211,7 @@ def do_deal_finish_check(data,coin_pair):
             Staic['win_count'] = Staic['win_count'] + 1
             print("after add"+str(Staic['win_count']))
             log_to_file(coin_pair + "止盈+++++@"+str(Entry_pri[coin_pair]*(100+SP_per)/100), log_to_file_path)
+            send_email(coin_pair + "止盈+++++@"+str(Entry_pri[coin_pair]*(100+SP_per)/100), log_to_file_path)
             log_to_file("策略盈利"+str(Staic['win_count'])+"次  止损"+str(Staic['lose_count'])+"次", log_to_file_path)
             sel_coin_global.remove(coin_pair)
             del Entry_pri[coin_pair]
@@ -217,6 +220,7 @@ def do_deal_finish_check(data,coin_pair):
             print(coin_pair+"止损@"+str(Entry_pri[coin_pair]*(100-SL_per)/100))
             Staic['lose_count'] = Staic['lose_count'] + 1
             log_to_file(coin_pair + "止损——————@"+str(Entry_pri[coin_pair]*(100-SL_per)/100), log_to_file_path)
+            send_email(coin_pair + "止损——————@"+str(Entry_pri[coin_pair]*(100-SL_per)/100), log_to_file_path)
             log_to_file("策略盈利"+str(Staic['win_count'])+"次  止损"+str(Staic['lose_count'])+"次", log_to_file_path)
             sel_coin_global.remove(coin_pair)
             del Entry_pri[coin_pair]
