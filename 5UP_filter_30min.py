@@ -81,35 +81,6 @@ def get_symbol_change_of_last_frame_s(symbol:str="",watch_interval:str="5m",limi
     return price_change_percent
 
 
-# def do_10_continous_up_Analysis(symbol:str=""):
-#     limit=15
-#     watch_interval='1m'
-#     data_arry = p3c.request_binance_data(
-#             http_method="GET",
-#             path="/api/v3/klines",
-#             params="symbol="+symbol+"&interval="+watch_interval+"&limit="+str(limit)
-#             #params="symbol=C98USDT&interval=5m&limit=3"         #一个符号
-#             )
-#     conti_up_cnt=0
-#     for i in range(limit):
-#         data = data_arry[i]
-#         open = float(data[1])
-#         high = float(data[2])
-#         low  = float(data[3])
-#         close= float(data[4])
-#         price_change_percent= 100.00*(close-open)/open
-#         print("open:"+str(open))
-#         print("close:" + str(close))
-#         print("price_change_percent="+str(price_change_percent))
-#         if 0<price_change_percent and price_change_percent<1.5:
-#             conti_up_cnt+=1
-#         #close即是 当前价格
-#     print("交易对"+symbol+" 在最近前"+str(limit)+"个"+watch_interval+"内 增长分钟数为"+str(conti_up_cnt))
-#     if conti_up_cnt>10:
-#         return True
-#     else:
-#         return False
-
 def do_MA_condition_Analysis(data):
     #是否在30 均线上方
     print(data.iloc[-5]['MA30'])
@@ -267,12 +238,6 @@ if __name__ == '__main__':
     #  拉盘启动模拟账户交易
     #意外终止读取 上次存储的数据
     init_form_data_store() 
-    # print("------- Entry_pri="+str(Entry_pri))
-    # print("------- sel_coin_global="+str(sel_coin_global))
-    # print("------- Staic="+str(Staic))
-    # print("------- Last_Entry_TICKDate="+str(Last_Entry_TICKDate))
-    # while (True):
-
 
     # 循环监测GUI的运行状态
     while True:
