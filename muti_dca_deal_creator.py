@@ -46,6 +46,42 @@ def start_new_deal(coin_pair:str=""):# from  3commas network
         print("\nbots/start_new_deal successful 成功:"+"symbol_pair="+symbol_pair)
     print("\n")
 
+def start_new_deal_real(coin_pair:str=""):# from  3commas network
+    index_s =coin_pair.find("BUSD")
+    base = coin_pair[0:index_s]
+    symbol_pair = "BUSD_"+base
+
+    response1 = p3c.request(
+        entity='bots',
+        action='start_new_deal',
+            # _id="4228101",
+                _id="11367606",
+        payload={"pair":symbol_pair,
+                "skip_signal_checks":"true",
+                 "skip_open_deals_checks":"false", #是否跳过界面上的 检查相同交易对并发数目的检查[比较安全]
+                 "bot_id":"11367606"
+                 }
+    )
+
+    print("服务器返回+resp_txt===="+str(response1))# from  3commas network网络回复
+    if 'error:' in response1:
+        print("\nbots/start_new_deal failed:"+"symbol_pair="+symbol_pair)
+        print("\n请求的参数可能存在错误")
+    elif 'rejected-max-deal' in response1: #自己定义rejected
+        cur_time = datetime.datetime.now().strftime("%m-%d %H:%M:%S")
+        print("\n达到最大订单数限制 for" + " symbol_pair=" + symbol_pair+"暂停20s再扫描......")
+        send_email(cur_time+"达到最大订单数限制 for" + " symbol_pair=" + symbol_pair+"暂停20s再扫描......")
+        time.sleep(20)
+    elif 'rejected-not-exsit' in response1: #自己定义rejected
+        print("\n交易对不再交易对备选表中 for" + " symbol_pair=" + symbol_pair+"跳过，扫描下一个")
+        send_email("\n交易对不再交易对备选表中 for" + " symbol_pair=" + symbol_pair+"跳过，扫描下一个")
+    elif 'net_timeout' in response1:
+        print("\n3commas.io网络拥塞，已经尝试5次连接(2.3) for" + " symbol_pair=" + symbol_pair + "不等待 3s，之后进入下一轮扫描，直接扫")
+        send_email("\n3commas.io网络拥塞4X(2.3)s for" + " symbol_pair=" + symbol_pair + "不等待,直接扫下一轮,币安扫描要时间")
+    else:
+        print("\nbots/start_new_deal successful 成功:"+"symbol_pair="+symbol_pair)
+    print("\n")
+
 # ///////GET /api/v3/ticker/24hr
 def get_top_coin():
     data_arry = p3c.request_binance_data(

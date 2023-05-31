@@ -8,7 +8,7 @@ import time
 from config import *
 
 import muti_dca_deal_creator
-from muti_dca_deal_creator import start_new_deal,p3c
+from muti_dca_deal_creator import start_new_deal,p3c,start_new_deal_real
 import pandas as pd
 import DealMgr
 from DealMgr import DEALMGR
@@ -153,6 +153,7 @@ def do_the_select_and_decision_fast():
                 log_to_file(coin_pair + "符合5UP条件@"+str(Entry_pri[coin_pair])+"启动的交易符号：" + str(sel_coin_global),log_to_file_path)
                 send_email(coin_pair + "符合5UP条件@"+str(Entry_pri[coin_pair])+"启动的交易符号：" + str(sel_coin_global),log_to_file_path)
                 start_new_deal(coin_pair) 
+                start_new_deal_real(coin_pair)#启动实盘账户 
                 DealMgr.create_deal(coin_pair,Entry_pri[coin_pair])
                 do_data_store()
             else:
@@ -161,13 +162,13 @@ def do_the_select_and_decision_fast():
             print(coin_pair + "不符合5UP条件")
         # if len(sel)>=1:
             # read_news_title_with_speaker("同时上涨数量15分之"+str(len(sel))+"个,行情可能转好...")
-        time.sleep(1)
+        time.sleep(2)
     print("start doing finish_check of in_trade_deal")
     for coin_pair_t in sel_coin_global:
         print("do finish_check of :"+coin_pair_t)
         data=get_symbol_data_of_last_frame_s(coin_pair_t,Frame_level,'1')
         do_deal_finish_check(data,coin_pair_t)
-        time.sleep(0.1)
+        time.sleep(0.2)
 
 def do_5_continous_up_Analysis(data):
     if data['Close'].iloc[-6] < data['Close'].iloc[-5]\
@@ -202,8 +203,8 @@ def do_deal_finish_check(data,coin_pair):
             log_to_file("策略盈利"+str(Staic['win_count'])+"次  止损"+str(Staic['lose_count'])+"次", log_to_file_path)
             send_email(coin_pair + "止损——————@"+str(Entry_pri[coin_pair]*(100-SL_per)/100), log_to_file_path)
             sel_coin_global.remove(coin_pair)
-            del Entry_pri[coin_pair]
             DealMgr.close_deal(coin_pair,Entry_pri[coin_pair]*(100-SL_per)/100)
+            del Entry_pri[coin_pair]
             do_data_store()
         else:
             print(coin_pair+"没有止盈止损")
