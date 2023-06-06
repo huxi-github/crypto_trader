@@ -10,7 +10,7 @@ from config import *
 import muti_dca_deal_creator
 from muti_dca_deal_creator import start_new_deal,p3c,start_new_deal_real
 import pandas as pd
-import DealMgr
+# import DealMgr
 from DealMgr import DEALMGR
 
 
@@ -175,7 +175,8 @@ def do_5_continous_up_Analysis(data):
     and data['Close'].iloc[-5] < data['Close'].iloc[-4] \
     and data['Close'].iloc[-4] < data['Close'].iloc[-3] \
     and data['Close'].iloc[-3] < data['Close'].iloc[-2]:
-    # and data['Close'].iloc[-2] < data['Close'].iloc[-1]:# ['Close'].iloc[-1] 时刻变化的，就是最新价格
+    # and data['Close'].iloc[-2] < data['Close'].iloc[-1]:
+    # ['Close'].iloc[-1] 时刻变化的，就是最新价格
         return True
     else:
         return False
@@ -192,8 +193,8 @@ def do_deal_finish_check(data,coin_pair):
             log_to_file(coin_pair + "止盈+++++@"+str(Entry_pri[coin_pair]*(100+SP_per)/100), log_to_file_path)
             log_to_file("策略盈利"+str(Staic['win_count'])+"次  止损"+str(Staic['lose_count'])+"次", log_to_file_path)
             send_email(coin_pair + "止盈+++++@"+str(Entry_pri[coin_pair]*(100+SP_per)/100), log_to_file_path)
-            sel_coin_global.remove(coin_pair)
             DealMgr.close_deal(coin_pair,Entry_pri[coin_pair]*(100+SP_per)/100)
+            sel_coin_global.remove(coin_pair)
             del Entry_pri[coin_pair]
             do_data_store()
         elif float(data['Low'].iloc[-1]) < Entry_pri[coin_pair]*(100-SL_per)/100:
@@ -202,8 +203,8 @@ def do_deal_finish_check(data,coin_pair):
             log_to_file(coin_pair + "止损——————@"+str(Entry_pri[coin_pair]*(100-SL_per)/100), log_to_file_path)
             log_to_file("策略盈利"+str(Staic['win_count'])+"次  止损"+str(Staic['lose_count'])+"次", log_to_file_path)
             send_email(coin_pair + "止损——————@"+str(Entry_pri[coin_pair]*(100-SL_per)/100), log_to_file_path)
-            sel_coin_global.remove(coin_pair)
             DealMgr.close_deal(coin_pair,Entry_pri[coin_pair]*(100-SL_per)/100)
+            sel_coin_global.remove(coin_pair)
             del Entry_pri[coin_pair]
             do_data_store()
         else:
@@ -268,5 +269,5 @@ if __name__ == '__main__':
             continue
 
 
-    # data = get_symbol_data_of_last_frame_s("JASMYBUSD", "1h", '105')
-    # print(data["Close"].iloc[-2])
+    # data = get_symbol_data_of_last_frame_s("MDXUSDT", "1m", '105')
+    # print(data["Close"].iloc[-1]) #-1 表示 未完成的收盘价，,-2 表示已完成的最近一个收盘价
