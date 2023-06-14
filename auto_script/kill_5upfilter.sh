@@ -45,8 +45,25 @@ stop_service2() {
     fi
 }
 
-stop_service1
-stop_service2
+stop_service() {
+    serv=$1  #$var表示以字符串形式获取var的值，类似于 get_Val(var)， serv表示定义一个变量 ，$var 是${var} 的简写
+    # 查询Java进程ID
+    local pid=$(ps -ef | grep -i $serv | grep -v grep | awk '{print $2}')
+        # 如果进程ID不为空
+        
+    if [[ -n $pid ]]; then
+        echo "Try to kill "$serv
+                # 杀死进程并等待进程退出  
+        kill $pid && wait_for_process_exit "$pid"
+    else 
+        echo $serv" is killed"
+        #statements
+    fi
+}
+
+stop_service 5UP_filter.py
+stop_service 5UP_filter_30min.py
+stop_service 5UP_filter_plus_ma_day_30min.py
 # stop_service 5UP_filter30min.py
 # # for test_api.py
 # NUM0=`ps -ef | grep -i '5UP_filter.py' | grep -v "grep" | wc -l`  #查看程序进程是否存活，结果为0为不存活，非0为存活
