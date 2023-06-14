@@ -13,6 +13,13 @@ import pandas as pd
 # import DealMgr
 from DealMgr import DEALMGR
 
+symbols_file = open("sel_GOOD_BUSD_TP5_SL10.txt")
+white_list_tmp = symbols_file.readlines()
+white_list =[]
+for symbol in white_list_tmp:
+    symbol=symbol.replace("\n", "")
+    white_list.append(symbol)
+print(white_list)
 
 #全局可持久化变量
 sel_coin_global=[]
@@ -22,8 +29,8 @@ Staic={"inital_dollers":10000,"current_balance":10000,"win_count":0,"lose_count"
 
 
 #配置数据:策略
-SP_per =4
-SL_per =11
+SP_per =5
+SL_per =10
 Frame_level= '30m'
 log_to_file_path = "5UP_filter_"+Frame_level+".log"
 golobal_data ="golobal_data"+Frame_level
@@ -152,8 +159,13 @@ def do_the_select_and_decision_fast():
                 Last_Entry_TICKDate[coin_pair] = pd.to_datetime(data['Date'].iloc[-1]/1000,unit='s')
                 log_to_file(coin_pair + "符合5UP条件@"+str(Entry_pri[coin_pair])+"启动的交易符号：" + str(sel_coin_global),log_to_file_path)
                 send_email(coin_pair + "符合5UP条件@"+str(Entry_pri[coin_pair])+"启动的交易符号：" + str(sel_coin_global),log_to_file_path)
-                start_new_deal(coin_pair) 
-                start_new_deal_real(coin_pair)#启动实盘账户 
+                if coin_pair in white_list:
+                    start_new_deal(coin_pair) 
+                    # start_new_deal_real(coin_pair)#启动实盘账户 
+                else:
+                    print(coin_pair + "不在白名单里")
+                    log_to_file(coin_pair + "不在白名单里",log_to_file_path)
+                    send_email(coin_pair + "不在白名单里",log_to_file_path)
                 DealMgr.create_deal(coin_pair,Entry_pri[coin_pair])
                 do_data_store()
             else:
