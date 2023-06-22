@@ -154,7 +154,6 @@ def do_the_select_and_decision_fast():
             One_KLine_Same_Entry =True
             print("同一根K线重复进入")
         if five_UP and do_MA_condition_Analysis(data) and not One_KLine_Same_Entry: 
-            log_to_file(coin_pair+"符合5UP条件，@"+str(data["Close"].iloc[-1]),log_to_file_path)
             if not coin_pair in sel_coin_global:
                 if coin_pair in white_list:
                     sel_coin_global.append(coin_pair)
@@ -168,7 +167,7 @@ def do_the_select_and_decision_fast():
                     send_email(coin_pair + "符合5UP条件@"+str(Entry_pri[coin_pair])+"启动的交易符号：" + str(sel_coin_global),log_to_file_path)
                 else:
                     print(coin_pair + "不在白名单里")
-                    log_to_file(coin_pair + "不在白名单里,不启动实盘，",log_to_file_path)
+                    log_to_file(coin_pair + "符合5UP条件@"+str(data["Close"].iloc[-1])+ "不在白名单里,不启动实盘",log_to_file_path)
                     # send_email(coin_pair + "不在白名单里,不启动实盘，只记录日志",log_to_file_path)
             else:
                 print(coin_pair+"有尚未结束的交易单...,不重复进入")
