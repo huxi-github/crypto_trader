@@ -18,6 +18,7 @@ start_service() {
 # start_service /Users/huxi/Downloads/crypto_trade_test 5UP_filter.py
 start_service /Users/huxi/Downloads/crypto_trade_test 5UP_filter_30min.py
 start_service /Users/huxi/Downloads/crypto_trade_test 5UP_filter_plus_ma_day_30min.py
+start_service /Users/huxi/Downloads/crypto_trade_test 5UP_filter_30min_tp5_10_white_list.py
 
 echo 按任意键继续
 read -n 1

@@ -69,7 +69,7 @@ def send_email(mail_msg:str,mail_title:str='数字货币_活跃交易'):
     # sender_qq为发件人的qq号码
     sender_qq = '1324907549'
     # pwd为qq邮箱的授权码
-    pwd = 'svtusvclhvjgibea'
+    pwd = 'orkbhcwvxpuljbfe'
     # 发件人的邮箱
     sender_qq_mail = '1324907549@qq.com'
     # 收件人邮箱

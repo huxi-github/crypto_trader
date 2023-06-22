@@ -19,7 +19,7 @@ white_list =[]
 for symbol in white_list_tmp:
     symbol=symbol.replace("\n", "")
     white_list.append(symbol)
-print(white_list)
+# print(white_list)
 
 #全局可持久化变量
 sel_coin_global=[]
@@ -29,20 +29,20 @@ Staic={"inital_dollers":10000,"current_balance":10000,"win_count":0,"lose_count"
 
 
 #配置数据:策略
-SP_per =3
+SP_per =5
 SL_per =10
 Frame_level= '30m'
-log_to_file_path = "5UP_filter_"+Frame_level+".log"
-golobal_data ="golobal_data"+Frame_level
+log_to_file_path = "5UP_filter_"+Frame_level+"tp_"+str(SP_per)+"_"+str(SL_per)+"MA_duotou_white.log"
+golobal_data ="golobal_data"+log_to_file_path
 
 
 #速度配置
 POLL_INTERVAL_IN_SEC =60*15
 SCAN_NEW_ARTI_INTERVAL_IN_SEC =60*5
 PROXY_ERRO_INTERVAL_IN_SEC =60*1
-CHOSE_RANGE=35#5.28 15:41 修改 50 改成 25
+CHOSE_RANGE=40#5.28 15:41 修改 50 改成 25
 
-DealMgr = DEALMGR('trade_list_30m_sqlite3.db')
+DealMgr = DEALMGR('trade_list_30m_sqlite_tp_'+str(SP_per)+'MA_duotou_white.db')
 
 # ///////GET /api/v3/ticker/24hr
 def get_top_coin():
@@ -97,7 +97,9 @@ def do_MA_condition_Analysis(data):
     if float(data.iloc[-6]['Close'])  > float(data.iloc[-6]['MA30'])and float(data.iloc[-5]['Close'])  > float(data.iloc[-5]['MA30'])\
     and float(data['Close'].iloc[-4]) > float(data['MA30'].iloc[-4]) and float(data['Close'].iloc[-3]) > float(data['MA30'].iloc[-3])\
     and float(data['Close'].iloc[-2]) > float(data['MA30'].iloc[-2])\
-    and float(data['Close'].iloc[-1]) > float(data['MA30'].iloc[-1]):# and  float(data['Close'].iloc[-1]) > float(data['MA30'].iloc[-1]):
+    and float(data['Close'].iloc[-1]) > float(data['MA30'].iloc[-1])\
+    and float(data['MA7'].iloc[-1])   > float(data['MA30'].iloc[-1]) \
+    and float(data['MA30'].iloc[-1])  > float(data['MA99'].iloc[-1]) :
         return True
     else:
         return False
@@ -152,23 +154,22 @@ def do_the_select_and_decision_fast():
             One_KLine_Same_Entry =True
             print("同一根K线重复进入")
         if five_UP and do_MA_condition_Analysis(data) and not One_KLine_Same_Entry: 
-            print(coin_pair+"符合5UP条件，启动的的交易符号："+str(sel_coin_global))
+            log_to_file(coin_pair+"符合5UP条件，@"+str(data["Close"].iloc[-1]),log_to_file_path)
             if not coin_pair in sel_coin_global:
-                sel_coin_global.append(coin_pair)
-                Entry_pri[coin_pair] = float(data["Close"].iloc[-1])
-                Last_Entry_TICKDate[coin_pair] = pd.to_datetime(data['Date'].iloc[-1]/1000,unit='s')
-                log_to_file(coin_pair + "符合5UP条件@"+str(Entry_pri[coin_pair])+"启动的交易符号：" + str(sel_coin_global),log_to_file_path)
-                send_email(coin_pair + "符合5UP条件@"+str(Entry_pri[coin_pair])+"启动的交易符号：" + str(sel_coin_global),log_to_file_path)
                 if coin_pair in white_list:
-                    # start_new_deal(coin_pair) 
-                    print("start_new_deal........("+coin_pair+")")
+                    sel_coin_global.append(coin_pair)
+                    Entry_pri[coin_pair] = float(data["Close"].iloc[-1])
+                    Last_Entry_TICKDate[coin_pair] = pd.to_datetime(data['Date'].iloc[-1]/1000,unit='s')
+                    start_new_deal(coin_pair) 
                     # start_new_deal_real(coin_pair)#启动实盘账户 
+                    DealMgr.create_deal(coin_pair,Entry_pri[coin_pair])
+                    do_data_store()
+                    log_to_file(coin_pair + "符合5UP条件@"+str(Entry_pri[coin_pair])+"启动的交易符号：" + str(sel_coin_global),log_to_file_path)
+                    send_email(coin_pair + "符合5UP条件@"+str(Entry_pri[coin_pair])+"启动的交易符号：" + str(sel_coin_global),log_to_file_path)
                 else:
                     print(coin_pair + "不在白名单里")
                     log_to_file(coin_pair + "不在白名单里,不启动实盘，",log_to_file_path)
-                    send_email(coin_pair + "不在白名单里,不启动实盘，只记录日志",log_to_file_path)
-                DealMgr.create_deal(coin_pair,Entry_pri[coin_pair])
-                do_data_store()
+                    # send_email(coin_pair + "不在白名单里,不启动实盘，只记录日志",log_to_file_path)
             else:
                 print(coin_pair+"有尚未结束的交易单...,不重复进入")
         else:
@@ -264,7 +265,6 @@ if __name__ == '__main__':
     #  拉盘启动模拟账户交易
     #意外终止读取 上次存储的数据
     init_form_data_store() 
-
     # 循环监测GUI的运行状态
     while True:
         try:
