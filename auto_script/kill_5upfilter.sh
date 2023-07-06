@@ -64,6 +64,8 @@ stop_service() {
 stop_service 5UP_filter.py
 stop_service 5UP_filter_30min.py
 stop_service 5UP_filter_plus_ma_day_30min.py
+stop_service 5UP_filter_30min_tp5_10_white_list.py
+stop_service 5UP_filter_30min_tp5_10_MA_grow_white_list.py
 # stop_service 5UP_filter30min.py
 # # for test_api.py
 # NUM0=`ps -ef | grep -i '5UP_filter.py' | grep -v "grep" | wc -l`  #查看程序进程是否存活，结果为0为不存活，非0为存活
