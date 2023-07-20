@@ -14,6 +14,8 @@ emmu_bot_id ="11358971"
 real_account_id="30391014"
 emu_account_id="32193662"
 
+pp_thread =105
+
 def do_deal_check_and_order():
     check_all_deals_to_funds()
     pass
@@ -163,13 +165,13 @@ if __name__ == '__main__':  #一般就开2-3个机器人，风险考虑
     while (True):
         try:
             today_profit = get_today_profit("",emmu_bot_id)
-            if today_profit>110:
-                print("单日利润金额大于阈值 "+str(110)+"暂停机器人4天,并关闭部分订单...")
-                log_to_file("单日利润金额大于阈值 "+str(110)+"暂停机器人4天,并关闭部分订单...",log_to_file_path)
+            if today_profit>pp_thread:
+                print("单日利润金额大于阈值 "+str(pp_thread)+"暂停机器人4天,并关闭部分订单...")
+                log_to_file("单日利润金额大于阈值 "+str(pp_thread)+"暂停机器人4天,并关闭部分订单...",log_to_file_path)
                 stop_the_bot("11367606")
                 stop_the_bot("11358971")#模拟   
                 check_all_deals_to_profit_and_close(real_bot_id)             
-                send_email("单日利润金额大于阈值 "+str(110)+"暂停机器人4天,并关闭部分订单...:" + str(today_profit)+"usd",log_to_file_path)
+                send_email("单日利润金额大于阈值 "+str(pp_thread)+"暂停机器人4天,并关闭部分订单...:" + str(today_profit)+"usd",log_to_file_path)
             print("等待"+str(ORDER_CHECK_INTERVAL_IN_MINS)+"min 再次订单")  
             time.sleep(ORDER_CHECK_INTERVAL_IN_MINS*60) 
         except Exception as e:
