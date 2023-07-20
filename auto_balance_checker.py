@@ -11,7 +11,8 @@ ORDER_CHECK_INTERVAL_IN_MINS =15 # 加仓间隔，最小加仓间隔 1min/3min �
 real_bot_id ="11367606"
 emmu_bot_id ="11358971"
 
-account_id="30391014"
+real_account_id="30391014"
+emu_account_id="32193662"
 
 def do_deal_check_and_order():
     check_all_deals_to_funds()
@@ -78,8 +79,7 @@ def get_today_profit(account_id:str,bot_id:str):
     response1 = p3c.request(
         entity='bots',
         action='stats',
-        payload={"account_id": account_id,
-        "bot_id":bot_id}
+        param="bot_id="+bot_id+"&account_id="+account_id
     )
 
     print(response1)
@@ -162,7 +162,7 @@ if __name__ == '__main__':  #一般就开2-3个机器人，风险考虑
     # check_all_deals_to_profit_and_close()
     while (True):
         try:
-            today_profit = get_today_profit(account_id,real_bot_id)
+            today_profit = get_today_profit("",emmu_bot_id)
             if today_profit>110:
                 print("单日利润金额大于阈值 "+str(110)+"暂停机器人4天,并关闭部分订单...")
                 log_to_file("单日利润金额大于阈值 "+str(110)+"暂停机器人4天,并关闭部分订单...",log_to_file_path)
