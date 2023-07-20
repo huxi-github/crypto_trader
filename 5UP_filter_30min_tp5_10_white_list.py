@@ -272,7 +272,7 @@ if __name__ == '__main__':
             '''
             # do_time_period_select()
             do_the_select_and_decision_fast()
-            log("等待 " + str(POLL_INTERVAL_IN_SEC / 60) + "min 再次查找")
+            print("等待 " + str(POLL_INTERVAL_IN_SEC / 60) + "min 再次查找")
             time.sleep(POLL_INTERVAL_IN_SEC)
         except Exception as e:
             print(f"GUI发生异常: {e}")

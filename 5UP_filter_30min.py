@@ -165,8 +165,8 @@ def do_the_select_and_decision_fast():
                     # start_new_deal_real(coin_pair)#启动实盘账户 
                 else:
                     print(coin_pair + "不在白名单里")
-                    log_to_file(coin_pair + "不在白名单里,不启动实盘，",log_to_file_path)
-                    send_email(coin_pair + "不在白名单里,不启动实盘，只记录日志",log_to_file_path)
+                    # log_to_file(coin_pair + "不在白名单里,不启动实盘，",log_to_file_path)
+                    # send_email(coin_pair + "不在白名单里,不启动实盘，只记录日志",log_to_file_path)
                 DealMgr.create_deal(coin_pair,Entry_pri[coin_pair])
                 do_data_store()
             else:
