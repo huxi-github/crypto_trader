@@ -39,6 +39,7 @@ APIS = {
     'deals': {
         '': ('GET', ''),
         'add_funds': ('POST', '{id}/add_funds'),
+        'update_tp': ('POST', '{id}/update_tp'),
         'show': ('GET', '{id}/show')
     },
     'marketplace': {
