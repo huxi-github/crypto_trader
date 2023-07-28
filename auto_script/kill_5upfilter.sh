@@ -66,6 +66,7 @@ stop_service 5UP_filter_30min.py
 stop_service 5UP_filter_plus_ma_day_30min.py
 stop_service 5UP_filter_30min_tp5_10_white_list.py
 stop_service 5UP_filter_30min_tp5_10_MA_grow_white_list.py
+stop_service 5UP_filter_30min_tp5_10_white_list_no_liandan.py
 stop_service auto_balance_checker.py
 # stop_service 5UP_filter30min.py
 # # for test_api.py
