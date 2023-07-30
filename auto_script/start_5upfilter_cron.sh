@@ -21,6 +21,8 @@ start_service /Users/huxi/Downloads/crypto_trade_test 5UP_filter_plus_ma_day_30m
 start_service /Users/huxi/Downloads/crypto_trade_test 5UP_filter_30min_tp5_10_white_list.py
 start_service /Users/huxi/Downloads/crypto_trade_test 5UP_filter_30min_tp5_10_MA_grow_white_list.py
 start_service /Users/huxi/Downloads/crypto_trade_test 5UP_filter_30min_tp5_10_white_list_no_liandan.py
+start_service /Users/huxi/Downloads/crypto_trade_test 5UP_filter_30m_tp5_white_no极限_阴跌_拉伸.py
+start_service /Users/huxi/Downloads/crypto_trade_test 5UP_filter_30m_tp5_white_no极限_阴跌_拉伸_延迟1k线.py
 start_service /Users/huxi/Downloads/crypto_trade_test auto_balance_checker.py
 echo 按任意键继续
 # read -n 1
