@@ -6,14 +6,14 @@ import time
 POLL_INTERVAL_IN_SEC =3
 SCAN_NEW_ARTI_INTERVAL_IN_SEC =60*5
 #模拟账户的 key 和 secr
-p3c = Py3Commas(key='66c9780e46034bfebc6ce13cf825cd6e6693cc498d4b426bb43b2c6e90325c8f',
-                secret='092675269ac7898de6f4db34d3ff1265da712efe14995cc5243027afe363c2ace2c666906abb970f8f25a774397b56c6af53c152254de9cf857518b9ea4ddac9c4a7d1c28f853a2e00db1ed9bc06ad55eb6aa08090f35816fa6915b2cc2ca241de063bd6')
+p3c = Py3Commas(key='369e09cb3e034f7e9627cda9c0a74a1310ab3a8f45e6425fb80b574ec88726b3',
+                secret='4fea99fcd0f8f4b39c51c1ac360481b4179e5f58fc67686ecfa0f9bd1affec9aeeb282ddfd5da63bdd0c74a8239c1d5d99cc9f884aca85e84fcb5c4a48295885f796da40127764a2191d42e65581ca406abbd193ba1259abdb1cb16d265e93963f0e74b9')
 
 # ///////POST /ver1/bots/{bot_id}/start_new_deal  [仅仅对 muti-pair 机器人使用这个接口 可用]
 def start_new_deal(coin_pair:str=""):# from  3commas network
-    index_s =coin_pair.find("BUSD")
+    index_s =coin_pair.find("USDT")
     base = coin_pair[0:index_s]
-    symbol_pair = "BUSD_"+base
+    symbol_pair = "USDT_"+base
 
     response1 = p3c.request(
         entity='bots',
@@ -47,9 +47,9 @@ def start_new_deal(coin_pair:str=""):# from  3commas network
     print("\n")
 
 def start_new_deal_real(coin_pair:str=""):# from  3commas network
-    index_s =coin_pair.find("BUSD")
+    index_s =coin_pair.find("USDT")
     base = coin_pair[0:index_s]
-    symbol_pair = "BUSD_"+base
+    symbol_pair = "USDT_"+base
 
     response1 = p3c.request(
         entity='bots',
@@ -94,7 +94,7 @@ def get_top_coin():
     print('rank"\tsymbol_name ' + "\t\t\t" + 'priceChangePercent')
     top_hot_symbol={}
     for symbl_d in sorted_arry:
-        if symbl_d['symbol'].endswith("BUSD") :
+        if symbl_d['symbol'].endswith("USDT") :
             if "BULL" in symbl_d['symbol'] or "DOWN" in symbl_d['symbol']: continue
             print(str(i)+ "\t\t" + symbl_d['symbol'] + "\t\t\t\t\t" + symbl_d['priceChangePercent'])
             i = i + 1

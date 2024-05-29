@@ -13,7 +13,7 @@ import pandas as pd
 # import DealMgr
 from DealMgr import DEALMGR
 
-symbols_file = open("sel_GOOD_BUSD_TP5_SL10.txt")
+symbols_file = open("sel_GOOD_USDT_TP5_SL10.txt")
 white_list_tmp = symbols_file.readlines()
 white_list =[]
 for symbol in white_list_tmp:
@@ -58,7 +58,7 @@ def get_top_coin():
     print('rank"\tsymbol_name ' + "\t\t\t" + 'priceChangePercent')
     top_hot_symbol={}
     for symbl_d in sorted_arry:
-        if symbl_d['symbol'].endswith("BUSD") :
+        if symbl_d['symbol'].endswith("USDT") :
             # 排除PULL DOWN  类型
             if "BULL" in symbl_d['symbol'] or "DOWN" in symbl_d['symbol']: continue
             print(str(i)+ "\t\t" + symbl_d['symbol'] + "\t\t\t\t\t" + symbl_d['priceChangePercent'])
@@ -143,7 +143,7 @@ def do_the_select_and_decision_fast():
         '''
         最后两分钟 ，超长拉升>%3 则不入
         '''
-        # "ALICEBUSD", "15m"
+        # "ALICEUSDT", "15m"
 
         data = do_cacu_MA_last5(coin_pair, Frame_level)
         five_UP = do_5_continous_up_Analysis(data)
@@ -161,7 +161,7 @@ def do_the_select_and_decision_fast():
                     log_to_file(coin_pair + "符合5UP条件@"+str(Entry_pri[coin_pair])+"启动的交易符号：" + str(sel_coin_global),log_to_file_path)
                     send_email(coin_pair + "符合5UP条件@"+str(Entry_pri[coin_pair])+"启动的交易符号：" + str(sel_coin_global),log_to_file_path)
                     # start_new_deal(coin_pair) 
-                    # start_new_deal_real(coin_pair)#启动实盘账户 
+                    start_new_deal_real(coin_pair)#启动实盘账户 
                     DealMgr.create_deal(coin_pair,Entry_pri[coin_pair])
                     do_data_store()
                 else:
