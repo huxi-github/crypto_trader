@@ -1,19 +1,19 @@
 from playsound import playsound
 
 from py3commas.request import Py3Commas
-from util import log, send_email, read_news_title_with_speaker
+from muti_dca_deal_creator import p3c
+from p3comas_bot_util import start_a_deal_of_one_bot,stop_the_bot
+from util import log, log_to_file,send_email, read_news_title_with_speaker
 import datetime
 import time
 from config import *
 
 POLL_INTERVAL_IN_SEC =3
 SCAN_NEW_ARTI_INTERVAL_IN_SEC =60*5
-#6615账户的 key 和 secr
-p3c = Py3Commas(key='xxx',
-                secret='xxx'
-                       ' '
-                       ' '
-                       ' ')
+HUOYUEBOT_ID="13779898"
+
+SILIENCE_THREAD=3
+
 
 # ///////GET /api/v3/ticker/24hr
 def get_top_coin():
@@ -29,7 +29,7 @@ def get_top_coin():
     print('rank"\tsymbol_name ' + "\t\t\t" + 'priceChangePercent')
     top_hot_symbol={}
     for symbl_d in sorted_arry:
-        if symbl_d['symbol'].endswith("BUSD") :
+        if symbl_d['symbol'].endswith("USDT") :
             if "BULL" in symbl_d['symbol'] or "DOWN" in symbl_d['symbol']: continue
             print(str(i)+ "\t\t" + symbl_d['symbol'] + "\t\t\t\t\t" + symbl_d['priceChangePercent'])
             i = i + 1
@@ -38,7 +38,7 @@ def get_top_coin():
     return top_hot_symbol
 
 
-def get_fast_change_coin_15m():
+def get_fast_change_coin_30m():
     top_symbols = get_top_coin()
     i = 0
     for (key, val) in top_symbols.items():
@@ -48,8 +48,12 @@ def get_fast_change_coin_15m():
         # update_bot_pairs(coin_pair, "5150456")
         # i = i + 1
         # if i >= 2: break
-        re = get_coin_stat(coin_pair,"15m",4)
+        re = get_coin_stat(coin_pair,"1m",40)
         print(coin_pair + "is fast coin? re="+str(re))
+        if re:
+            return coin_pair
+    
+    return ""
 
 
 # ///////GET /api/v3/klines
@@ -77,27 +81,14 @@ def get_coin_stat(symbol:str="",watch_interval:str="5m",limit:int=3):
         if price_change_max_percent>2 or price_change_max_percent <-2:
             am_sustain_n = am_sustain_n + 1
             # print("连续"+str(am_sustain_n)+ "个5min 振幅超2%")     # sorted_arry = sorted(data_arry, key = lambda i: float(i['priceChangePercent']),reverse = True)
-    print("交易对"+symbol+" 在最近"+str(limit)+" 个"+watch_interval+"内超幅上涨2%的次数为"+str(sustain_n) +"/"+str(limit))
+    # print("交易对"+symbol+" 在最近"+str(limit)+" 个"+watch_interval+"内超幅上涨2%的次数为"+str(sustain_n) +"/"+str(limit))
     print("交易对"+symbol+" 在最近"+str(limit)+" 个"+watch_interval+"内振幅变化2%的次数为"+str(am_sustain_n) +"/"+str(limit))
-    if sustain_n>limit/3:
+    # print("llll="+str(limit*1/2))
+    
+    if am_sustain_n>=limit*1.0/2:
         return True
     else:
         return False
-
-
-
-    symbl_d = data_arry[0]
-    open = float(symbl_d[1])
-    high = float(symbl_d[2])
-    low  = float(symbl_d[3])
-    close= float(symbl_d[4])
-    price_change_max_percent = 100.00*(high-low)/open
-    price_change_percent= 100.00*(close-open)/open
-    print("open:"+str(open))
-    print("close:" + str(close))#close即是 当前价格
-    print("交易对"+symbol+" 在最近1个"+watch_interval+"内变化:"+ str(price_change_percent)[:4] +"%"
-                                                +"\t振幅变化:" + str(price_change_max_percent)[:4] +"%")
-    return price_change_percent
 
 
 # ///////GET /api/v3/klines
@@ -166,7 +157,7 @@ def start_just_one_deal_of_pair_muti_bot(coin_pair:str=""):
     # sprint("开启mutil-pair-bot 一单，交易对:" + coin_pair)
     # log_deal_to_log_file_with_time()
     log("模拟账户同时创建订单"+coin_pair)
-    start_new_deal_test_account(coin_pair)
+    start_new_deal(coin_pair)
 
     # MA_OK=do_MA_condition_Analysis(coin_pair,"15m")
     # if not  MA_OK:
@@ -317,7 +308,7 @@ def do_the_select_and_decision_fast():
         price_change_15m = get_symbol_change_of_last_frame(coin_pair, "15m")
         if price_change_15m > 4 and price_change_15m < 50:#(<50%排除新币上线的单当 天情况，新上线的新币不会再 备选表里面，)
             price_change_5m = get_symbol_change_of_last_frame(coin_pair, "5m")
-            if  price_change_5m > 1.5  :
+            if  price_change_5m > 2  :
                 price_change_1m = get_symbol_change_of_last_frame(coin_pair, "1m")
                 if price_change_1m > 0.3 and price_change_1m < 10: #(<10% 反向插针，诱高的情况)
                     sel.append(coin_pair)
@@ -337,36 +328,61 @@ def do_the_select_and_decision_fast():
     if len(sel)>=2:
         read_news_title_with_speaker("同时上涨数量15分之"+str(len(sel))+"个,行情可能转好...")
 
-# if __name__ == '__main__':
-    # get_top_coin()
+if __name__ == '__main__':
+    # currentDateAndTime = datetime.datetime.now()
+    # if currentDateAndTime.hour>9:
+    #     print(currentDateAndTime.hour)
     # start_new_deal("USDT_BTC")
     # update_bot_pairs("USDT_BTC","5150456")
     # get_fast_change_coin()  # 思路，，，前10名 里面进进行筛选
-    # get_fast_change_coin_1m()
-    # get_symbol_change_of_last_frame("ALICEBUSD","15m")
-    # re = get_coin_static("HEGICBUSD", "3m", 20)
-    # ------上市通知警告
-    # while(True):
+    start_a_deal_of_one_bot("LUNAUSDT",HUOYUEBOT_ID)
+    silcence_count=0
+    bot_started=False
+    log_to_file_path="validate_log.log"
+    # log_to_file("快读振动....." + str(60*60),log_to_file_path)
+    while(True):
+        try:
+            coin_pair = get_fast_change_coin_30m()
+            if "USDT" in coin_pair:
+                log_to_file(coin_pair+"快速振动》》》》",log_to_file_path)
+                currentDateAndTime = datetime.datetime.now()
+                if currentDateAndTime.hour>7:
+                    # playsound("audio/alert.mp3")
+                    silcence_count=0
+                    bot_started=True
+                    start_a_deal_of_one_bot(coin_pair,HUOYUEBOT_ID)
+            else:
+                silcence_count=silcence_count+1
+                print("------sliecene count=="+str(silcence_count))
+                if silcence_count==3:
+                    stop_the_bot(HUOYUEBOT_ID)
+                    bot_started=False
 
-    #     time.sleep(SCAN_NEW_ARTI_INTERVAL_IN_SEC)
-    # 交易所 大挂单 分析==>辅助压力线，//////
+            print("wait a round time ...")
+            time.sleep(3*60)
+        except Exception as e:
+            print(f"发生网络异常: {e}")
+            log_to_file("网络问题崩溃,等待 " + str(60*3/ 60) + "min 再次查找",log_to_file_path)
+            stop_the_bot(HUOYUEBOT_ID)
+            time.sleep(3*60)
+            continue
 
 
 
-if __name__ == '__main__':
-    #-----15 min 拉盘启动模拟账户交易
-    # [new deal 条件 1.15min 6%up  2.10min 2%up （3)3min 1.5%  (4)1min 1% up]  （5）信号其他条件检查skip
-    # playsound("audio/notification.wav")
-    while (True):
-        '''
-        时间判断 8：am  and 18：pam
-        '''
+# if __name__ == '__main__':
+#     #-----15 min 拉盘启动模拟账户交易
+#     # [new deal 条件 1.15min 6%up  2.10min 2%up （3)3min 1.5%  (4)1min 1% up]  （5）信号其他条件检查skip
+#     # playsound("audio/notification.wav")
+#     while (True):
+#         '''
+#         时间判断 8：am  and 18：pam
+#         '''
 
-        # do_time_period_select()
-        do_the_select_and_decision_fast()
-        log("等待 " + str(POLL_INTERVAL_IN_SEC / 60) + "min 再次查找")
-        time.sleep(POLL_INTERVAL_IN_SEC)
-        # do_MA_condition_Analysis("ALICEBUSD","15m")
+#         # do_time_period_select()
+#         do_the_select_and_decision_fast()
+#         log("等待 " + str(POLL_INTERVAL_IN_SEC / 60) + "min 再次查找")
+#         time.sleep(POLL_INTERVAL_IN_SEC)
+#         # do_MA_condition_Analysis("ALICEBUSD","15m")
 
 
 
