@@ -92,7 +92,7 @@ def update_pair_of_huoyue_bot(coin_pair:str='',bot_id:str='',num:int=0):
                  "safety_order_volume":300,
                  "martingale_volume_coefficient":1.18,#Safety order volume倍数
                  "martingale_step_coefficient":1,# Safety order间隔倍数
-                 "max_safety_orders":1,  #风险意识， (等待到 底部震荡在加仓(自动优化)，成本更低)
+                 "max_safety_orders":7,  #风险意识， (等待到 底部震荡在加仓(自动优化)，成本更低)
                  "active_safety_orders_count":1,
                  "safety_order_step_percentage":2,
                  "take_profit_type":"total",
