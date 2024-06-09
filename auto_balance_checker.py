@@ -3,14 +3,14 @@ import time
 
 from py3commas.request import Py3Commas
 from util import log, send_email, read_news_title_with_speaker, log_to_file
-from config_5UP_filter import real_bot_id,emmu_bot_id,real_account_id,emu_account_id
+from config_5UP_filter import real_bot_id,emmu_bot_id,real_account_id,emu_account_id,market_over_crazy_threshold
 from muti_dca_deal_creator import start_new_deal,p3c
 
 balance_status = "left_money_ok"
 ORDER_CHECK_INTERVAL_IN_MINS =15 # 加仓间隔，最小加仓间隔 1min/3min 效果较好
 
 bot_id=emmu_bot_id
-threshold =-2
+threshold=market_over_crazy_threshold
 
 def do_deal_check_and_order():
     check_all_deals_to_funds()

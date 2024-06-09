@@ -1,6 +1,7 @@
 #对于5UP_filter_30min 类的机器人
 real_bot_id ="11367606"
 emmu_bot_id ="11358971"
+#账户
 real_account_id="30391014"
 emu_account_id="32193662"
  
@@ -10,5 +11,6 @@ secret='ecc457d7d8471b3a26ca955ba09eb032eb81948a099619fd27e8d2700abe86c98c18cda2
 
 
 
-
+#市场过于疯狂阈值
+market_over_crazy_threshold=120
 
