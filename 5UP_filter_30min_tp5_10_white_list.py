@@ -234,6 +234,7 @@ def do_deal_finish_check(data,coin_pair):
 
 def do_static_security_check():
     currentDateAndTime = datetime.datetime.now()
+    print("22222")
     global profit_count_of_the_day,profit_balance_of_the_day_by_all_close
     print("当日总盈利订单数:"+str(profit_count_of_the_day))
     if currentDateAndTime.hour==8:
@@ -245,18 +246,21 @@ def do_static_security_check():
 
 
 def close_all_deals_and_check_PL():
-    global sel_coin_global
-    if coin_pair in sel_coin_global:
-        global Entry_pri
+    global sel_coin_global,Entry_pri,profit_balance_of_the_day_by_all_close
+    print(sel_coin_global)
+    print(len(sel_coin_global))
+
+    for coin_pair in sel_coin_global:
+        print("-------"+coin_pair)
         data=get_symbol_data_of_last_frame_s(coin_pair,'1m','1')
         pair_profit=300*(float(data['Close'].iloc[-1]) - Entry_pri[coin_pair])/Entry_pri[coin_pair]
         print("强行关闭订单"+coin_pair+"产生的盈亏"+str(pair_profit)+"USD")
         profit_balance_of_the_day_by_all_close = profit_balance_of_the_day_by_all_close + pair_profit
-        sel_coin_global.remove(coin_pair)
         del Entry_pri[coin_pair]
         del Last_Entry_TICKDate[coin_pair]
         DealMgr.close_deal(coin_pair,float(data['Close'].iloc[-1]))
-        
+    sel_coin_global.clear()
+    # Last_Entry_TICKDate.clear()
     log_to_file("强行关闭所有订单产生的盈亏为"+str(profit_balance_of_the_day_by_all_close)+"USD", log_to_file_path)
     do_data_store()
 
