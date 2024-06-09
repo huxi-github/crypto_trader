@@ -9,9 +9,8 @@ from muti_dca_deal_creator import start_new_deal,p3c
 balance_status = "left_money_ok"
 ORDER_CHECK_INTERVAL_IN_MINS =15 # 加仓间隔，最小加仓间隔 1min/3min 效果较好
 
-
-threshold =130
 bot_id=emmu_bot_id
+threshold =-2
 
 def do_deal_check_and_order():
     check_all_deals_to_funds()
@@ -74,7 +73,7 @@ def update_deal_tp(deal_id:str="",tp:str="1"):
 
 def close_deal_with_market_price(deal_id:str=""):
     # ('POST', '{id}/panic_sell_all_deals'),
-    print("强制市场价关闭所有订单")
+    print("强制市场价关闭所有订单===================================")
     response1 = p3c.request(
         entity='bots',
         action='panic_sell_all_deals',
@@ -85,34 +84,36 @@ def close_deal_with_market_price(deal_id:str=""):
 
 
 def get_today_profit(account_id:str,bot_id:str):
-    print("尝试获取正在运行的订单...")
+    # print("尝试获取正在运行的订单...")
     response1 = p3c.request(
         entity='bots',
         action='stats',
         param="bot_id="+bot_id+"&account_id="+account_id
     )
 
-    print(response1)
+    # print(response1)
     day_profit_usd =0
     day_profit_usd= response1['profits_in_usd']['today_usd_profit']
     # print("当日利润："+day_profit_usd) 
-    print("当日利润："+str(day_profit_usd))
     return day_profit_usd
 
 def check_all_deals_to_profit_and_close(bot_id:str):
-    print("尝试获取正在运行的订单...")
-    response1 = p3c.request(
-        entity='deals',
-        action='',
-        # param="bot_id=4228101&scope=active", #4228101
-        param="bot_id="+bot_id+"&scope=active",  # 5601757 --132 safari 账户
-    )
-    # print(response1)
-    active_deal_cnt = len(response1)
-    print("活跃的订单数目 ["+str(active_deal_cnt)+"]")
+    # print("尝试获取正在运行的订单...")
+    # response1 = p3c.request(
+    #     entity='deals',
+    #     action='',
+    #     # param="bot_id=4228101&scope=active", #4228101
+    #     param="bot_id="+bot_id+"&scope=active",  # 5601757 --132 safari 账户
+    # )
+    # # print(response1)
+    # active_deal_cnt = len(response1)
+    # print("活跃的订单数目 ["+str(active_deal_cnt)+"]")
 
     # update_deal_tp(deal_id,"1")
     close_deal_with_market_price(bot_id)
+    today_PL=get_today_profit("",bot_id)
+    log_to_file("卖掉所有订单后的今日盈亏是"+str(today_PL),log_to_file_path)
+
 
 
 if __name__ == '__main__':  #一般就开2-3个机器人，风险考虑
@@ -122,14 +123,14 @@ if __name__ == '__main__':  #一般就开2-3个机器人，风险考虑
     # check_all_deals_to_profit_and_close()
     while (True):
         try:
-            today_profit = get_today_profit("",emmu_bot_id)
+            today_profit = get_today_profit("",bot_id)
             log_to_file("单日利润金额 "+str(today_profit),log_to_file_path)
             if today_profit>threshold:
                 print("单日利润金额大于阈值 "+str(threshold)+"暂停机器人4天,并关闭部分订单...")
                 log_to_file("单日利润金额大于阈值 "+str(threshold)+"(市场空前繁荣告警)暂停机器人4天,并关闭部分订单...",log_to_file_path)
-                stop_the_bot(emmu_bot_id)#模拟 
+                stop_the_bot(bot_id)#模拟 
                 # stop_the_bot(real_bot_id)
-                check_all_deals_to_profit_and_close(emmu_bot_id)    
+                check_all_deals_to_profit_and_close(bot_id)    
                 # check_all_deals_to_profit_and_close(real_bot_id)             
                 # send_email("单日利润金额大于阈值 "+str(threshold)+"(市场空前繁荣告警)暂停机器人4天,并关闭部分订单...:" + str(today_profit)+"usd",log_to_file_path)
             print("等待"+str(ORDER_CHECK_INTERVAL_IN_MINS)+"min ")  
