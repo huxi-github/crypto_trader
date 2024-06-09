@@ -5,6 +5,7 @@ from py3commas.request import Py3Commas
 from util import log_to_file,log, send_email, read_news_title_with_speaker
 import datetime
 import time
+import os
 from config import *
 
 import muti_dca_deal_creator
@@ -20,6 +21,11 @@ for symbol in white_list_tmp:
     symbol=symbol.replace("\n", "")
     white_list.append(symbol)
 # print(white_list)
+
+
+profit_count_of_the_day=0
+profit_balance_of_the_day_by_all_close=0.0
+
 
 #全局可持久化变量
 sel_coin_global=[]
@@ -160,8 +166,8 @@ def do_the_select_and_decision_fast():
                     Last_Entry_TICKDate[coin_pair] = pd.to_datetime(data['Date'].iloc[-1]/1000,unit='s')
                     log_to_file(coin_pair + "符合5UP条件@"+str(Entry_pri[coin_pair])+"启动的交易符号：" + str(sel_coin_global),log_to_file_path)
                     send_email(coin_pair + "符合5UP条件@"+str(Entry_pri[coin_pair])+"启动的交易符号：" + str(sel_coin_global),log_to_file_path)
-                    # start_new_deal(coin_pair) 
-                    start_new_deal_real(coin_pair)#启动实盘账户 
+                    start_new_deal(coin_pair) 
+                    # start_new_deal_real(coin_pair)#启动实盘账户 
                     DealMgr.create_deal(coin_pair,Entry_pri[coin_pair])
                     do_data_store()
                 else:
@@ -202,26 +208,56 @@ def do_deal_finish_check(data,coin_pair):
             print("befor add"+str(Staic['win_count']))
             Staic['win_count'] = Staic['win_count'] + 1
             print("after add"+str(Staic['win_count']))
+            profit_count_of_the_day = profit_count_of_the_day +1
             log_to_file(coin_pair + "止盈+++++@"+str(Entry_pri[coin_pair]*(100+SP_per)/100), log_to_file_path)
             log_to_file("策略盈利"+str(Staic['win_count'])+"次  止损"+str(Staic['lose_count'])+"次", log_to_file_path)
             send_email(coin_pair + "止盈+++++@"+str(Entry_pri[coin_pair]*(100+SP_per)/100), log_to_file_path)
             DealMgr.close_deal(coin_pair,Entry_pri[coin_pair]*(100+SP_per)/100)
             sel_coin_global.remove(coin_pair)
             del Entry_pri[coin_pair]
+            del Last_Entry_TICKDate[coin_pair]
             do_data_store()
         elif float(data['Low'].iloc[-1]) < Entry_pri[coin_pair]*(100-SL_per)/100:
             print(coin_pair+"止损@"+str(Entry_pri[coin_pair]*(100-SL_per)/100))
             Staic['lose_count'] = Staic['lose_count'] + 1
+            profit_count_of_the_day = profit_count_of_the_day - 2
             log_to_file(coin_pair + "止损——————@"+str(Entry_pri[coin_pair]*(100-SL_per)/100), log_to_file_path)
             log_to_file("策略盈利"+str(Staic['win_count'])+"次  止损"+str(Staic['lose_count'])+"次", log_to_file_path)
             send_email(coin_pair + "止损——————@"+str(Entry_pri[coin_pair]*(100-SL_per)/100), log_to_file_path)
             DealMgr.close_deal(coin_pair,Entry_pri[coin_pair]*(100-SL_per)/100)
             sel_coin_global.remove(coin_pair)
             del Entry_pri[coin_pair]
+            del Last_Entry_TICKDate[coin_pair]
             do_data_store()
         else:
             print(coin_pair+"没有止盈止损")
 
+def do_static_security_check():
+    currentDateAndTime = datetime.datetime.now()
+    print("当日总盈利订单数:"+profit_count_of_the_day)
+    if currentDateAndTime.hour==8:
+        profit_count_of_the_day=0
+        profit_balance_of_the_day_by_all_close=0
+    if profit_count_of_the_day>=8:
+        print("当日总盈利订单数大于阈值10，市场过热告警，强行关闭所有订单--------------")
+        close_all_deals_and_check_PL()
+
+
+def close_all_deals_and_check_PL():
+    global sel_coin_global
+    if coin_pair in sel_coin_global:
+        global Entry_pri
+        data=get_symbol_data_of_last_frame_s(coin_pair,'1m','1')
+        pair_profit=300*(float(data['Close'].iloc[-1]) - Entry_pri[coin_pair])/Entry_pri[coin_pair]
+        print("强行关闭订单"+coin_pair+"产生的盈亏"+str(pair_profit)+"USD")
+        profit_balance_of_the_day_by_all_close = profit_balance_of_the_day_by_all_close + pair_profit
+        sel_coin_global.remove(coin_pair)
+        del Entry_pri[coin_pair]
+        del Last_Entry_TICKDate[coin_pair]
+        DealMgr.close_deal(coin_pair,float(data['Close'].iloc[-1]))
+        
+    log_to_file("强行关闭所有订单产生的盈亏为"+str(profit_balance_of_the_day_by_all_close)+"USD", log_to_file_path)
+    do_data_store()
 
 def do_data_store():
     import shelve
@@ -259,11 +295,19 @@ def start_the_filter():
     time.sleep(POLL_INTERVAL_IN_SEC)
 
 
+
+
+def start_balance_checker_app():
+    # 使用 os.system 启动后台服务
+    os.system("nohup Python3 auto_balance_checker.py &")
+    print("auto_balance_checker后台服务已启动")
+
+
 if __name__ == '__main__':
     #  拉盘启动模拟账户交易
     #意外终止读取 上次存储的数据
     init_form_data_store() 
-
+    start_balance_checker_app()
     # 循环监测GUI的运行状态
     while True:
         try:
@@ -272,6 +316,7 @@ if __name__ == '__main__':
             '''
             # do_time_period_select()
             do_the_select_and_decision_fast()
+            do_static_security_check()
             print("等待 " + str(POLL_INTERVAL_IN_SEC / 60) + "min 再次查找")
             time.sleep(POLL_INTERVAL_IN_SEC)
         except Exception as e:
