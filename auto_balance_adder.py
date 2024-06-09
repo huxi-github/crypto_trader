@@ -4,21 +4,13 @@ import time
 from py3commas.request import Py3Commas
 from util import log, send_email, read_news_title_with_speaker, log_to_file
 from config import *
+from config_5UP_filter import pubkey,secret
 
 balance_status = "left_money_ok"
 ORDER_CHECK_INTERVAL_IN_MINS =1 # 加仓间隔，最小加仓间隔 1min/3min 效果较好
-#6615账户的 key 和 secr  bot_id----4228101
-# p3c_ = Py3Commas(key='08e94c4768d44f3a9a6f14f68f86a2a63d3dfe67f18c4f28905afad93dfadb92',
-#                 secret='742ce7cffb40f42883e0c454652ebad5d3ccfb125b283b92214401547ea73a'
-#                        'b2647f42a44e68544054ab9a70769dcfb890fdffe4a181a984287dc8d3e783'
-#                        'db9a7c501aaacec88af608f0e135f5c2323f921181ea2023176068396eb973'
-#                        '2c18c487240ec0')
-#1324907549@qq.com 账户key  bot_id-==---5601757
-p3c = Py3Commas(key='xx',
-                secret='xx'
-                       ' '
-                       ' '
-                       ' ')
+
+#账户的 key 和 secr
+p3c = Py3Commas(key=pubkey,secret=secret)
 
 def do_deal_check_and_order():
     check_all_deals_to_funds()
