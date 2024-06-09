@@ -240,10 +240,17 @@ def do_static_security_check():
     if currentDateAndTime.hour==8:
         profit_count_of_the_day=0
         profit_balance_of_the_day_by_all_close=0
+        
     if profit_count_of_the_day>=8:
+        profit_count_of_the_day=0
+        profit_balance_of_the_day_by_all_close=0
         print("当日总盈利订单数大于阈值10，市场过热告警，强行关闭所有订单--------------")
         close_all_deals_and_check_PL()
+        sleep_for_12hours()
 
+def sleep_for_12hours():
+    print("机器人休息12小时===================================")
+    time.sleep(60*60*12)
 
 def close_all_deals_and_check_PL():
     global sel_coin_global,Entry_pri,profit_balance_of_the_day_by_all_close
@@ -320,8 +327,9 @@ if __name__ == '__main__':
             # 时间判断 8：am  and 18：pam
             '''
             # do_time_period_select()
-            # do_the_select_and_decision_fast()
             do_static_security_check()
+            do_the_select_and_decision_fast()
+            
             print("等待 " + str(POLL_INTERVAL_IN_SEC / 60) + "min 再次查找")
             time.sleep(POLL_INTERVAL_IN_SEC)
         except Exception as e:
