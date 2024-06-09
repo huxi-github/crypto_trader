@@ -1,13 +1,13 @@
 from py3commas.request import Py3Commas
 from util import log ,send_email
+from config_5UP_filter import real_bot_id,emmu_bot_id,pubkey,secret
 import datetime
 import time
 
 POLL_INTERVAL_IN_SEC =3
 SCAN_NEW_ARTI_INTERVAL_IN_SEC =60*5
-#模拟账户的 key 和 secr
-p3c = Py3Commas(key='369e09cb3e034f7e9627cda9c0a74a1310ab3a8f45e6425fb80b574ec88726b3',
-                secret='4fea99fcd0f8f4b39c51c1ac360481b4179e5f58fc67686ecfa0f9bd1affec9aeeb282ddfd5da63bdd0c74a8239c1d5d99cc9f884aca85e84fcb5c4a48295885f796da40127764a2191d42e65581ca406abbd193ba1259abdb1cb16d265e93963f0e74b9')
+#账户的 key 和 secr
+p3c = Py3Commas(key=pubkey,secret=secret)
 
 # ///////POST /ver1/bots/{bot_id}/start_new_deal  [仅仅对 muti-pair 机器人使用这个接口 可用]
 def start_new_deal(coin_pair:str=""):# from  3commas network
@@ -19,11 +19,11 @@ def start_new_deal(coin_pair:str=""):# from  3commas network
         entity='bots',
         action='start_new_deal',
             # _id="4228101",
-                _id="11358971",
+                _id=emmu_bot_id,
         payload={"pair":symbol_pair,
                 "skip_signal_checks":"true",
                  "skip_open_deals_checks":"false", #是否跳过界面上的 检查相同交易对并发数目的检查[比较安全]
-                 "bot_id":"11358971"
+                 "bot_id":emmu_bot_id
                  }
     )
 
@@ -55,11 +55,11 @@ def start_new_deal_real(coin_pair:str=""):# from  3commas network
         entity='bots',
         action='start_new_deal',
             # _id="4228101",
-                _id="11367606",
+                _id=real_bot_id,
         payload={"pair":symbol_pair,
                 "skip_signal_checks":"true",
                  "skip_open_deals_checks":"false", #是否跳过界面上的 检查相同交易对并发数目的检查[比较安全]
-                 "bot_id":"11367606"
+                 "bot_id":real_bot_id
                  }
     )
 
@@ -202,14 +202,15 @@ def do_the_select_and_decision_fast():
 if __name__ == '__main__':
     # #-----15 min 拉盘启动模拟账户交易
     # [new deal 条件 1.15min 6%up  2.10min 2%up （3)3min 1.5%  (4)1min 1% up]  （5）信号其他条件检查skip
-    while (True):
-        '''
-        时间判断 8：am  and 18：pam
-        '''
-        # do_time_period_select()
-        do_the_select_and_decision_fast()
-        log("等待 " + str(POLL_INTERVAL_IN_SEC / 60) + "min 再次查找")
-        time.sleep(POLL_INTERVAL_IN_SEC)
+    start_new_deal("BTCUSDT")
+    # while (True):
+    #     '''
+    #     时间判断 8：am  and 18：pam
+    #     '''
+    #     # do_time_period_select()
+    #     do_the_select_and_decision_fast()
+    #     log("等待 " + str(POLL_INTERVAL_IN_SEC / 60) + "min 再次查找")
+    #     time.sleep(POLL_INTERVAL_IN_SEC)
 
 
 

@@ -3,18 +3,14 @@ import time
 
 from py3commas.request import Py3Commas
 from util import log, send_email, read_news_title_with_speaker, log_to_file
-from config import *
+from config_5UP_filter import real_bot_id,emmu_bot_id,real_account_id,emu_account_id
 from muti_dca_deal_creator import start_new_deal,p3c
 
 balance_status = "left_money_ok"
 ORDER_CHECK_INTERVAL_IN_MINS =15 # 加仓间隔，最小加仓间隔 1min/3min 效果较好
-real_bot_id ="11367606"
-emmu_bot_id ="11358971"
 
-real_account_id="30391014"
-emu_account_id="32193662"
 
-pp_thread =105
+threshold =130
 
 def do_deal_check_and_order():
     check_all_deals_to_funds()
@@ -75,6 +71,16 @@ def update_deal_tp(deal_id:str="",tp:str="1"):
     )
     print(response1)
 
+def close_deal_with_market_price(deal_id:str=""):
+    # ('POST', '{id}/panic_sell_all_deals'),
+    response1 = p3c.request(
+        entity='bots',
+        action='panic_sell_all_deals',
+        _id=bot_id,
+        payload={"bot_id": bot_id}
+    )
+    print(response1)
+
 
 def get_today_profit(account_id:str,bot_id:str):
     print("尝试获取正在运行的订单...")
@@ -124,7 +130,8 @@ def check_all_deals_to_profit_and_close(bot_id:str):
         duration_day= int(cur_day) - int(created_day)
         duration_hours = duration_day*24 + int(cur_hour) - int(created_hour)
 
-        update_deal_tp(deal_id,"1")
+        # update_deal_tp(deal_id,"1")
+        close_deal_with_market_price(bot_id)
 
         # # print("持续时间："+str(int(duration_hours/24))+"days"+str(duration_hours%24)+"hours")
         # if duration_hours >24*3  : #订单超过3天
@@ -165,13 +172,15 @@ if __name__ == '__main__':  #一般就开2-3个机器人，风险考虑
     while (True):
         try:
             today_profit = get_today_profit("",emmu_bot_id)
-            if today_profit>pp_thread:
-                print("单日利润金额大于阈值 "+str(pp_thread)+"暂停机器人4天,并关闭部分订单...")
-                log_to_file("单日利润金额大于阈值 "+str(pp_thread)+"暂停机器人4天,并关闭部分订单...",log_to_file_path)
-                stop_the_bot("11367606")
-                stop_the_bot("11358971")#模拟   
+            log_to_file("单日利润金额 "+str(today_profit),log_to_file_path)
+            if today_profit>threshold:
+                print("单日利润金额大于阈值 "+str(threshold)+"暂停机器人4天,并关闭部分订单...")
+                log_to_file("单日利润金额大于阈值 "+str(threshold)+"(市场空前繁荣告警)暂停机器人4天,并关闭部分订单...",log_to_file_path)
+                stop_the_bot(emmu_bot_id)#模拟 
+                stop_the_bot(real_bot_id)
+                check_all_deals_to_profit_and_close(emmu_bot_id)    
                 check_all_deals_to_profit_and_close(real_bot_id)             
-                send_email("单日利润金额大于阈值 "+str(pp_thread)+"暂停机器人4天,并关闭部分订单...:" + str(today_profit)+"usd",log_to_file_path)
+                send_email("单日利润金额大于阈值 "+str(threshold)+"(市场空前繁荣告警)暂停机器人4天,并关闭部分订单...:" + str(today_profit)+"usd",log_to_file_path)
             print("等待"+str(ORDER_CHECK_INTERVAL_IN_MINS)+"min 再次订单")  
             time.sleep(ORDER_CHECK_INTERVAL_IN_MINS*60) 
         except Exception as e:
