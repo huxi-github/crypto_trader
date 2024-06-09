@@ -234,7 +234,8 @@ def do_deal_finish_check(data,coin_pair):
 
 def do_static_security_check():
     currentDateAndTime = datetime.datetime.now()
-    print("当日总盈利订单数:"+profit_count_of_the_day)
+    global profit_count_of_the_day,profit_balance_of_the_day_by_all_close
+    print("当日总盈利订单数:"+str(profit_count_of_the_day))
     if currentDateAndTime.hour==8:
         profit_count_of_the_day=0
         profit_balance_of_the_day_by_all_close=0
@@ -315,7 +316,7 @@ if __name__ == '__main__':
             # 时间判断 8：am  and 18：pam
             '''
             # do_time_period_select()
-            do_the_select_and_decision_fast()
+            # do_the_select_and_decision_fast()
             do_static_security_check()
             print("等待 " + str(POLL_INTERVAL_IN_SEC / 60) + "min 再次查找")
             time.sleep(POLL_INTERVAL_IN_SEC)
