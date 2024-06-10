@@ -200,9 +200,9 @@ def do_5_continous_up_Analysis(data):
         return False
 
 def do_deal_finish_check(data,coin_pair):
-    global sel_coin_global
+    global sel_coin_global,Entry_pri,Staic,profit_count_of_the_day
     if coin_pair in sel_coin_global:
-        global Entry_pri,Staic
+        
         if float(data['High'].iloc[-1]) > Entry_pri[coin_pair]*(100+SP_per)/100:
             print(coin_pair+"止盈@"+str(Entry_pri[coin_pair]*(100+SP_per)/100))
             print("befor add"+str(Staic['win_count']))
