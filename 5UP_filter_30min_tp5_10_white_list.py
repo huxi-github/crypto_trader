@@ -236,8 +236,10 @@ def do_static_security_check():
     currentDateAndTime = datetime.datetime.now()
     print("22222")
     global profit_count_of_the_day,profit_balance_of_the_day_by_all_close
-    print("当日总盈利订单数:"+str(profit_count_of_the_day))
+    log_to_file("当日总盈利订单数:"+str(profit_count_of_the_day),log_to_file_path)
+    
     if currentDateAndTime.hour==8:
+        send_email("当日总盈利订单数:"+str(profit_count_of_the_day),"当日盈利订单数")
         profit_count_of_the_day=0
         profit_balance_of_the_day_by_all_close=0
         
@@ -245,6 +247,7 @@ def do_static_security_check():
         profit_count_of_the_day=0
         profit_balance_of_the_day_by_all_close=0
         print("当日总盈利订单数大于阈值10，市场过热告警，强行关闭所有订单--------------")
+        send_email("当日总盈利订单数大于阈值10，市场过热告警，强行关闭所有订单","市场OVER_CEAZY告警")
         close_all_deals_and_check_PL()
         sleep_for_12hours()
 
@@ -318,8 +321,12 @@ def start_balance_checker_app():
 if __name__ == '__main__':
     #  拉盘启动模拟账户交易
     #意外终止读取 上次存储的数据
+
     init_form_data_store() 
     start_balance_checker_app()
+    # Staic['win_count'] =121
+    # do_data_store()
+
     # 循环监测GUI的运行状态
     while True:
         try:

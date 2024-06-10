@@ -113,6 +113,7 @@ def check_all_deals_to_profit_and_close(bot_id:str):
     close_deal_with_market_price(bot_id)
     today_PL=get_today_profit("",bot_id)
     log_to_file("卖掉所有订单后的今日盈亏是"+str(today_PL),log_to_file_path)
+    send_email("单日利润金额大于阈值 "+str(threshold)+"(市场空前繁荣告警)暂停机器人4天,并关闭所有订单...,产生的损益:" + str(today_PL)+"usd","市场空前繁荣告警")
 
 
 
@@ -131,8 +132,8 @@ if __name__ == '__main__':  #一般就开2-3个机器人，风险考虑
                 stop_the_bot(bot_id)#模拟 
                 # stop_the_bot(real_bot_id)
                 check_all_deals_to_profit_and_close(bot_id)    
-                # check_all_deals_to_profit_and_close(real_bot_id)             
-                # send_email("单日利润金额大于阈值 "+str(threshold)+"(市场空前繁荣告警)暂停机器人4天,并关闭部分订单...:" + str(today_profit)+"usd",log_to_file_path)
+                # check_all_deals_to_profit_and_close(real_bot_id)   
+                send_email("单日利润金额大于阈值 "+str(threshold)+"(市场空前繁荣告警)暂停机器人4天,并关闭所有订单" + str(today_profit)+"usd","市场空前繁荣告警")          
             print("等待"+str(ORDER_CHECK_INTERVAL_IN_MINS)+"min ")  
             time.sleep(ORDER_CHECK_INTERVAL_IN_MINS*60) 
         except Exception as e:
