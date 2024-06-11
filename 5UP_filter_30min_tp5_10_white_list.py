@@ -237,7 +237,7 @@ def do_static_security_check():
     print("22222")
     global profit_count_of_the_day,profit_balance_of_the_day_by_all_close
     log_to_file("当日总盈利订单数:"+str(profit_count_of_the_day),log_to_file_path)
-    
+
     if currentDateAndTime.hour==7:
         send_email("当日总盈利订单数:"+str(profit_count_of_the_day),"当日盈利订单数")
 
@@ -255,8 +255,8 @@ def do_static_security_check():
         sleep_for_12hours()
 
 def sleep_for_12hours():
-    print("机器人休息12小时===================================")
-    time.sleep(60*60*12)
+    print("机器人休息24*5小时===================================")
+    time.sleep(60*60*24*5) 
 
 def close_all_deals_and_check_PL():
     global sel_coin_global,Entry_pri,profit_balance_of_the_day_by_all_close
