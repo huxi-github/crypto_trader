@@ -125,7 +125,10 @@ if __name__ == '__main__':  #一般就开2-3个机器人，风险考虑
     while (True):
         try:
             today_profit = get_today_profit("",bot_id)
-            log_to_file("单日利润金额 "+str(today_profit),log_to_file_path)
+            log_to_file("当前利润金额 "+str(today_profit),log_to_file_path)
+            currentDateAndTime = datetime.datetime.now()
+            if currentDateAndTime.hour==7 and currentDateAndTime.minute>40:
+                log_to_file("单日利润金额=======>"+str(today_profit),log_to_file_path)
             if today_profit>threshold:
                 print("单日利润金额大于阈值 "+str(threshold)+"暂停机器人4天,并关闭部分订单...")
                 log_to_file("单日利润金额大于阈值 "+str(threshold)+"(市场空前繁荣告警)暂停机器人4天,并关闭部分订单...",log_to_file_path)

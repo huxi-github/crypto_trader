@@ -238,7 +238,7 @@ def do_static_security_check():
     global profit_count_of_the_day,profit_balance_of_the_day_by_all_close
     log_to_file("当日总盈利订单数:"+str(profit_count_of_the_day),log_to_file_path)
 
-    if currentDateAndTime.hour==7:
+    if currentDateAndTime.hour==7 and currentDateAndTime.minute>40:
         send_email("当日总盈利订单数:"+str(profit_count_of_the_day),"当日盈利订单数")
 
     if currentDateAndTime.hour==8:
