@@ -207,7 +207,7 @@ def do_deal_finish_check(data,coin_pair):
             print("befor add"+str(Staic['win_count']))
             Staic['win_count'] = Staic['win_count'] + 1
             print("after add"+str(Staic['win_count']))
-            profit_count_of_the_day = profit_count_of_the_day + 15
+            profit_count_of_the_day = profit_count_of_the_day + 1
             log_to_file(coin_pair + "止盈+++++@"+str(Entry_pri[coin_pair]*(100+SP_per)/100), log_to_file_path)
             log_to_file("策略盈利"+str(Staic['win_count'])+"次  止损"+str(Staic['lose_count'])+"次", log_to_file_path)
             send_email(coin_pair + "止盈+++++@"+str(Entry_pri[coin_pair]*(100+SP_per)/100), log_to_file_path)
@@ -219,7 +219,7 @@ def do_deal_finish_check(data,coin_pair):
         elif float(data['Low'].iloc[-1]) < Entry_pri[coin_pair]*(100-SL_per)/100:
             print(coin_pair+"止损@"+str(Entry_pri[coin_pair]*(100-SL_per)/100))
             Staic['lose_count'] = Staic['lose_count'] + 1
-            profit_count_of_the_day = profit_count_of_the_day - 2*15
+            profit_count_of_the_day = profit_count_of_the_day - 2
             log_to_file(coin_pair + "止损——————@"+str(Entry_pri[coin_pair]*(100-SL_per)/100), log_to_file_path)
             log_to_file("策略盈利"+str(Staic['win_count'])+"次  止损"+str(Staic['lose_count'])+"次", log_to_file_path)
             send_email(coin_pair + "止损——————@"+str(Entry_pri[coin_pair]*(100-SL_per)/100), log_to_file_path)
@@ -235,16 +235,16 @@ def do_static_security_check():
     currentDateAndTime = datetime.datetime.now()
     print("22222")
     global profit_count_of_the_day
-    log_to_file("当日总盈利订单数:"+str(profit_count_of_the_day),log_to_file_path)
+    log_to_file("当日总盈利订单金额:"+str(profit_count_of_the_day),log_to_file_path)
 
     if currentDateAndTime.hour==7 and currentDateAndTime.minute>=45:#每天8点前，发送报告邮件，并对上一日订单数清零
-        send_email("当日总盈利订单数:"+str(profit_count_of_the_day),"当日盈利订单数")
+        send_email("当日总盈利订单金额:"+str(profit_count_of_the_day),"当日盈利订单数")
         profit_count_of_the_day=0
         do_data_store()
         
-    if profit_count_of_the_day>=8*15: #当日收益大于阈值，发送警告报告邮件，(并对上一日订单数清零？) 并关闭所有订单，记录关闭造成的盈亏
-        print("当日总盈利订单数大于阈值10，市场过热告警，强行关闭所有订单--------------")
-        send_email("当日总盈利订单数大于阈值10，市场过热告警，强行关闭所有订单","市场OVER_CEAZY告警")
+    if profit_count_of_the_day>=8: #当日收益大于阈值，发送警告报告邮件，(并对上一日订单数清零？) 并关闭所有订单，记录关闭造成的盈亏
+        print("当日总盈利订单额大于阈值120，市场过热告警，强行关闭所有订单--------------")
+        send_email("当日总盈利订单额大于阈值120，市场过热告警，强行关闭所有订单","市场OVER_CEAZY告警")
         close_all_deals_and_check_PL()
         sleep_for_days()
 
@@ -271,6 +271,8 @@ def close_all_deals_and_check_PL():
     # Last_Entry_TICKDate.clear()
     log_to_file("强行关闭所有订单产生的盈亏为"+str(profit_balance_of_the_day_by_all_close)+"USD", log_to_file_path)
     profit_count_of_the_day = profit_count_of_the_day*15 + profit_balance_of_the_day_by_all_close
+    send_email("市场过热机器人强制关闭订单休息 当日总盈利金额: "+str(profit_count_of_the_day)+"USD " ,"当日盈利订单数_OVER_CRAZY ")
+    profit_count_of_the_day = 0
     do_data_store()
 
 def do_data_store():
