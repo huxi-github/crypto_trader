@@ -207,7 +207,7 @@ def do_deal_finish_check(data,coin_pair):
             print("befor add"+str(Staic['win_count']))
             Staic['win_count'] = Staic['win_count'] + 1
             print("after add"+str(Staic['win_count']))
-            profit_count_of_the_day = profit_count_of_the_day +1
+            profit_count_of_the_day = profit_count_of_the_day + 15
             log_to_file(coin_pair + "止盈+++++@"+str(Entry_pri[coin_pair]*(100+SP_per)/100), log_to_file_path)
             log_to_file("策略盈利"+str(Staic['win_count'])+"次  止损"+str(Staic['lose_count'])+"次", log_to_file_path)
             send_email(coin_pair + "止盈+++++@"+str(Entry_pri[coin_pair]*(100+SP_per)/100), log_to_file_path)
@@ -219,7 +219,7 @@ def do_deal_finish_check(data,coin_pair):
         elif float(data['Low'].iloc[-1]) < Entry_pri[coin_pair]*(100-SL_per)/100:
             print(coin_pair+"止损@"+str(Entry_pri[coin_pair]*(100-SL_per)/100))
             Staic['lose_count'] = Staic['lose_count'] + 1
-            profit_count_of_the_day = profit_count_of_the_day - 2
+            profit_count_of_the_day = profit_count_of_the_day - 2*15
             log_to_file(coin_pair + "止损——————@"+str(Entry_pri[coin_pair]*(100-SL_per)/100), log_to_file_path)
             log_to_file("策略盈利"+str(Staic['win_count'])+"次  止损"+str(Staic['lose_count'])+"次", log_to_file_path)
             send_email(coin_pair + "止损——————@"+str(Entry_pri[coin_pair]*(100-SL_per)/100), log_to_file_path)
@@ -242,18 +242,18 @@ def do_static_security_check():
         profit_count_of_the_day=0
         do_data_store()
         
-    if profit_count_of_the_day>=8: #当日收益大于阈值，发送警告报告邮件，(并对上一日订单数清零？) 并关闭所有订单，记录关闭造成的盈亏
+    if profit_count_of_the_day>=8*15: #当日收益大于阈值，发送警告报告邮件，(并对上一日订单数清零？) 并关闭所有订单，记录关闭造成的盈亏
         print("当日总盈利订单数大于阈值10，市场过热告警，强行关闭所有订单--------------")
         send_email("当日总盈利订单数大于阈值10，市场过热告警，强行关闭所有订单","市场OVER_CEAZY告警")
         close_all_deals_and_check_PL()
-        sleep_for_12hours()
+        sleep_for_days()
 
-def sleep_for_12hours():
+def sleep_for_days():
     print("机器人休息24*5小时===================================")
     time.sleep(60*60*24*5) 
 
 def close_all_deals_and_check_PL():
-    global sel_coin_global,Entry_pri
+    global sel_coin_global,Entry_pri,profit_count_of_the_day
     print(sel_coin_global)
     print(len(sel_coin_global))
 
@@ -270,6 +270,7 @@ def close_all_deals_and_check_PL():
     sel_coin_global.clear()
     # Last_Entry_TICKDate.clear()
     log_to_file("强行关闭所有订单产生的盈亏为"+str(profit_balance_of_the_day_by_all_close)+"USD", log_to_file_path)
+    profit_count_of_the_day = profit_count_of_the_day*15 + profit_balance_of_the_day_by_all_close
     do_data_store()
 
 def do_data_store():
