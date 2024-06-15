@@ -24,7 +24,6 @@ for symbol in white_list_tmp:
 
 
 profit_count_of_the_day=0
-profit_balance_of_the_day_by_all_close=0.0
 
 
 #全局可持久化变量
@@ -235,20 +234,14 @@ def do_deal_finish_check(data,coin_pair):
 def do_static_security_check():
     currentDateAndTime = datetime.datetime.now()
     print("22222")
-    global profit_count_of_the_day,profit_balance_of_the_day_by_all_close
+    global profit_count_of_the_day
     log_to_file("当日总盈利订单数:"+str(profit_count_of_the_day),log_to_file_path)
 
-    if currentDateAndTime.hour==7 and currentDateAndTime.minute>40:
+    if currentDateAndTime.hour==7 and currentDateAndTime.minute>=45:#每天8点前，发送报告邮件，并对上一日订单数清零
         send_email("当日总盈利订单数:"+str(profit_count_of_the_day),"当日盈利订单数")
-
-    if currentDateAndTime.hour==8:
-
         profit_count_of_the_day=0
-        profit_balance_of_the_day_by_all_close=0
         
-    if profit_count_of_the_day>=8:
-        profit_count_of_the_day=0
-        profit_balance_of_the_day_by_all_close=0
+    if profit_count_of_the_day>=8: #当日收益大于阈值，发送警告报告邮件，(并对上一日订单数清零？) 并关闭所有订单，记录关闭造成的盈亏
         print("当日总盈利订单数大于阈值10，市场过热告警，强行关闭所有订单--------------")
         send_email("当日总盈利订单数大于阈值10，市场过热告警，强行关闭所有订单","市场OVER_CEAZY告警")
         close_all_deals_and_check_PL()
@@ -259,10 +252,11 @@ def sleep_for_12hours():
     time.sleep(60*60*24*5) 
 
 def close_all_deals_and_check_PL():
-    global sel_coin_global,Entry_pri,profit_balance_of_the_day_by_all_close
+    global sel_coin_global,Entry_pri
     print(sel_coin_global)
     print(len(sel_coin_global))
 
+    profit_balance_of_the_day_by_all_close = 0
     for coin_pair in sel_coin_global:
         print("-------"+coin_pair)
         data=get_symbol_data_of_last_frame_s(coin_pair,'1m','1')
