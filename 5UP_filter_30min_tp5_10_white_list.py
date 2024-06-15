@@ -240,6 +240,7 @@ def do_static_security_check():
     if currentDateAndTime.hour==7 and currentDateAndTime.minute>=45:#每天8点前，发送报告邮件，并对上一日订单数清零
         send_email("当日总盈利订单数:"+str(profit_count_of_the_day),"当日盈利订单数")
         profit_count_of_the_day=0
+        do_data_store()
         
     if profit_count_of_the_day>=8: #当日收益大于阈值，发送警告报告邮件，(并对上一日订单数清零？) 并关闭所有订单，记录关闭造成的盈亏
         print("当日总盈利订单数大于阈值10，市场过热告警，强行关闭所有订单--------------")
@@ -279,6 +280,7 @@ def do_data_store():
         db['Entry_pri'] = Entry_pri
         db['Staic'] = Staic
         db['Last_Entry_TICKDate'] = Last_Entry_TICKDate
+        db['profit_count_of_the_day'] = profit_count_of_the_day
 
 def init_form_data_store():
     import shelve
@@ -297,6 +299,9 @@ def init_form_data_store():
         if 'Last_Entry_TICKDate' in db:
             Last_Entry_TICKDate = db['Last_Entry_TICKDate']
             print("set Last_Entry_TICKDate="+str(Last_Entry_TICKDate))
+        if 'profit_count_of_the_day' in db:
+            profit_count_of_the_day = db['profit_count_of_the_day']
+            print("set profit_count_of_the_day="+str(profit_count_of_the_day))
 
 
 
