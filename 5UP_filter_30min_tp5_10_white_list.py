@@ -273,6 +273,8 @@ def close_all_deals_and_check_PL():
     profit_count_of_the_day = profit_count_of_the_day*15 + profit_balance_of_the_day_by_all_close
     send_email("市场过热机器人强制关闭订单休息 当日总盈利金额: "+str(profit_count_of_the_day)+"USD " ,"当日盈利订单数_OVER_CRAZY ")
     profit_count_of_the_day = 0
+    playsound("audio/alert.mp3")
+    read_news_title_with_speaker("市场空前繁荣告警")
     do_data_store()
 
 def do_data_store():
@@ -289,7 +291,7 @@ def init_form_data_store():
     import shelve
     print("初始化历史数据...")
     with shelve.open(golobal_data) as db:
-        global sel_coin_global,Entry_pri,Staic,Last_Entry_TICKDate
+        global sel_coin_global,Entry_pri,Staic,Last_Entry_TICKDate,profit_count_of_the_day
         if 'sel_coin_global' in db:
             sel_coin_global = db['sel_coin_global']
             print("set sel_coin_global="+str(sel_coin_global))
