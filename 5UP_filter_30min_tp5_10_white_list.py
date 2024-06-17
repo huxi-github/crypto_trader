@@ -109,6 +109,9 @@ def do_MA_condition_Analysis(data):
 
 def do_cacu_MA_last5(sysbol_pair:str,frame_level:str):
     data=get_symbol_data_of_last_frame_s(sysbol_pair,frame_level,'105')
+    if data['klines_not_enough'].all():
+        print("klines_not_enough")
+        return data
     MA7_s = data['Close'][-(7+6):].rolling(7).mean()
     MA30_s = data['Close'][-(30+6):].rolling(30).mean() #data['SMA30']#
     MA99_s = data['Close'][-(99+6):].rolling(99).mean()
@@ -125,9 +128,13 @@ def get_symbol_data_of_last_frame_s(symbol:str="",watch_interval:str="1h",limit:
             path="/api/v3/klines",
             params="symbol="+symbol+"&interval="+watch_interval+"&limit="+limit
             )
-    names=['Date', 'Open','High','Low','Close','Volume','close_Date','volume_usdt','8','9','10','11']
+    names=['Date', 'Open','High','Low','Close','Volume','close_Date','volume_usdt','8','9','10','klines_not_enough']
     pd_data = pd.DataFrame(data_list_arry)
     pd_data.columns= names
+    pd_data['klines_not_enough'] =False
+    if len(pd_data) < int(limit):
+        print("新上线不足1.5小时,K线条数不够")
+        pd_data['klines_not_enough'] = True
     return pd_data #所有的收盘价
 
 def do_the_select_and_decision_fast():
@@ -151,6 +158,8 @@ def do_the_select_and_decision_fast():
         # "ALICEUSDT", "15m"
 
         data = do_cacu_MA_last5(coin_pair, Frame_level)
+        if data['klines_not_enough'].all():
+            continue
         five_UP = do_5_continous_up_Analysis(data)
         One_KLine_Same_Entry =False
         if coin_pair in Last_Entry_TICKDate and Last_Entry_TICKDate[coin_pair] == pd.to_datetime(data['Date'].iloc[-1]/1000,unit='s'):
