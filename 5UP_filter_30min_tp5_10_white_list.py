@@ -208,8 +208,8 @@ def do_deal_finish_check(data,coin_pair):
             Staic['win_count'] = Staic['win_count'] + 1
             print("after add"+str(Staic['win_count']))
             profit_count_of_the_day = profit_count_of_the_day + 1
-            log_to_file("当日总盈利订单金额:"+str(profit_count_of_the_day),log_to_file_path)
             log_to_file(coin_pair + "止盈+++++@"+str(Entry_pri[coin_pair]*(100+SP_per)/100), log_to_file_path)
+            log_to_file("当日总盈利订单金额:"+str(profit_count_of_the_day),log_to_file_path)
             log_to_file("策略盈利"+str(Staic['win_count'])+"次  止损"+str(Staic['lose_count'])+"次", log_to_file_path)
             send_email(coin_pair + "止盈+++++@"+str(Entry_pri[coin_pair]*(100+SP_per)/100), log_to_file_path)
             DealMgr.close_deal(coin_pair,Entry_pri[coin_pair]*(100+SP_per)/100)
@@ -221,8 +221,8 @@ def do_deal_finish_check(data,coin_pair):
             print(coin_pair+"止损@"+str(Entry_pri[coin_pair]*(100-SL_per)/100))
             Staic['lose_count'] = Staic['lose_count'] + 1
             profit_count_of_the_day = profit_count_of_the_day - 2
-            log_to_file("当日总盈利订单金额:"+str(profit_count_of_the_day),log_to_file_path)
             log_to_file(coin_pair + "止损——————@"+str(Entry_pri[coin_pair]*(100-SL_per)/100), log_to_file_path)
+            log_to_file("当日总盈利订单金额:"+str(profit_count_of_the_day),log_to_file_path)
             log_to_file("策略盈利"+str(Staic['win_count'])+"次  止损"+str(Staic['lose_count'])+"次", log_to_file_path)
             send_email(coin_pair + "止损——————@"+str(Entry_pri[coin_pair]*(100-SL_per)/100), log_to_file_path)
             DealMgr.close_deal(coin_pair,Entry_pri[coin_pair]*(100-SL_per)/100)
@@ -351,8 +351,8 @@ if __name__ == '__main__':
             print("等待 " + str(POLL_INTERVAL_IN_SEC / 60) + "min 再次查找")
             time.sleep(POLL_INTERVAL_IN_SEC)
         except Exception as e:
-            print(f"GUI发生异常: {e}")
-            log("网络问题崩溃,等待 " + str(PROXY_ERRO_INTERVAL_IN_SEC / 60) + "min 再次查找")
+            log_to_file(f"GUI发生异常: {e}",log_to_file_path)
+            log_to_file("网络问题崩溃,等待 " + str(PROXY_ERRO_INTERVAL_IN_SEC / 60) + "min 再次查找",log_to_file_path)
             time.sleep(PROXY_ERRO_INTERVAL_IN_SEC)
             continue
 

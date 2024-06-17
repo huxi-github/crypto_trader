@@ -1,6 +1,6 @@
 import datetime
 import time
-
+from playsound import playsound
 from py3commas.request import Py3Commas
 from util import log, send_email, read_news_title_with_speaker, log_to_file
 from config_5UP_filter import real_bot_id,emmu_bot_id,real_account_id,emu_account_id,market_over_crazy_threshold
@@ -127,11 +127,13 @@ if __name__ == '__main__':  #一般就开2-3个机器人，风险考虑
             today_profit = get_today_profit("",bot_id)
             log_to_file("当前利润金额 "+str(today_profit),log_to_file_path)
             currentDateAndTime = datetime.datetime.now()
-            if currentDateAndTime.hour==7 and currentDateAndTime.minute>40:
+            if currentDateAndTime.hour ==7 and currentDateAndTime.minute>40:
                 log_to_file("单日利润金额=======>"+str(today_profit),log_to_file_path)
             if today_profit>threshold:
                 print("单日利润金额大于阈值 "+str(threshold)+"暂停机器人4天,并关闭部分订单...")
                 log_to_file("单日利润金额大于阈值 "+str(threshold)+"(市场空前繁荣告警)暂停机器人4天,并关闭部分订单...",log_to_file_path)
+                playsound("audio/alert.mp3")
+                read_news_title_with_speaker("市场空前繁荣告警")
                 stop_the_bot(bot_id)#模拟 
                 # stop_the_bot(real_bot_id)
                 check_all_deals_to_profit_and_close(bot_id)    
@@ -140,8 +142,8 @@ if __name__ == '__main__':  #一般就开2-3个机器人，风险考虑
             print("等待"+str(ORDER_CHECK_INTERVAL_IN_MINS)+"min ")  
             time.sleep(ORDER_CHECK_INTERVAL_IN_MINS*60) 
         except Exception as e:
-            print(f"发生异常: {e}")
-            log("发生异常,网络问题崩溃,等待 " + str(PROXY_ERRO_INTERVAL_IN_SEC / 60) + "min 再次查找")
+            log_to_file(f"发生异常: {e}",log_to_file_path)
+            log_to_file("发生异常,网络问题崩溃,等待 " + str(PROXY_ERRO_INTERVAL_IN_SEC / 60) + "min 再次查找",log_to_file_path)
             time.sleep(PROXY_ERRO_INTERVAL_IN_SEC)
             continue
 
