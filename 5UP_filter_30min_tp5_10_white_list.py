@@ -24,7 +24,7 @@ for symbol in white_list_tmp:
 
 
 profit_count_of_the_day=0
-
+send_flag=False
 
 #全局可持久化变量
 sel_coin_global=[]
@@ -245,7 +245,7 @@ def do_deal_finish_check(data,coin_pair):
 def do_static_security_check():
     currentDateAndTime = datetime.datetime.now()
     print("22222")
-    global profit_count_of_the_day
+    global profit_count_of_the_day,send_flag
     print("当日总盈利订单金额:"+str(profit_count_of_the_day))
 
     if currentDateAndTime.hour==7 and currentDateAndTime.minute>=45:#每天8点前，发送报告邮件，并对上一日订单数清零
@@ -253,6 +253,7 @@ def do_static_security_check():
         send_email("当日总盈利订单金额:"+str(profit_count_of_the_day),"当日盈利订单数")
         profit_count_of_the_day=0
         log_to_file("当日总盈利订单金额开市设置为:"+str(0),log_to_file_path)
+        send_flag = False
         do_data_store()
         
     if profit_count_of_the_day>=8: #当日收益大于阈值，发送警告报告邮件，(并对上一日订单数清零？) 并关闭所有订单，记录关闭造成的盈亏
@@ -260,6 +261,12 @@ def do_static_security_check():
         send_email("当日总盈利订单额大于阈值120，市场过热告警，强行关闭所有订单","市场OVER_CEAZY告警")
         close_all_deals_and_check_PL()
         sleep_for_days()
+
+    if profit_count_of_the_day<=-16 and not send_flag: #当日收益大于阈值，发送警告报告邮件，(并对上一日订单数清零？) 并关闭所有订单，记录关闭造成的盈亏
+        log_to_file("当日总盈利订单额大于阈值-240(16)，市场快速下行--------------",log_to_file_path)
+        send_email("当日总盈利订单额大于阈值-240(16)，市场快速下行 ","市场draw_down 告警")
+        send_flag =True
+        do_data_store()
 
 def sleep_for_days():
     print("机器人休息24*5小时===================================")
@@ -299,12 +306,13 @@ def do_data_store():
         db['Staic'] = Staic
         db['Last_Entry_TICKDate'] = Last_Entry_TICKDate
         db['profit_count_of_the_day'] = profit_count_of_the_day
+        db['send_flag'] = send_flag
 
 def init_form_data_store():
     import shelve
     print("初始化历史数据...")
     with shelve.open(golobal_data) as db:
-        global sel_coin_global,Entry_pri,Staic,Last_Entry_TICKDate,profit_count_of_the_day
+        global sel_coin_global,Entry_pri,Staic,Last_Entry_TICKDate,profit_count_of_the_day,send_flag
         if 'sel_coin_global' in db:
             sel_coin_global = db['sel_coin_global']
             print("set sel_coin_global="+str(sel_coin_global))
@@ -320,6 +328,9 @@ def init_form_data_store():
         if 'profit_count_of_the_day' in db:
             profit_count_of_the_day = db['profit_count_of_the_day']
             print("set profit_count_of_the_day="+str(profit_count_of_the_day))
+        if 'send_flag' in db:
+            send_flag = db['send_flag']
+            print("set send_flag="+str(send_flag))
 
 
 
