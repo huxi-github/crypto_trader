@@ -248,7 +248,7 @@ def do_static_security_check():
     global profit_count_of_the_day,send_flag
     print("当日总盈利订单金额:"+str(profit_count_of_the_day))
 
-    if currentDateAndTime.hour==7 and currentDateAndTime.minute>=45:#每天8点前，发送报告邮件，并对上一日订单数清零
+    if currentDateAndTime.hour==7 and currentDateAndTime.minute>=40:#每天8点前，发送报告邮件，并对上一日订单数清零
         log_to_file("当日总盈利订单金额:"+str(profit_count_of_the_day),log_to_file_path)
         send_email("当日总盈利订单金额:"+str(profit_count_of_the_day),"当日盈利订单数")
         profit_count_of_the_day=0
