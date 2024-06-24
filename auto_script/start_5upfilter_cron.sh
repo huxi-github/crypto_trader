@@ -6,15 +6,13 @@ start_service() {
     NUM0=`ps -ef | grep -i $serv | grep -v "grep" | wc -l`  #查看程序进程是否存活，结果为0为不存活，非0为存活
 
     if [ $NUM0 -eq 0 ]; then
+       echo -n [`date +%Y-%m-%d-%H:%M:%S`]
        echo "$serv" " is down,try start" "$serv"".........................."  #有try_start $server_name 就说明server_name 发生过重启
        cd $serv_path
-       # cmd=python3 ./$serv>./log/running-log/$serv`date +%Y%m%d-%H:%M:%S`.txt
-       cmd=python3 ./$serv #现在每个后台进程都有自己的服务日志,不用记录标志输出
-       nohup $cmd &
-       echo $cmd              #后台启动程序，作为daemon
+       nohup python3 ./$serv &#现在每个后台进程都有自己的服务日志,不用记录标志输出
        # echo "5UP_filter_30min.py(crashed) restart date is : `date +%Y%m%d-%H:%M:%S`">>./log/5UP_filter_30min.py-restart.log         #重启进程的重启日志
     else
-       echo $serv "already running"
+       echo [`date +%Y-%m-%d-%H:%M:%S`]$serv "already running"
     fi
 }
 
@@ -24,6 +22,7 @@ echo [`date +%Y-%m-%d-%H:%M:%S`]
 start_service /Users/huxi/Downloads/crypto_trade_test 5UP_filter_30min_tp5_10.py
 # start_service /Users/huxi/Downloads/crypto_trade_test 5UP_filter_plus_ma_day_30min.py
 start_service /Users/huxi/Downloads/crypto_trade_test 5UP_filter_30min_tp5_10_white_list.py
+start_service /Users/huxi/Downloads/crypto_trade_test 5UP_filter_30min_tp5_sl_15_white_list_ignore_toprank.py
 # start_service /Users/huxi/Downloads/crypto_trade_test 5UP_filter_30min_tp5_10_MA_grow_white_list.py
 # start_service /Users/huxi/Downloads/crypto_trade_test 5UP_filter_30min_tp5_10_white_list_no_liandan.py
 # start_service /Users/huxi/Downloads/crypto_trade_test 5UP_filter_30m_tp5_white_no极限_阴跌_拉伸.py

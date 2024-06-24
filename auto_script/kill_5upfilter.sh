@@ -62,7 +62,7 @@ stop_service() {
 }
 
 stop_service 5UP_filter.py
-stop_service 5UP_filter_30min.py
+stop_service 5UP_filter_30min_tp5_10.py
 stop_service 5UP_filter_plus_ma_day_30min.py
 stop_service 5UP_filter_30min_tp5_10_white_list.py
 stop_service 5UP_filter_30min_tp5_10_MA_grow_white_list.py
