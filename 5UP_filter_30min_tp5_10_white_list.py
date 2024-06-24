@@ -19,8 +19,9 @@ white_list_tmp = symbols_file.readlines()
 white_list =[]
 for symbol in white_list_tmp:
     symbol=symbol.replace("\n", "")
+    if symbol[0]=='-':
+        continue
     white_list.append(symbol)
-# print(white_list)
 
 
 profit_count_of_the_day=0
