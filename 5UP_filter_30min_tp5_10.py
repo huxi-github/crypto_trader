@@ -5,6 +5,7 @@ from py3commas.request import Py3Commas
 from util import log_to_file,log, send_email, read_news_title_with_speaker
 import datetime
 import time
+import os
 from config import *
 
 import muti_dca_deal_creator
@@ -20,6 +21,10 @@ for symbol in white_list_tmp:
     symbol=symbol.replace("\n", "")
     white_list.append(symbol)
 # print(white_list)
+
+
+profit_count_of_the_day=0
+send_flag=False
 
 #全局可持久化变量
 sel_coin_global=[]
@@ -40,7 +45,7 @@ golobal_data ="golobal_data"+log_to_file_path
 POLL_INTERVAL_IN_SEC =60*15
 SCAN_NEW_ARTI_INTERVAL_IN_SEC =60*5
 PROXY_ERRO_INTERVAL_IN_SEC =60*1
-CHOSE_RANGE=35#5.28 15:41 修改 50 改成 25
+CHOSE_RANGE=40#5.28 15:41 修改 50 改成 25
 
 DealMgr = DEALMGR('trade_list_30m_sqlite_tp_'+str(SP_per)+'.db')
 
@@ -58,7 +63,7 @@ def get_top_coin():
     print('rank"\tsymbol_name ' + "\t\t\t" + 'priceChangePercent')
     top_hot_symbol={}
     for symbl_d in sorted_arry:
-        if symbl_d['symbol'].endswith("BUSD") :
+        if symbl_d['symbol'].endswith("USDT") :
             # 排除PULL DOWN  类型
             if "BULL" in symbl_d['symbol'] or "DOWN" in symbl_d['symbol']: continue
             print(str(i)+ "\t\t" + symbl_d['symbol'] + "\t\t\t\t\t" + symbl_d['priceChangePercent'])
@@ -104,6 +109,9 @@ def do_MA_condition_Analysis(data):
 
 def do_cacu_MA_last5(sysbol_pair:str,frame_level:str):
     data=get_symbol_data_of_last_frame_s(sysbol_pair,frame_level,'105')
+    if data['klines_not_enough'].all():
+        print("klines_not_enough")
+        return data
     MA7_s = data['Close'][-(7+6):].rolling(7).mean()
     MA30_s = data['Close'][-(30+6):].rolling(30).mean() #data['SMA30']#
     MA99_s = data['Close'][-(99+6):].rolling(99).mean()
@@ -120,9 +128,13 @@ def get_symbol_data_of_last_frame_s(symbol:str="",watch_interval:str="1h",limit:
             path="/api/v3/klines",
             params="symbol="+symbol+"&interval="+watch_interval+"&limit="+limit
             )
-    names=['Date', 'Open','High','Low','Close','Volume','close_Date','volume_usdt','8','9','10','11']
+    names=['Date', 'Open','High','Low','Close','Volume','close_Date','volume_usdt','8','9','10','klines_not_enough']
     pd_data = pd.DataFrame(data_list_arry)
     pd_data.columns= names
+    pd_data['klines_not_enough'] =False
+    if len(pd_data) < int(limit):
+        print("新上线不足1.5小时,K线条数不够")
+        pd_data['klines_not_enough'] = True
     return pd_data #所有的收盘价
 
 def do_the_select_and_decision_fast():
@@ -143,31 +155,34 @@ def do_the_select_and_decision_fast():
         '''
         最后两分钟 ，超长拉升>%3 则不入
         '''
-        # "ALICEBUSD", "15m"
+        # "ALICEUSDT", "15m"
 
         data = do_cacu_MA_last5(coin_pair, Frame_level)
+        if data['klines_not_enough'].all():
+            continue
         five_UP = do_5_continous_up_Analysis(data)
         One_KLine_Same_Entry =False
         if coin_pair in Last_Entry_TICKDate and Last_Entry_TICKDate[coin_pair] == pd.to_datetime(data['Date'].iloc[-1]/1000,unit='s'):
             One_KLine_Same_Entry =True
             print("同一根K线重复进入")
         if five_UP and do_MA_condition_Analysis(data) and not One_KLine_Same_Entry: 
-            print(coin_pair+"符合5UP条件，启动的的交易符号："+str(sel_coin_global))
+            log_to_file(coin_pair+"符合5UP条件，@"+str(data["Close"].iloc[-1]),log_to_file_path)
             if not coin_pair in sel_coin_global:
                 sel_coin_global.append(coin_pair)
                 Entry_pri[coin_pair] = float(data["Close"].iloc[-1])
                 Last_Entry_TICKDate[coin_pair] = pd.to_datetime(data['Date'].iloc[-1]/1000,unit='s')
                 log_to_file(coin_pair + "符合5UP条件@"+str(Entry_pri[coin_pair])+"启动的交易符号：" + str(sel_coin_global),log_to_file_path)
-                send_email(coin_pair + "符合5UP条件@"+str(Entry_pri[coin_pair])+"启动的交易符号：" + str(sel_coin_global),log_to_file_path)
-                # if coin_pair in white_list:
-                #     start_new_deal(coin_pair) 
-                #     # start_new_deal_real(coin_pair)#启动实盘账户 
+                 # if coin_pair in white_list:
+                # start_new_deal(coin_pair) 
+                # start_new_deal_real(coin_pair)#启动实盘账户 
                 # else:
                 #     print(coin_pair + "不在白名单里")
                 #     log_to_file(coin_pair + "不在白名单里,不启动实盘，",log_to_file_path)
                 #     send_email(coin_pair + "不在白名单里,不启动实盘，只记录日志",log_to_file_path)
                 # DealMgr.create_deal(coin_pair,Entry_pri[coin_pair])
                 do_data_store()
+                send_email(coin_pair + "符合5UP条件@"+str(Entry_pri[coin_pair])+"启动的交易符号：" + str(sel_coin_global),log_to_file_path)
+
             else:
                 print(coin_pair+"有尚未结束的交易单...,不重复进入")
         else:
@@ -194,34 +209,96 @@ def do_5_continous_up_Analysis(data):
         return False
 
 def do_deal_finish_check(data,coin_pair):
-    global sel_coin_global
+    global sel_coin_global,Entry_pri,Staic,profit_count_of_the_day
     if coin_pair in sel_coin_global:
-        global Entry_pri,Staic
+        
         if float(data['High'].iloc[-1]) > Entry_pri[coin_pair]*(100+SP_per)/100:
             print(coin_pair+"止盈@"+str(Entry_pri[coin_pair]*(100+SP_per)/100))
             print("befor add"+str(Staic['win_count']))
             Staic['win_count'] = Staic['win_count'] + 1
             print("after add"+str(Staic['win_count']))
+            profit_count_of_the_day = profit_count_of_the_day + 1
             log_to_file(coin_pair + "止盈+++++@"+str(Entry_pri[coin_pair]*(100+SP_per)/100), log_to_file_path)
+            log_to_file("当日总盈利订单金额:"+str(profit_count_of_the_day),log_to_file_path)
             log_to_file("策略盈利"+str(Staic['win_count'])+"次  止损"+str(Staic['lose_count'])+"次", log_to_file_path)
-            # send_email(coin_pair + "止盈+++++@"+str(Entry_pri[coin_pair]*(100+SP_per)/100), log_to_file_path)
+            
             DealMgr.close_deal(coin_pair,Entry_pri[coin_pair]*(100+SP_per)/100)
             sel_coin_global.remove(coin_pair)
             del Entry_pri[coin_pair]
+            del Last_Entry_TICKDate[coin_pair]
             do_data_store()
+            send_email(coin_pair + "止盈+++++@"+str(Entry_pri[coin_pair]*(100+SP_per)/100), log_to_file_path)
         elif float(data['Low'].iloc[-1]) < Entry_pri[coin_pair]*(100-SL_per)/100:
             print(coin_pair+"止损@"+str(Entry_pri[coin_pair]*(100-SL_per)/100))
             Staic['lose_count'] = Staic['lose_count'] + 1
+            profit_count_of_the_day = profit_count_of_the_day - 1*(SL_per/SP_per)
             log_to_file(coin_pair + "止损——————@"+str(Entry_pri[coin_pair]*(100-SL_per)/100), log_to_file_path)
+            log_to_file("当日总盈利订单金额:"+str(profit_count_of_the_day),log_to_file_path)
             log_to_file("策略盈利"+str(Staic['win_count'])+"次  止损"+str(Staic['lose_count'])+"次", log_to_file_path)
-            # send_email(coin_pair + "止损——————@"+str(Entry_pri[coin_pair]*(100-SL_per)/100), log_to_file_path)
+            
             DealMgr.close_deal(coin_pair,Entry_pri[coin_pair]*(100-SL_per)/100)
             sel_coin_global.remove(coin_pair)
             del Entry_pri[coin_pair]
+            del Last_Entry_TICKDate[coin_pair]
             do_data_store()
+            send_email(coin_pair + "止损——————@"+str(Entry_pri[coin_pair]*(100-SL_per)/100), log_to_file_path)
         else:
             print(coin_pair+"没有止盈止损")
 
+def do_static_security_check():
+    currentDateAndTime = datetime.datetime.now()
+    print("22222")
+    global profit_count_of_the_day,send_flag
+    print("当日总盈利订单金额:"+str(profit_count_of_the_day))
+
+    if currentDateAndTime.hour==7 and currentDateAndTime.minute>=40:#每天8点前，发送报告邮件，并对上一日订单数清零
+        log_to_file("当日总盈利订单金额:"+str(profit_count_of_the_day),log_to_file_path)
+        send_email("当日总盈利订单金额:"+str(profit_count_of_the_day),"当日盈利订单数")
+        profit_count_of_the_day=0
+        log_to_file("当日总盈利订单金额开市设置为:"+str(0),log_to_file_path)
+        send_flag = False
+        do_data_store()
+        
+    if profit_count_of_the_day>=8: #当日收益大于阈值，发送警告报告邮件，(并对上一日订单数清零？) 并关闭所有订单，记录关闭造成的盈亏
+        log_to_file("当日总盈利订单额大于阈值120，市场过热告警，强行关闭所有订单--------------",log_to_file_path)
+        send_email("当日总盈利订单额大于阈值120，市场过热告警，强行关闭所有订单","市场OVER_CEAZY告警")
+        close_all_deals_and_check_PL()
+        sleep_for_days()
+
+    if profit_count_of_the_day<=-16 and not send_flag: #当日收益大于阈值，发送警告报告邮件，(并对上一日订单数清零？) 并关闭所有订单，记录关闭造成的盈亏
+        log_to_file("当日总盈利订单额大于阈值-240(16)，市场快速下行--------------",log_to_file_path)
+        send_email("当日总盈利订单额大于阈值-240(16)，市场快速下行 ","市场draw_down 告警")
+        send_flag =True
+        do_data_store()
+
+def sleep_for_days():
+    print("机器人休息24*5小时===================================")
+    time.sleep(60*60*24*5) 
+
+def close_all_deals_and_check_PL():
+    global sel_coin_global,Entry_pri,profit_count_of_the_day
+    print(sel_coin_global)
+    print(len(sel_coin_global))
+
+    profit_balance_of_the_day_by_all_close = 0
+    for coin_pair in sel_coin_global:
+        print("-------"+coin_pair)
+        data=get_symbol_data_of_last_frame_s(coin_pair,'1m','1')
+        pair_profit=300*(float(data['Close'].iloc[-1]) - Entry_pri[coin_pair])/Entry_pri[coin_pair]
+        print("强行关闭订单"+coin_pair+"产生的盈亏"+str(pair_profit)+"USD")
+        profit_balance_of_the_day_by_all_close = profit_balance_of_the_day_by_all_close + pair_profit
+        del Entry_pri[coin_pair]
+        del Last_Entry_TICKDate[coin_pair]
+        DealMgr.close_deal(coin_pair,float(data['Close'].iloc[-1]))
+    sel_coin_global.clear()
+    # Last_Entry_TICKDate.clear()
+    log_to_file("强行关闭所有订单产生的盈亏为"+str(profit_balance_of_the_day_by_all_close)+"USD", log_to_file_path)
+    profit_count_of_the_day = profit_count_of_the_day*15 + profit_balance_of_the_day_by_all_close
+    send_email("市场过热机器人强制关闭订单休息 当日总盈利金额: "+str(profit_count_of_the_day)+"USD " ,"当日盈利订单数_OVER_CRAZY ")
+    profit_count_of_the_day = 0
+    playsound("audio/alert.mp3")
+    read_news_title_with_speaker("市场空前繁荣告警")
+    do_data_store()
 
 def do_data_store():
     import shelve
@@ -231,12 +308,14 @@ def do_data_store():
         db['Entry_pri'] = Entry_pri
         db['Staic'] = Staic
         db['Last_Entry_TICKDate'] = Last_Entry_TICKDate
+        db['profit_count_of_the_day'] = profit_count_of_the_day
+        db['send_flag'] = send_flag
 
 def init_form_data_store():
     import shelve
     print("初始化历史数据...")
     with shelve.open(golobal_data) as db:
-        global sel_coin_global,Entry_pri,Staic,Last_Entry_TICKDate
+        global sel_coin_global,Entry_pri,Staic,Last_Entry_TICKDate,profit_count_of_the_day,send_flag
         if 'sel_coin_global' in db:
             sel_coin_global = db['sel_coin_global']
             print("set sel_coin_global="+str(sel_coin_global))
@@ -249,6 +328,12 @@ def init_form_data_store():
         if 'Last_Entry_TICKDate' in db:
             Last_Entry_TICKDate = db['Last_Entry_TICKDate']
             print("set Last_Entry_TICKDate="+str(Last_Entry_TICKDate))
+        if 'profit_count_of_the_day' in db:
+            profit_count_of_the_day = db['profit_count_of_the_day']
+            print("set profit_count_of_the_day="+str(profit_count_of_the_day))
+        if 'send_flag' in db:
+            send_flag = db['send_flag']
+            print("set send_flag="+str(send_flag))
 
 
 
@@ -262,6 +347,7 @@ def start_the_filter():
 if __name__ == '__main__':
     #  拉盘启动模拟账户交易
     #意外终止读取 上次存储的数据
+    # start_new_deal_real("GMXUSDT") 
     init_form_data_store() 
 
     # 循环监测GUI的运行状态
@@ -271,12 +357,14 @@ if __name__ == '__main__':
             # 时间判断 8：am  and 18：pam
             '''
             # do_time_period_select()
+            do_static_security_check()
             do_the_select_and_decision_fast()
-            log("等待 " + str(POLL_INTERVAL_IN_SEC / 60) + "min 再次查找")
+            print("当日总盈利订单次数:"+str(profit_count_of_the_day))
+            print("等待 " + str(POLL_INTERVAL_IN_SEC / 60) + "min 再次查找")
             time.sleep(POLL_INTERVAL_IN_SEC)
         except Exception as e:
-            print(f"GUI发生异常: {e}")
-            log("网络问题崩溃,等待 " + str(PROXY_ERRO_INTERVAL_IN_SEC / 60) + "min 再次查找")
+            log_to_file(f"GUI发生异常: {e}",log_to_file_path)
+            log_to_file("网络问题崩溃,等待 " + str(PROXY_ERRO_INTERVAL_IN_SEC / 60) + "min 再次查找",log_to_file_path)
             time.sleep(PROXY_ERRO_INTERVAL_IN_SEC)
             continue
 
