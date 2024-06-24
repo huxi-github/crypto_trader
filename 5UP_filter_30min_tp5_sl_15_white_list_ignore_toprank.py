@@ -99,12 +99,14 @@ def get_symbol_change_of_last_frame_s(symbol:str="",watch_interval:str="5m",limi
 
 
 def do_MA_condition_Analysis(data):
-    #是否在30 均线上方
+    #5根收盘价是否在30 均线上方
     print(data.iloc[-5]['MA30'])
-    if float(data.iloc[-6]['Close'])  > float(data.iloc[-6]['MA30'])and float(data.iloc[-5]['Close'])  > float(data.iloc[-5]['MA30'])\
-    and float(data['Close'].iloc[-4]) > float(data['MA30'].iloc[-4]) and float(data['Close'].iloc[-3]) > float(data['MA30'].iloc[-3])\
+    if  float(data['Close'].iloc[-6]) > float(data['MA30'].iloc[-6])\
+    and float(data['Close'].iloc[-5]) > float(data['MA30'].iloc[-5])\ 
+    and float(data['Close'].iloc[-4]) > float(data['MA30'].iloc[-4])\
+    and float(data['Close'].iloc[-3]) > float(data['MA30'].iloc[-3])\
     and float(data['Close'].iloc[-2]) > float(data['MA30'].iloc[-2])\
-    and float(data['Close'].iloc[-1]) > float(data['MA30'].iloc[-1]):# and  float(data['Close'].iloc[-1]) > float(data['MA30'].iloc[-1]):
+    and float(data['Close'].iloc[-1]) > float(data['MA30'].iloc[-1]):# (是否SMA做下降行情) and float(data['MA30'].iloc[-1]) > float(data['MA99'].iloc[-1]):
         return True
     else:
         return False
@@ -114,7 +116,7 @@ def do_cacu_MA_last5(sysbol_pair:str,frame_level:str):
     if data['klines_not_enough'].all():
         print("klines_not_enough")
         return data
-    MA7_s = data['Close'][-(7+6):].rolling(7).mean()
+    MA7_s  = data['Close'][-(7 +6):].rolling(7).mean()
     MA30_s = data['Close'][-(30+6):].rolling(30).mean() #data['SMA30']#
     MA99_s = data['Close'][-(99+6):].rolling(99).mean()
     data['MA7'] =  MA7_s
@@ -203,9 +205,9 @@ def do_the_select_and_decision_fast():
         time.sleep(0.2)
 
 def do_5_continous_up_Analysis(data):
-    if data['Close'].iloc[-6] < data['Close'].iloc[-5]\
-    and data['Close'].iloc[-5] < data['Close'].iloc[-4] \
-    and data['Close'].iloc[-4] < data['Close'].iloc[-3] \
+    if  data['Close'].iloc[-6] < data['Close'].iloc[-5]\
+    and data['Close'].iloc[-5] < data['Close'].iloc[-4]\
+    and data['Close'].iloc[-4] < data['Close'].iloc[-3]\
     and data['Close'].iloc[-3] < data['Close'].iloc[-2]:
     # and data['Close'].iloc[-2] < data['Close'].iloc[-1]:
     # ['Close'].iloc[-1] 时刻变化的，就是最新价格
