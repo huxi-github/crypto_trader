@@ -39,7 +39,7 @@ SP_per =5
 SL_per =10
 Frame_level= '30m'
 log_to_file_path = "5UP_filter_"+Frame_level+"tp_"+str(SP_per)+"_"+str(SL_per)+"_white.log"
-golobal_data ="golobal_data"+log_to_file_path
+golobal_data ="db_file/json/golobal_data_"+log_to_file_path
 
 
 #速度配置
@@ -48,7 +48,7 @@ SCAN_NEW_ARTI_INTERVAL_IN_SEC =60*5
 PROXY_ERRO_INTERVAL_IN_SEC =60*1
 CHOSE_RANGE=40#5.28 15:41 修改 50 改成 25
 
-DealMgr = DEALMGR('trade_list_30m_sqlite_tp_'+str(SP_per)+'_white.db')
+DealMgr = DEALMGR('db_file/sqlite/trade_list_30m_sqlite_tp_'+str(SP_per)+'_white.db')
 
 # ///////GET /api/v3/ticker/24hr
 def get_top_coin():
