@@ -273,7 +273,7 @@ def do_static_security_check():
         do_data_store()
 
 def sleep_for_days():
-    print("机器人休息24*5小时===================================")
+    log_to_file("机器人休息24*5小时===================================",log_to_file_path)
     time.sleep(60*60*24*5) 
 
 def close_all_deals_and_check_PL():

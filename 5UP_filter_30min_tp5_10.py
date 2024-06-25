@@ -274,7 +274,7 @@ def do_static_security_check():
         do_data_store()
 
 def sleep_for_days():
-    print("机器人休息24*5小时===================================")
+    log_to_file("机器人休息24*5小时===================================",log_to_file_path)
     time.sleep(60*60*24*5) 
 
 def close_all_deals_and_check_PL():
@@ -300,7 +300,7 @@ def close_all_deals_and_check_PL():
     profit_count_of_the_day = 0
     playsound("audio/alert.mp3")
     read_news_title_with_speaker("市场空前繁荣告警")
-    # do_data_store()
+    do_data_store()
 
 def do_data_store():
     import shelve
