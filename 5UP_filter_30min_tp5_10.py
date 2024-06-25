@@ -261,13 +261,13 @@ def do_static_security_check():
         send_flag = False
         do_data_store()
         
-    if profit_count_of_the_day>=8: #当日收益大于阈值，发送警告报告邮件，(并对上一日订单数清零？) 并关闭所有订单，记录关闭造成的盈亏
+    if profit_count_of_the_day>=16: #当日收益大于阈值，发送警告报告邮件，(并对上一日订单数清零？) 并关闭所有订单，记录关闭造成的盈亏
         log_to_file("当日总盈利订单额大于阈值120，市场过热告警，强行关闭所有订单--------------",log_to_file_path)
         send_email("当日总盈利订单额大于阈值120，市场过热告警，强行关闭所有订单","市场OVER_CEAZY告警"+log_to_file_path)
         close_all_deals_and_check_PL()
         sleep_for_days()
 
-    if profit_count_of_the_day<=-16 and not send_flag: #当日收益大于阈值，发送警告报告邮件，(并对上一日订单数清零？) 并关闭所有订单，记录关闭造成的盈亏
+    if profit_count_of_the_day<=-24 and not send_flag: #当日收益大于阈值，发送警告报告邮件，(并对上一日订单数清零？) 并关闭所有订单，记录关闭造成的盈亏
         log_to_file("当日总盈利订单额大于阈值-240(16)，市场快速下行--------------",log_to_file_path)
         send_email("当日总盈利订单额大于阈值-240(16)，市场快速下行 ","市场draw_down 告警"+log_to_file_path)
         send_flag =True
@@ -300,7 +300,7 @@ def close_all_deals_and_check_PL():
     profit_count_of_the_day = 0
     playsound("audio/alert.mp3")
     read_news_title_with_speaker("市场空前繁荣告警")
-    do_data_store()
+    # do_data_store()
 
 def do_data_store():
     import shelve
