@@ -97,16 +97,18 @@ def get_symbol_change_of_last_frame_s(symbol:str="",watch_interval:str="5m",limi
     print("交易对"+symbol+" 在最近"+str(limit)+"个"+watch_interval+"内变化:"+ str(price_change_percent)[:4] +"%"+"\t振幅变化:" + str(price_change_max_percent)[:4] +"%")
     return price_change_percent
 
-
+    #是否在30 均线上方
 def do_MA_condition_Analysis(data):
-    #5根收盘价是否在30 均线上方
+    #前5根(算当前6根)收盘价是否在30均线上方
     print(data.iloc[-5]['MA30'])
     if  float(data['Close'].iloc[-6]) > float(data['MA30'].iloc[-6])\
-    and float(data['Close'].iloc[-5]) > float(data['MA30'].iloc[-5])\ 
+    and float(data['Close'].iloc[-5]) > float(data['MA30'].iloc[-5])\
     and float(data['Close'].iloc[-4]) > float(data['MA30'].iloc[-4])\
     and float(data['Close'].iloc[-3]) > float(data['MA30'].iloc[-3])\
     and float(data['Close'].iloc[-2]) > float(data['MA30'].iloc[-2])\
-    and float(data['Close'].iloc[-1]) > float(data['MA30'].iloc[-1]):# (是否SMA做下降行情) and float(data['MA30'].iloc[-1]) > float(data['MA99'].iloc[-1]):
+    and float(data['Close'].iloc[-1]) > float(data['MA30'].iloc[-1]):
+    #(是否SMA做下降行情) 
+    #and float(data['MA30'].iloc[-1]) > float(data['MA99'].iloc[-1]):
         return True
     else:
         return False
@@ -144,12 +146,6 @@ def get_symbol_data_of_last_frame_s(symbol:str="",watch_interval:str="1h",limit:
 def do_the_select_and_decision_fast():
     cur_time = datetime.datetime.now().strftime("%H:%M")
     log("current time is " + cur_time + "trying to get_white_list_symbol")
-    # top_symbols = get_top_coin()
-
-    # sel = []
-    # start for loop
-    # for (key, val) in top_symbols.items():
-    #     coin_pair = str(key)
     for (key) in white_list:
         coin_pair = str(key)
     
@@ -205,6 +201,7 @@ def do_the_select_and_decision_fast():
         time.sleep(0.2)
 
 def do_5_continous_up_Analysis(data):
+    #4连阳线
     if  data['Close'].iloc[-6] < data['Close'].iloc[-5]\
     and data['Close'].iloc[-5] < data['Close'].iloc[-4]\
     and data['Close'].iloc[-4] < data['Close'].iloc[-3]\
@@ -260,7 +257,7 @@ def do_static_security_check():
 
     if currentDateAndTime.hour==7 and currentDateAndTime.minute>=40:#每天8点前，发送报告邮件，并对上一日订单数清零
         log_to_file("当日总盈利订单金额:"+str(profit_count_of_the_day),log_to_file_path)
-        send_email("当日总盈利订单金额:"+str(profit_count_of_the_day),"当日盈利订单数")
+        send_email("当日总盈利订单金额:"+str(profit_count_of_the_day),"当日盈利订单数"+log_to_file_path)
         profit_count_of_the_day=0
         log_to_file("当日总盈利订单金额开市设置为:"+str(0),log_to_file_path)
         send_flag = False
@@ -268,12 +265,12 @@ def do_static_security_check():
         
     if profit_count_of_the_day>=8: #当日收益大于阈值，发送警告报告邮件，(并对上一日订单数清零？) 并关闭所有订单，记录关闭造成的盈亏
         log_to_file("当日总盈利订单额大于阈值120，市场过热告警，强行关闭所有订单--------------",log_to_file_path)
-        send_email("当日总盈利订单额大于阈值120，市场过热告警，强行关闭所有订单","市场OVER_CEAZY告警")
+        send_email("当日总盈利订单额大于阈值120，市场过热告警，强行关闭所有订单","市场OVER_CEAZY告警"+log_to_file_path)
         close_all_deals_and_check_PL()
         sleep_for_days()
 
     if profit_count_of_the_day<=-16 and not send_flag: #当日收益大于阈值，发送警告报告邮件，(并对上一日订单数清零？) 并关闭所有订单，记录关闭造成的盈亏
-        log_to_file("当日总盈利订单额大于阈值-240(16)，市场快速下行--------------",log_to_file_path)
+        log_to_file("当日总盈利订单额大于阈值-240(16)，市场快速下行--------------",log_to_file_path+log_to_file_path)
         send_email("当日总盈利订单额大于阈值-240(16)，市场快速下行 ","市场draw_down 告警")
         send_flag =True
         do_data_store()
@@ -301,7 +298,7 @@ def close_all_deals_and_check_PL():
     # Last_Entry_TICKDate.clear()
     log_to_file("强行关闭所有订单产生的盈亏为"+str(profit_balance_of_the_day_by_all_close)+"USD", log_to_file_path)
     profit_count_of_the_day = profit_count_of_the_day*15 + profit_balance_of_the_day_by_all_close
-    send_email("市场过热机器人强制关闭订单休息 当日总盈利金额: "+str(profit_count_of_the_day)+"USD " ,"当日盈利订单数_OVER_CRAZY ")
+    send_email("市场过热机器人强制关闭订单休息 当日总盈利金额: "+str(profit_count_of_the_day)+"USD " ,"当日盈利订单数_OVER_CRAZY "+log_to_file_path)
     profit_count_of_the_day = 0
     playsound("audio/alert.mp3")
     read_news_title_with_speaker("市场空前繁荣告警")

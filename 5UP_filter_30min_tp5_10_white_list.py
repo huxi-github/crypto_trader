@@ -254,7 +254,7 @@ def do_static_security_check():
 
     if currentDateAndTime.hour==7 and currentDateAndTime.minute>=40:#每天8点前，发送报告邮件，并对上一日订单数清零
         log_to_file("当日总盈利订单金额:"+str(profit_count_of_the_day),log_to_file_path)
-        send_email("当日总盈利订单金额:"+str(profit_count_of_the_day),"当日盈利订单数")
+        send_email("当日总盈利订单金额:"+str(profit_count_of_the_day),"当日盈利订单数"+log_to_file_path)
         profit_count_of_the_day=0
         log_to_file("当日总盈利订单金额开市设置为:"+str(0),log_to_file_path)
         send_flag = False
@@ -262,13 +262,13 @@ def do_static_security_check():
         
     if profit_count_of_the_day>=8: #当日收益大于阈值，发送警告报告邮件，(并对上一日订单数清零？) 并关闭所有订单，记录关闭造成的盈亏
         log_to_file("当日总盈利订单额大于阈值120，市场过热告警，强行关闭所有订单--------------",log_to_file_path)
-        send_email("当日总盈利订单额大于阈值120，市场过热告警，强行关闭所有订单","市场OVER_CEAZY告警")
+        send_email("当日总盈利订单额大于阈值120，市场过热告警，强行关闭所有订单","市场OVER_CEAZY告警"+log_to_file_path)
         close_all_deals_and_check_PL()
         sleep_for_days()
 
     if profit_count_of_the_day<=-16 and not send_flag: #当日收益大于阈值，发送警告报告邮件，(并对上一日订单数清零？) 并关闭所有订单，记录关闭造成的盈亏
         log_to_file("当日总盈利订单额大于阈值-240(16)，市场快速下行--------------",log_to_file_path)
-        send_email("当日总盈利订单额大于阈值-240(16)，市场快速下行 ","市场draw_down 告警")
+        send_email("当日总盈利订单额大于阈值-240(16)，市场快速下行 ","市场draw_down 告警"+log_to_file_path)
         send_flag =True
         do_data_store()
 
@@ -295,7 +295,7 @@ def close_all_deals_and_check_PL():
     # Last_Entry_TICKDate.clear()
     log_to_file("强行关闭所有订单产生的盈亏为"+str(profit_balance_of_the_day_by_all_close)+"USD", log_to_file_path)
     profit_count_of_the_day = profit_count_of_the_day*15 + profit_balance_of_the_day_by_all_close
-    send_email("市场过热机器人强制关闭订单休息 当日总盈利金额: "+str(profit_count_of_the_day)+"USD " ,"当日盈利订单数_OVER_CRAZY ")
+    send_email("市场过热机器人强制关闭订单休息 当日总盈利金额: "+str(profit_count_of_the_day)+"USD " ,"当日盈利订单数_OVER_CRAZY "+log_to_file_path)
     profit_count_of_the_day = 0
     playsound("audio/alert.mp3")
     read_news_title_with_speaker("市场空前繁荣告警")
