@@ -9,81 +9,9 @@ import json
 
 POLL_INTERVAL_IN_SEC =3
 SCAN_NEW_ARTI_INTERVAL_IN_SEC =60*5
-#6615账户的 key 和 secr
-p3c = Py3Commas(key='xx',
-                secret=' '
-                       ' '
-                       ' '
-                       ' ')
-# p3c_test = Py3Commas(key='c9b4d5701d1547018125c9f80f68b72e326438e9a86d408aa9abfaf758bd8c37',
-#                 secret='beecd7278e174645df5d4ce4a0072a14d874384dd746280e6951919f3b1c728b500'
-#                        '84ed3d9a50a76b06a2a2f8b1fdb92f35e00dcba6a82db52916457a37e9a81112db05'
-#                        '6ce1d2d97460159cb4a161cef0c98aae080ded1d78be0d7f6bab8ff50a0e4771c')
+#账户的 key 和 secr
+p3c = Py3Commas(key=pubkey,secret=secret)
 
-# ///POST/// /ver1/accounts/{account_id}/account_table_data
-
-
-
-# ///////GET /ver1/bots/stats  单个机器人收益统计
-# response1 = p3c.request(
-#     entity='bots',
-#     action='stats',
-#     param ="account_id=30227197&bot_id=4228101" #
-# )
-# print("\nbots/stats:")
-# print(response1)
-
-# /////// POST /ver1/bots/{bot_id}/disable
-# response1 = p3c.request(
-#     entity='bots',
-#     action='enable',
-#         _id="4228101",
-#     payload={
-#              "bot_id":"4228101"
-#              }
-# )
-
-# ///////POST /ver1/bots/{bot_id}/start_new_deal  [仅仅对 muti-pair 机器人使用这个接口 可用]
-# def start_new_deal_test_account(coin_pair:str=""):# from  3commas network
-#     index_s =coin_pair.find("BUSD")
-#     base = coin_pair[0:index_s]
-#     symbol_pair = "BUSD_"+base
-
-#     response1 = p3c_test.request(
-#         entity='bots',
-#         action='start_new_deal',
-#             # _id="4228101", #虚拟账户
-#             # _id="4740610", #真实账户 机器人
-#             _id="5601757", #132模拟账户 机器人5601757
-#         payload={"pair":symbol_pair,
-#                 "skip_signal_checks":"false",  #trading 15min  推荐买入，检查
-#                  "skip_open_deals_checks":"false",  #是否跳过界面上的 同时相同交易对数目的检查[比较安全]
-#                  # "bot_id":"4228101"  # 虚拟账户
-#                  # "bot_id":"4740610"  #真实账户 机器人
-#                  "bot_id": "5601757"  # 132模拟账户 机器人
-#                  }
-#     )
-
-#     print("服务器返回+resp_txt===="+str(response1))# from  3commas network网络回复
-#     if 'error:' in response1:
-#         print("\nbots/start_new_deal failed:"+"symbol_pair="+symbol_pair)
-#         print("\n请求的参数可能存在错误")
-#     elif 'rejected-max-deal' in response1: #自己定义rejected
-#         cur_time = datetime.datetime.now().strftime("%m-%d %H:%M:%S")
-#         print("\n达到最大订单数限制 for" + " symbol_pair=" + symbol_pair+"暂停20s再扫描......")
-#         send_email(cur_time+"达到最大订单数限制 for" + " symbol_pair=" + symbol_pair+"暂停20s再扫描......")
-#         time.sleep(20)
-#     elif 'rejected-not-exsit' in response1: #自己定义rejected
-#         print("\n交易对不再交易对备选表中 for" + " symbol_pair=" + symbol_pair+"跳过，扫描下一个")
-#         send_email("\n交易对不再交易对备选表中 for" + " symbol_pair=" + symbol_pair+"跳过，扫描下一个")
-#     elif 'net_timeout' in response1:
-#         print("\n3commas.io网络拥塞，已经尝试5次连接(2.3) for" + " symbol_pair=" + symbol_pair + "不等待 3s，之后进入下一轮扫描，直接扫")
-#         send_email("\n3commas.io网络拥塞4X(2.3)s for" + " symbol_pair=" + symbol_pair + "不等待,直接扫下一轮,币安扫描要时间")
-#     else:
-#         print("\nbots/start_new_deal successful 成功:"+"symbol_pair="+symbol_pair)
-#     print("\n")
-
-# ///////POST /ver1/bots/{bot_id}/start_new_deal  [仅仅对 muti-pair 机器人使用这个接口 可用]
 def start_new_deal(coin_pair:str="",allow_same_pair:bool=False):# from  3commas network
     index_s =coin_pair.find("BUSD")
     base = coin_pair[0:index_s]

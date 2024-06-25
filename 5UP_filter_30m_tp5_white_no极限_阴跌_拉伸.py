@@ -2,7 +2,7 @@
 from playsound import playsound
 
 from py3commas.request import Py3Commas
-from util import log_to_file,log, send_email, read_news_title_with_speaker
+from util import log_to_file,log, send_email, read_news_title_with_speaker,read_log_file_last_profit_count
 import datetime
 import time
 from config import *
@@ -33,16 +33,18 @@ SP_per =5
 SL_per =10
 Frame_level= '30m'
 log_to_file_path = "5UP_filter_"+Frame_level+"tp_"+str(SP_per)+"_"+str(SL_per)+"_white_no_liandan_no_jixian.log"
-golobal_data ="golobal_data"+log_to_file_path
+golobal_data ="db_file/json/golobal_data_"+log_to_file_path
 
 
 #速度配置
 POLL_INTERVAL_IN_SEC =60*15
-SCAN_NEW_ARTI_INTERVAL_IN_SEC =60*5
+#市场过热，大涨后，暂停轮询的 时间 s
+STOP_POLL_FOR_HOT_INTERVAL_IN_SEC=60*60*24*4 #暂停4天
+#网络(代理)连接失败，暂停的时间
 PROXY_ERRO_INTERVAL_IN_SEC =60*1
 CHOSE_RANGE=40#5.28 15:41 修改 50 改成 25
 
-DealMgr = DEALMGR('trade_list_30m_sqlite_tp_'+str(SP_per)+'_white_no_liandan_no_jixian.db')
+DealMgr = DEALMGR('db_file/sqlite/trade_list_30m_sqlite_tp_'+str(SP_per)+'_white_no_liandan_no_jixian.db')
 
 # ///////GET /api/v3/ticker/24hr
 def get_top_coin():
@@ -242,6 +244,13 @@ def do_deal_finish_check(data,coin_pair):
         else:
             print(coin_pair+"没有止盈止损")
 
+def analysis_is_shichang_overhot():
+    zhiying_count=read_log_file_last_profit_count(log_to_file_path)
+    if zhiying_count>=150/15:#10 单 1000元
+        log_to_file("单日盈利数超过135 USD,市场过热....",log_to_file_path)
+        return True
+    else:
+        return False
 
 def do_data_store():
     import shelve
@@ -292,8 +301,14 @@ if __name__ == '__main__':
             '''
             # do_time_period_select()
             do_the_select_and_decision_fast()
-            print("等待 " + str(POLL_INTERVAL_IN_SEC / 60) + "min 再次查找")
-            time.sleep(POLL_INTERVAL_IN_SEC)
+            print("分析市场热度情况...")
+            re=analysis_is_shichang_overhot()
+            if re:
+                log_to_file("市场过热, 等待 " + str(STOP_POLL_FOR_HOT_INTERVAL_IN_SEC / 60*60) + "hour 再次查找",log_to_file_path)
+                time.sleep(STOP_POLL_FOR_HOT_INTERVAL_IN_SEC)
+            else:
+                print("等待 " + str(POLL_INTERVAL_IN_SEC / 60) + "min 再次查找")
+                time.sleep(POLL_INTERVAL_IN_SEC)
         except Exception as e:
             print(f"GUI发生异常: {e}")
             log("网络问题崩溃,等待 " + str(PROXY_ERRO_INTERVAL_IN_SEC / 60) + "min 再次查找")

@@ -13,7 +13,7 @@ import pandas as pd
 # import DealMgr
 from DealMgr import DEALMGR
 
-symbols_file = open("sel_GOOD_BUSD_TP5_SL10.txt")
+symbols_file = open("sel_GOOD_USDT_TP5_SL10.txt")
 white_list_tmp = symbols_file.readlines()
 white_list =[]
 for symbol in white_list_tmp:
@@ -33,7 +33,7 @@ SP_per =5
 SL_per =10
 Frame_level= '30m'
 log_to_file_path = "5UP_filter_"+Frame_level+"tp_"+str(SP_per)+"_"+str(SL_per)+"MA_duotou_white.log"
-golobal_data ="golobal_data"+log_to_file_path
+golobal_data ="db_file/json/golobal_data_"+log_to_file_path
 
 
 #速度配置
@@ -42,7 +42,7 @@ SCAN_NEW_ARTI_INTERVAL_IN_SEC =60*5
 PROXY_ERRO_INTERVAL_IN_SEC =60*1
 CHOSE_RANGE=40#5.28 15:41 修改 50 改成 25
 
-DealMgr = DEALMGR('trade_list_30m_sqlite_tp_'+str(SP_per)+'MA_duotou_white.db')
+DealMgr = DEALMGR('db_file/sqlite/trade_list_30m_sqlite_tp_'+str(SP_per)+'MA_duotou_white.db')
 
 # ///////GET /api/v3/ticker/24hr
 def get_top_coin():
@@ -90,15 +90,17 @@ def get_symbol_change_of_last_frame_s(symbol:str="",watch_interval:str="5m",limi
     print("交易对"+symbol+" 在最近"+str(limit)+"个"+watch_interval+"内变化:"+ str(price_change_percent)[:4] +"%"+"\t振幅变化:" + str(price_change_max_percent)[:4] +"%")
     return price_change_percent
 
-
-def do_MA_condition_Analysis(data):
     #是否在30 均线上方
+def do_MA_condition_Analysis(data):
     print(data.iloc[-5]['MA30'])
-    if float(data.iloc[-6]['Close'])  > float(data.iloc[-6]['MA30'])and float(data.iloc[-5]['Close'])  > float(data.iloc[-5]['MA30'])\
-    and float(data['Close'].iloc[-4]) > float(data['MA30'].iloc[-4]) and float(data['Close'].iloc[-3]) > float(data['MA30'].iloc[-3])\
+    #前5根(算当前6根)收盘价是否在SMA30均线上方
+    if  float(data['Close'].iloc[-6]) > float(data['MA30'].iloc[-6])\
+    and float(data['Close'].iloc[-5]) > float(data['MA30'].iloc[-5])\
+    and float(data['Close'].iloc[-4]) > float(data['MA30'].iloc[-4])\
+    and float(data['Close'].iloc[-3]) > float(data['MA30'].iloc[-3])\
     and float(data['Close'].iloc[-2]) > float(data['MA30'].iloc[-2])\
     and float(data['Close'].iloc[-1]) > float(data['MA30'].iloc[-1])\
-    and float(data['MA7'].iloc[-1])   > float(data['MA30'].iloc[-1]) \
+    and float(data['MA7'].iloc[-1])   > float(data['MA30'].iloc[-1])\
     and float(data['MA30'].iloc[-1])  > float(data['MA99'].iloc[-1]) :
         return True
     else:
@@ -106,7 +108,7 @@ def do_MA_condition_Analysis(data):
 
 def do_cacu_MA_last5(sysbol_pair:str,frame_level:str):
     data=get_symbol_data_of_last_frame_s(sysbol_pair,frame_level,'105')
-    MA7_s = data['Close'][-(7+6):].rolling(7).mean()
+    MA7_s  = data['Close'][-(7 +6):].rolling(7).mean()
     MA30_s = data['Close'][-(30+6):].rolling(30).mean() #data['SMA30']#
     MA99_s = data['Close'][-(99+6):].rolling(99).mean()
     data['MA7'] =  MA7_s
@@ -183,13 +185,12 @@ def do_the_select_and_decision_fast():
         do_deal_finish_check(data,coin_pair_t)
         time.sleep(0.2)
 
-def do_5_continous_up_Analysis(data):
-    if data['Close'].iloc[-6] < data['Close'].iloc[-5]\
+def do_5_continous_up_Analysis(data):#于等于4连阳
+    if  data['Close'].iloc[-6] < data['Close'].iloc[-5]\
     and data['Close'].iloc[-5] < data['Close'].iloc[-4] \
     and data['Close'].iloc[-4] < data['Close'].iloc[-3] \
     and data['Close'].iloc[-3] < data['Close'].iloc[-2]:
-    # and data['Close'].iloc[-2] < data['Close'].iloc[-1]:
-    # ['Close'].iloc[-1] 时刻变化的，就是最新价格
+    # and data['Close'].iloc[-2] < data['Close'].iloc[-1]:# ['Close'].iloc[-1] 时刻变化的，就是最新价格
         return True
     else:
         return False

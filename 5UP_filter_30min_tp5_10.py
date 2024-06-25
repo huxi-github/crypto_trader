@@ -38,7 +38,7 @@ SP_per =5
 SL_per =10
 Frame_level= '30m'
 log_to_file_path = "5UP_filter_"+Frame_level+"tp_"+str(SP_per)+"_"+str(SL_per)+".log"
-golobal_data ="db_file/json/golobal_data"+log_to_file_path
+golobal_data ="db_file/json/golobal_data_"+log_to_file_path
 
 
 #速度配置

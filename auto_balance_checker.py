@@ -9,7 +9,7 @@ from muti_dca_deal_creator import start_new_deal,p3c
 balance_status = "left_money_ok"
 ORDER_CHECK_INTERVAL_IN_MINS =15 # 加仓间隔，最小加仓间隔 1min/3min 效果较好
 
-bot_id=emmu_bot_id
+bot_id=real_bot_id
 threshold=market_over_crazy_threshold
 
 def do_deal_check_and_order():
@@ -122,6 +122,8 @@ if __name__ == '__main__':  #一般就开2-3个机器人，风险考虑
     Frame_level= '15m'
     log_to_file_path = "auto_balance_checker_"+Frame_level+".log"
     # check_all_deals_to_profit_and_close()
+    # send_email("单日利润金额大于阈值 "+str(threshold)+"(市场空前繁荣告警)暂停机器人4天,并关闭所有订单" + str(10000)+"usd","市场空前繁荣告警")
+
     while (True):
         try:
             today_profit = get_today_profit("",bot_id)

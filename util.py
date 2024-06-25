@@ -14,6 +14,7 @@ import pyttsx3
 import numpy as np
 
 from enum import Enum
+import re
 
 # class LOG_LEVEL(Enum):
 #     INFO = 0
@@ -61,6 +62,206 @@ def warn(msg:str="kong warning msg"):
     print(msg)
     file.write("[" + time + "][w]:"+ msg + "\n")
     file.close()
+
+def read_log_file_last_profit_count(file_name:str=""):
+    pre_path = "log"
+    if sys.platform=='linux':
+        pre_path = "/root"
+    log_f_path = pre_path+'/'+file_name #全路径
+    if not os.path.exists(log_f_path):
+        print("文件不存在.."+log_f_path)
+    else:
+        file = open(log_f_path, "r")  # 1.读写,追加
+    print("读取日志:")
+    lines = file.readlines()[-800:]    # 接收数据
+    zhiying_count=0
+    zhisun_count=0
+    date_today = datetime.datetime.now().strftime("%Y-%m-%d ")
+    date_today_1 = (datetime.date.today() + datetime.timedelta(-1)).strftime("%Y-%m-%d ")
+    for line in lines:
+        if date_today in line :
+            # print(line)
+            matchObj = re.search( r'.*BUSD止盈.*', line)
+            if matchObj:
+                zhiying_count+=1
+                print("match --> : ", matchObj.group())
+        if date_today_1 in line :
+            # print(line)
+            matchObj = re.search( r'.*BUSD止盈.*', line)
+            if matchObj:
+                zhiying_count+=1
+                print("match --> : ", matchObj.group())
+        if date_today in line :
+            # print(line)
+            matchObj = re.search( r'.*BUSD止损.*', line)
+            if matchObj:
+                zhisun_count+=1
+                print("match --> : ", matchObj.group())
+
+    profit_sum=zhiying_count-2*zhisun_count
+    print("昨今止盈数"+str(zhiying_count))
+    print("昨今止损数"+str(zhisun_count))
+    print("昨今盈利数"+str(profit_sum))
+    return profit_sum
+
+# def parse_log_file_last_profit_count(file_name:str=""):
+#     pre_path = "log"
+#     if sys.platform=='linux':
+#         pre_path = "/root"
+#     log_f_path = pre_path+'/'+file_name #全路径
+#     if not os.path.exists(log_f_path):
+#         print("文件不存在.."+log_f_path)
+#     else:
+#         file = open(log_f_path, "r")  # 1.读写,追加
+#     print("读取日志:")
+#     lines = file.readlines()    # 接收数据
+
+#     for day_delta in range(40):
+#         zhiying_count=0
+#         zhisun_count=0
+#         date_today = (datetime.datetime.now() + datetime.timedelta(-day_delta)).strftime("%Y-%m-%d ")
+#         date_today_1 = (datetime.date.today() + datetime.timedelta(-1) + datetime.timedelta(-day_delta)).strftime("%Y-%m-%d ")
+#         for line in lines:
+#             if date_today in line :
+#                 # print(line)
+#                 matchObj = re.search( r'.*BUSD止盈.*', line)
+#                 if matchObj:
+#                     zhiying_count+=1
+#                     # print("match --> : ", matchObj.group())
+#             if date_today_1 in line :
+#                 # print(line)
+#                 matchObj = re.search( r'.*BUSD止盈.*', line)
+#                 if matchObj:
+#                     zhiying_count+=1
+#                     # print("match --> : ", matchObj.group())
+            
+
+#             if date_today in line :
+#                 # print(line)
+#                 matchObj = re.search( r'.*BUSD止损.*', line)
+#                 if matchObj:
+#                     zhisun_count+=1
+#                     # print("match --> : ", matchObj.group())
+#         print(date_today)
+#         print("今昨止盈数"+str(zhiying_count))
+#         print("今日止损数"+str(zhisun_count))
+#         print()
+#         return
+
+def simu_test(file_name:str="",stop_profit_count=1):
+    pre_path = "log"
+    if sys.platform=='linux':
+        pre_path = "/root"
+    log_f_path = pre_path+'/'+file_name #全路径
+    if not os.path.exists(log_f_path):
+        print("文件不存在.."+log_f_path)
+    else:
+        file = open(log_f_path, "r")  # 1.读写,追加
+    print("读取日志:")
+    lines = file.readlines()    # 接收数据
+
+    profit_sum = 0
+    tot_zhisun =0
+    x = []
+    y = []
+    z = []
+    s = []
+    ss= []
+    for day_delta in range(-50,0):
+        zhiying_count=0
+        zhisun_count=0
+        date_today = (datetime.datetime.now() + datetime.timedelta(day_delta)).strftime("%d ")
+        date_today_1 = (datetime.date.today() + datetime.timedelta(-1) + datetime.timedelta(day_delta)).strftime("%d ")
+        print(date_today)
+        for line in lines:
+            if date_today in line :
+                # print(date_today)
+                matchObj = re.search( r'.*BUSD止盈.*', line)
+                if matchObj:
+                    zhiying_count+=1
+                    profit_sum+=1
+                    # print("match --> : ", matchObj.group())
+            if date_today_1 in line :
+                # print(line)
+                matchObj = re.search( r'.*BUSD止盈.*', line)
+                if matchObj:
+                    # zhiying_count+=1
+                    pass
+                    # print("match --> : ", matchObj.group())
+            
+
+            if date_today in line :
+                # print(line)
+                matchObj = re.search( r'.*BUSD止损.*', line)
+                if matchObj:
+                    zhisun_count+=1
+                    tot_zhisun+=1
+                    # print("match --> : ", matchObj.group())
+        print(date_today)
+        print("今昨止盈数"+str(zhiying_count),end='  ')
+        print("今日止损数"+str(zhisun_count))
+        print()
+        x.append(date_today)
+        y.append(zhiying_count)
+        z.append(zhisun_count)
+        s.append(zhiying_count-zhisun_count*2)
+        if len(ss)>0:
+            ss.append(ss[-1]+s[-1])
+        else:
+            ss.append(s[0])
+        print(s)
+        print(ss)
+    print("最终止盈数:"+str(profit_sum))
+    print("最终止损数:"+str(tot_zhisun))
+
+    import matplotlib.pyplot as plt
+ 
+    fig,(ax1,ax2,ax3) = plt.subplots(3,1)
+    # 设置标题和标签
+    bar1=ax1.bar(x, y)
+    ax1.set_title('TP_count Chart')
+    ax1.set_xlabel('X Label')
+    ax1.set_ylabel('TP_count')
+
+    bar2=ax2.bar(x, z)
+    ax2.set_title('SL_count Chart')
+    ax2.set_xlabel('X Label')
+    ax2.set_ylabel('SL_count')
+
+    bar3=ax3.bar(x, s)
+    ax3.set_title('profit_count Chart')
+    ax3.set_xlabel('X Label')
+    ax3.set_ylabel('profit_count')
+
+    # bar4=ax4.bar(x, ss)
+    # ax4.set_title('profit_acum Chart')
+    # ax4.set_xlabel('X Label')
+    # ax4.set_ylabel('profit_acum')
+
+    # 显示数值
+    for bar in bar1:
+        height = bar.get_height()
+        ax1.text(bar.get_x() + bar.get_width() / 2.0, height, str(height), ha='center', va='bottom')
+    # plt.tight_layout()
+        # 显示数值
+    for bar in bar2:
+        height = bar.get_height()
+        ax2.text(bar.get_x() + bar.get_width() / 2.0, height, str(height), ha='center', va='bottom')
+
+        # 显示数值
+    for bar in bar3:
+        height = bar.get_height()
+        ax3.text(bar.get_x() + bar.get_width() / 2.0, height, str(height), ha='center', va='bottom')
+
+    #     # 显示数值
+    # for bar in bar4:
+    #     height = bar.get_height()
+    #     ax4.text(bar.get_x() + bar.get_width() / 2.0, height, str(height), ha='center', va='bottom')
+
+    plt.tight_layout()
+    # 显示图形
+    plt.show()
+
 
 def send_email(mail_msg:str,mail_title:str='数字货币_活跃交易'):
 
@@ -171,31 +372,275 @@ def SMA(data, smaPeriod):
 
     return np.array(sma)
 
-def SMA_ank(data,smaPeriod):
-    slope=[]
-    count = 0
-    for i in range(1,len(data)):#1 开始
-        if data[i] is None or data[i-1] is None:
-            slope.append(None)
+
+
+
+
+def simu_test_real_with_stop(file_name:str="",stop_profit_count=1):
+    pre_path = "log"
+    if sys.platform=='linux':
+        pre_path = "/root"
+    log_f_path = pre_path+'/'+file_name #全路径
+    if not os.path.exists(log_f_path):
+        print("文件不存在.."+log_f_path)
+    else:
+        file = open(log_f_path, "r")  # 1.读写,追加
+    print("读取日志:")
+    lines = file.readlines()    # 接收数据
+
+    profit_sum = 0
+    tot_zhisun =0
+    x = []
+    y = []
+    z = []
+    s = []
+    ss= []
+    sum=0
+    for day_delta in range(-60,0):
+        zhiying_count=0
+        zhisun_count=0
+        date_today = (datetime.datetime.now() + datetime.timedelta(day_delta)).strftime("%m-%d ")
+        date_today_1 = (datetime.date.today() + datetime.timedelta(-1) + datetime.timedelta(day_delta)).strftime("%m-%d ")
+        print(date_today)
+        for line in lines:
+            if date_today in line :
+                # print(date_today)
+                matchObj = re.search( r'.*BUSD止盈.*', line)
+                if matchObj:
+                    zhiying_count+=1
+                    profit_sum+=1
+                    print("match --> : ", matchObj.group())
+            if date_today_1 in line :
+                # print(line)
+                matchObj = re.search( r'.*BUSD止盈.*', line)
+                if matchObj:
+                    # zhiying_count+=1
+                    pass
+                    # print("match --> : ", matchObj.group())
+            
+
+            if date_today in line :
+                # print(line)
+                matchObj = re.search( r'.*BUSD止损.*', line)
+                if matchObj:
+                    zhisun_count+=1
+                    tot_zhisun+=1
+                    print("match --> : ", matchObj.group())
+        print(date_today)
+        print("今昨止盈数"+str(zhiying_count),end='  ')
+        print("今日止损数"+str(zhisun_count))
+        print()
+        x.append(date_today)
+        y.append(zhiying_count)
+        z.append(zhisun_count)
+        s.append(zhiying_count-zhisun_count*2)
+        sum+=zhiying_count-zhisun_count*2
+        sum_tmp=sum
+        if len(ss)>0:
+            ss.append(sum_tmp)
         else:
-            slop_=(data[i]-data[i-1])/(smaPeriod)
-            slope.append(slop_)
+            ss.append(sum_tmp)
+        print(s)
+        print(ss)
+    print("最终止盈数:"+str(profit_sum))
+    print("最终止损数:"+str(tot_zhisun))
 
-    # angle_norm = math.atan((ma7 / ma7_last - 1)*100)*180/3.1415926
-    print(slope)
-    return slope
+    import matplotlib.pyplot as plt
+ 
+    fig,(ax3,ax4) = plt.subplots(2,1)
+    # # 设置标题和标签
+    # bar1=ax1.bar(x, y)
+    # ax1.set_title('TP_count Chart')
+    # ax1.set_xlabel('X Label')
+    # ax1.set_ylabel('TP_count')
+
+    # bar2=ax2.bar(x, z)
+    # ax2.set_title('SL_count Chart')
+    # ax2.set_xlabel('X Label')
+    # ax2.set_ylabel('SL_count')
+
+    bar3=ax3.bar(x, s)
+    ax3.set_title('profit_count Chart')
+    ax3.set_xlabel('X Label')
+    # ax3.set_ylabel('profit_count')
+
+    bar4=ax4.plot(x, ss)
+    ax4.set_title('profit_acum Chart')
+    ax4.set_xlabel('X Label')
+    # ax4.set_ylabel('profit_acum')
+
+    # # 显示数值
+    # for bar in bar1:
+    #     height = bar.get_height()
+    #     ax1.text(bar.get_x() + bar.get_width() / 2.0, height, str(height), ha='center', va='bottom')
+    # # plt.tight_layout()
+    #     # 显示数值
+    # for bar in bar2:
+    #     height = bar.get_height()
+    #     ax2.text(bar.get_x() + bar.get_width() / 2.0, height, str(height), ha='center', va='bottom')
+
+        # 显示数值
+    for bar in bar3:
+        height = bar.get_height()
+        ax3.text(bar.get_x() + bar.get_width() / 2.0, height, str(height), ha='center', va='bottom')
+
+        # 显示数值
+    # for bar in bar4:
+    #     height = 200#bar.get_height()
+    #     width = 30#bar.get_width()
+       
+        # ax4.text(bar.get_x() + width/2.0, height, str(height), ha='center', va='bottom')
+    plt.xticks(rotation=270)
+    for i in range(len(ss)):
+        ax4.annotate("{:.2f}".format(ss[i]), xy=(x[i], ss[i]), color='red')
+        plt.tight_layout()
+    # 调整图形与屏幕左右的间隙
+    # plt.subplots_adjust(left=0.1, bottom=0.1, right=0.9, top=0.9)
+    # 显示图形
+    plt.show()
 
 
+def simu_test_real(file_name:str="",stop_profit_count=1):
+    pre_path = "log"
+    if sys.platform=='linux':
+        pre_path = "/root"
+    log_f_path = pre_path+'/'+file_name #全路径
+    if not os.path.exists(log_f_path):
+        print("文件不存在.."+log_f_path)
+    else:
+        file = open(log_f_path, "r")  # 1.读写,追加
+    print("读取日志:"+file_name)
+    lines = file.readlines()    # 接收数据
+
+    profit_sum = 0
+    tot_zhisun =0
+    x = []
+    y = []
+    z = []
+    s = []
+    ss= []
+    sum=0
+    for day_delta in range(-60,0):
+        zhiying_count=0
+        zhisun_count=0
+        date_today = (datetime.datetime.now() + datetime.timedelta(day_delta)).strftime("%m-%d ")
+        date_today_1 = (datetime.date.today() + datetime.timedelta(-1) + datetime.timedelta(day_delta)).strftime("%m-%d ")
+        print(date_today)
+        for line in lines:
+            if date_today in line :
+                # print(date_today)
+                matchObj = re.search( r'.*BUSD止盈.*', line)
+                if matchObj:
+                    zhiying_count+=1
+                    profit_sum+=1
+                    print("match --> : ", matchObj.group())
+            if date_today_1 in line :
+                # print(line)
+                matchObj = re.search( r'.*BUSD止盈.*', line)
+                if matchObj:
+                    # zhiying_count+=1
+                    pass
+                    # print("match --> : ", matchObj.group())
+            
+
+            if date_today in line :
+                # print(line)
+                matchObj = re.search( r'.*BUSD止损.*', line)
+                if matchObj:
+                    zhisun_count+=1
+                    tot_zhisun+=1
+                    print("match --> : ", matchObj.group())
+        print(date_today)
+        print("今昨止盈数"+str(zhiying_count),end='  ')
+        print("今日止损数"+str(zhisun_count))
+        print()
+        x.append(date_today)
+        y.append(zhiying_count)
+        z.append(zhisun_count)
+        s.append(zhiying_count-zhisun_count*2)
+        sum+=zhiying_count-zhisun_count*2
+        sum_tmp=sum
+        if len(ss)>0:
+            ss.append(sum_tmp)
+        else:
+            ss.append(sum_tmp)
+        print(s)
+        print(ss)
+    print("最终止盈数:"+str(profit_sum))
+    print("最终止损数:"+str(tot_zhisun))
+
+    import matplotlib.pyplot as plt
+ 
+    fig,(ax3,ax4) = plt.subplots(2,1)
+    # # 设置标题和标签
+    # bar1=ax1.bar(x, y)
+    # ax1.set_title('TP_count Chart')
+    # ax1.set_xlabel('X Label')
+    # ax1.set_ylabel('TP_count')
+
+    # bar2=ax2.bar(x, z)
+    # ax2.set_title('SL_count Chart')
+    # ax2.set_xlabel('X Label')
+    # ax2.set_ylabel('SL_count')
+
+    bar3=ax3.bar(x, s)
+    ax3.set_title('profit_count Chart')
+    ax3.set_xlabel('X Label')
+    # ax3.set_ylabel('profit_count')
+
+    bar4=ax4.plot(x, ss)
+    ax4.set_title('profit_acum Chart')
+    ax4.set_xlabel('X Label')
+    # ax4.set_ylabel('profit_acum')
+
+    # # 显示数值
+    # for bar in bar1:
+    #     height = bar.get_height()
+    #     ax1.text(bar.get_x() + bar.get_width() / 2.0, height, str(height), ha='center', va='bottom')
+    # # plt.tight_layout()
+    #     # 显示数值
+    # for bar in bar2:
+    #     height = bar.get_height()
+    #     ax2.text(bar.get_x() + bar.get_width() / 2.0, height, str(height), ha='center', va='bottom')
+
+        # 显示数值
+    for bar in bar3:
+        height = bar.get_height()
+        ax3.text(bar.get_x() + bar.get_width() / 2.0, height, str(height), ha='center', va='bottom')
+
+        # 显示数值
+    # for bar in bar4:
+    #     height = 200#bar.get_height()
+    #     width = 30#bar.get_width()
+       
+        # ax4.text(bar.get_x() + width/2.0, height, str(height), ha='center', va='bottom')
+    plt.xticks(rotation=270)
+    for i in range(len(ss)):
+        ax4.annotate("{:.2f}".format(ss[i]), xy=(x[i], ss[i]), color='red')
+        plt.tight_layout()
+    # 调整图形与屏幕左右的间隙
+    # plt.subplots_adjust(left=0.1, bottom=0.1, right=0.9, top=0.9)
+    # 显示图形
+    plt.show()
 
 
 if __name__ == '__main__':
-    send_email(" 尝试启动 交易对 BUSD_TLM ")
+    # send_email(" 尝试启动 交易对 BUSD_TLM ")
     # read_news_title_with_speaker("test")
     # log_to_file("新币上线","lastest_news_bbb")
     # date=[1,2,4,8,16,32,64,128,256,512]
     # sma=SMA(date,2)
-    sma=[1,2,4,6,8,10,12,14,16,18]
-    print(sma)
+    # sma=[1,2,4,6,8,10,12,14,16,18]
+    # print(sma)
     # SMA_ank(sma,7)
+
+    # log_to_file_path = "5UP_filter_30mtp_5_10_white_no_liandan_no_jixian_1klinedelay.log"
+    # log_to_file_path="5UP_filter_30mtp_5_10_white_no_liandan_no_jixian.log"
+    log_to_file_path="5UP_filter_30mtp_5_10MA_duotou_white.log" 
+    # log_to_file_path="5UP_filter_30mtp_5_10_white.log" 
+    # log_to_file_path="5UP_filter_15m_first_lony_top10.log" 
+    # read_log_file_last_profit_count(log_to_file_path)
+    # parse_log_file_last_profit_count(log_to_file_path)
+    simu_test_real(log_to_file_path)
 
 

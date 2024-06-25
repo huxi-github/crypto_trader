@@ -13,7 +13,7 @@ import pandas as pd
 # import DealMgr
 from DealMgr import DEALMGR
 
-symbols_file = open("sel_GOOD_BUSD_TP5_SL10.txt")
+symbols_file = open("sel_GOOD_USDT_TP5_SL10.txt")
 white_list_tmp = symbols_file.readlines()
 white_list =[]
 for symbol in white_list_tmp:
@@ -33,7 +33,7 @@ SP_per =5
 SL_per =10
 Frame_level= '30m'
 log_to_file_path = "5UP_filter_"+Frame_level+"tp_"+str(SP_per)+"_"+str(SL_per)+"_white_no_liandan_no_jixian_1klinedelay.log"
-golobal_data ="golobal_data"+log_to_file_path
+golobal_data ="db_file/json/golobal_data_"+log_to_file_path
 
 
 #速度配置
@@ -42,8 +42,7 @@ SCAN_NEW_ARTI_INTERVAL_IN_SEC =60*5
 PROXY_ERRO_INTERVAL_IN_SEC =60*1
 CHOSE_RANGE=40#5.28 15:41 修改 50 改成 25
 
-DealMgr = DEALMGR('trade_list_30m_sqlite_tp_'+str(SP_per)+'_white_no_liandan_no_jixian_1klinedelay.db')
-
+DealMgr = DEALMGR('db_file/sqlite/trade_list_30m_sqlite_tp_'+str(SP_per)+'_white_no_liandan_no_jixian_1klinedelay.db')
 # ///////GET /api/v3/ticker/24hr
 def get_top_coin():
     data_arry = p3c.request_binance_data(

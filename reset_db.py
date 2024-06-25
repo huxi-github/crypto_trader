@@ -16,8 +16,8 @@
 
 #### golobal_data.db 数据库展示
 import shelve 
-Frame_level= '1h'
-golobal_data ="golobal_data"+Frame_level
+Frame_level1= '30m'
+golobal_data ="golobal_data"+Frame_level1
 
 print("初始化历史数据..."+golobal_data)
 with shelve.open(golobal_data) as db:
@@ -31,10 +31,14 @@ with shelve.open(golobal_data) as db:
     # db['win_count']=0
     # db['Staic']={"inital_dollers":10000,"current_balance":10000,"win_count":0,"lose_count":0}
 
+    # del db['Static']
+
 
 #### golobal_data1h.db 数据库展示,数据库清零
-Frame_level= '30m'
+Frame_level= '1h'
 golobal_data ="golobal_data"+Frame_level
+
+golobal_data = "golobal_data15m_first_lony_top10"
 print("\n")
 
 print("初始化历史数据..."+golobal_data)
@@ -47,5 +51,7 @@ with shelve.open(golobal_data) as db:
     # db['sel_coin_global']=[] 
     # db['lose_count']=0
     # db['win_count']=0
-    # db['Staic']={"inital_dollers":10000,"current_balance":10000,"win_count":0,"lose_count":0}
+    db['Staic']={'inital_dollers': 10000, 'current_balance': 10000, 'win_count': 49, 'lose_count': 21}
+
+    # del db['Static']
 

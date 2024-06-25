@@ -25,7 +25,7 @@ def get_top_coin():
     #
     i=0
     sorted_arry = sorted(data_arry, key = lambda i: float(i['priceChangePercent']),reverse = True)
-    print("24H 涨幅榜前5:")
+    print("24H 涨幅榜前15:")
     print('rank"\tsymbol_name ' + "\t\t\t" + 'priceChangePercent')
     top_hot_symbol={}
     for symbl_d in sorted_arry:
@@ -33,6 +33,8 @@ def get_top_coin():
             if "BULL" in symbl_d['symbol'] or "DOWN" in symbl_d['symbol']: continue
             print(str(i)+ "\t\t" + symbl_d['symbol'] + "\t\t\t\t\t" + symbl_d['priceChangePercent'])
             i = i + 1
+            if float(symbl_d['priceChangePercent']) > 80:
+                continue 
             top_hot_symbol[symbl_d['symbol']]=symbl_d['priceChangePercent']
             if i>=15: break
     return top_hot_symbol
@@ -43,12 +45,12 @@ def get_fast_change_coin_30m():
     i = 0
     for (key, val) in top_symbols.items():
         coin_pair = key
-        tv_url = "https://cn.tradingview.com/chart/oLP03YDC/"
+        # tv_url = "https://cn.tradingview.com/chart/oLP03YDC/"
         # send_email(cur_time + " 今日交易对" + coin_pair+ " 24H 涨幅:"+top_symbols[key]+"%\n"+tv_url)
         # update_bot_pairs(coin_pair, "5150456")
         # i = i + 1
         # if i >= 2: break
-        re = get_coin_stat(coin_pair,"1m",40)
+        re = get_coin_stat(coin_pair,"1m",30)
         print(coin_pair + "is fast coin? re="+str(re))
         if re:
             return coin_pair
@@ -268,65 +270,6 @@ def do_MA_condition_Analysis(sysbol_pair:str,frame_level:str="15m"):
     else:
         return False
 
-def do_the_select_and_decision_fast():
-    cur_time = datetime.datetime.now().strftime("%H:%M")
-    log("current time is " + cur_time + "trying to get_top_5_symbol")
-    top_symbols = get_top_coin()
-
-    sel = []
-    # start for loop
-    for (key, val) in top_symbols.items():
-        coin_pair = str(key)
-
-        ''' 注释
-        price_change_2H = get_symbol_change_of_last_frame(coin_pair, "2H")
-        if  -10 < price_change_2H and price_change_2H < -5:  #  2H 涨幅
-            print(" 2H 涨幅不符合条件")
-            continue
-        '''
-
-        '''
-        低于24 H HIGH  15% 的拉升不要进去，骗炮
-        '''
-
-        '''八连阳，则不入'''
-
-        '''
-        三连阳 均属于 1%-2%  则入，暴风雨的初期
-        '''
-
-        '''
-        最后两分钟 ，超长拉升>%3 则不入
-        '''
-
-        '''
-        达到最大交易数，检查 当前reserved 的资金数目，如果超过 多少，心理风险过大，则暂停一段时间再检查和启动
-        '''
-
-        '''本币种的USDT 交易对在上新，对比的拉升'''
-
-        price_change_15m = get_symbol_change_of_last_frame(coin_pair, "15m")
-        if price_change_15m > 4 and price_change_15m < 50:#(<50%排除新币上线的单当 天情况，新上线的新币不会再 备选表里面，)
-            price_change_5m = get_symbol_change_of_last_frame(coin_pair, "5m")
-            if  price_change_5m > 2  :
-                price_change_1m = get_symbol_change_of_last_frame(coin_pair, "1m")
-                if price_change_1m > 0.3 and price_change_1m < 10: #(<10% 反向插针，诱高的情况)
-                    sel.append(coin_pair)
-                    if do_10_continous_up_Analysis(coin_pair):
-                        print("交易对【"+coin_pair+"】开始震荡上升")
-                        read_news_title_with_speaker("交易对【"+coin_pair+"】疑似连阳缓慢上升")
-                    # read_news_title_with_speaker("交易对【"+coin_pair+"】开始震荡上升")
-                    # print("交易对【" + coin_pair + "】符合3个条件，直接启动交易")===>开启的交易对放在一个log 里面
-                else:
-                    print("1min涨幅不符合条件")
-            else:
-                print("5min涨幅不符合条件")
-        else:
-            print("15min涨幅不符合条件")
-    #end for loop
-    print("本符合条件，启动的的交易符号："+str(sel))
-    if len(sel)>=2:
-        read_news_title_with_speaker("同时上涨数量15分之"+str(len(sel))+"个,行情可能转好...")
 
 if __name__ == '__main__':
     # currentDateAndTime = datetime.datetime.now()
@@ -335,36 +278,38 @@ if __name__ == '__main__':
     # start_new_deal("USDT_BTC")
     # update_bot_pairs("USDT_BTC","5150456")
     # get_fast_change_coin()  # 思路，，，前10名 里面进进行筛选
-    start_a_deal_of_one_bot("LUNAUSDT",HUOYUEBOT_ID)
+    # start_a_deal_of_one_bot("LUNAUSDT",HUOYUEBOT_ID)
     silcence_count=0
     bot_started=False
     log_to_file_path="validate_log.log"
     # log_to_file("快读振动....." + str(60*60),log_to_file_path)
+    stop_the_bot(HUOYUEBOT_ID)
     while(True):
         try:
             coin_pair = get_fast_change_coin_30m()
             if "USDT" in coin_pair:
                 log_to_file(coin_pair+"快速振动》》》》",log_to_file_path)
                 currentDateAndTime = datetime.datetime.now()
-                if currentDateAndTime.hour>7:
+                if currentDateAndTime.hour>7 and currentDateAndTime.hour<21:
                     # playsound("audio/alert.mp3")
                     silcence_count=0
                     bot_started=True
-                    start_a_deal_of_one_bot(coin_pair,HUOYUEBOT_ID)
+                    start_a_deal_of_one_bot(coin_pair,HUOYUEBOT_ID) #如果上市时间不超过4H 放弃
             else:
                 silcence_count=silcence_count+1
                 print("------sliecene count=="+str(silcence_count))
                 if silcence_count==3:
                     stop_the_bot(HUOYUEBOT_ID)
                     bot_started=False
+                    # log_to_file(coin_pair+" 交易对bot停止",log_to_file_path)
 
             print("wait a round time ...")
             time.sleep(3*60)
         except Exception as e:
             print(f"发生网络异常: {e}")
             log_to_file("网络问题崩溃,等待 " + str(60*3/ 60) + "min 再次查找",log_to_file_path)
-            stop_the_bot(HUOYUEBOT_ID)
-            time.sleep(3*60)
+            # stop_the_bot(HUOYUEBOT_ID)
+            time.sleep(5*60)
             continue
 
 
