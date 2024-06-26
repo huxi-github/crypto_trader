@@ -223,13 +223,13 @@ def do_deal_finish_check(data,coin_pair):
             log_to_file(coin_pair + "止盈+++++@"+str(Entry_pri[coin_pair]*(100+SP_per)/100), log_to_file_path)
             log_to_file("当日总盈利订单金额:"+str(profit_count_of_the_day),log_to_file_path)
             log_to_file("策略盈利"+str(Staic['win_count'])+"次  止损"+str(Staic['lose_count'])+"次", log_to_file_path)
-            
+            entry_pri = Entry_pri[coin_pair]
             DealMgr.close_deal(coin_pair,Entry_pri[coin_pair]*(100+SP_per)/100)
             sel_coin_global.remove(coin_pair)
             del Entry_pri[coin_pair]
             del Last_Entry_TICKDate[coin_pair]
             do_data_store()
-            send_email(coin_pair + "止盈+++++@"+str(Entry_pri[coin_pair]*(100+SP_per)/100), log_to_file_path)
+            send_email(coin_pair + "止盈+++++@"+str(entry_pri*(100+SP_per)/100), log_to_file_path)
         elif float(data['Low'].iloc[-1]) < Entry_pri[coin_pair]*(100-SL_per)/100:
             print(coin_pair+"止损@"+str(Entry_pri[coin_pair]*(100-SL_per)/100))
             Staic['lose_count'] = Staic['lose_count'] + 1
@@ -237,13 +237,13 @@ def do_deal_finish_check(data,coin_pair):
             log_to_file(coin_pair + "止损——————@"+str(Entry_pri[coin_pair]*(100-SL_per)/100), log_to_file_path)
             log_to_file("当日总盈利订单金额:"+str(profit_count_of_the_day),log_to_file_path)
             log_to_file("策略盈利"+str(Staic['win_count'])+"次  止损"+str(Staic['lose_count'])+"次", log_to_file_path)
-            
+            entry_pri = Entry_pri[coin_pair]
             DealMgr.close_deal(coin_pair,Entry_pri[coin_pair]*(100-SL_per)/100)
             sel_coin_global.remove(coin_pair)
             del Entry_pri[coin_pair]
             del Last_Entry_TICKDate[coin_pair]
             do_data_store()
-            send_email(coin_pair + "止损——————@"+str(Entry_pri[coin_pair]*(100-SL_per)/100), log_to_file_path)
+            send_email(coin_pair + "止损——————@"+str(entry_pri*(100-SL_per)/100), log_to_file_path)
         else:
             print(coin_pair+"没有止盈止损")
 
@@ -274,8 +274,8 @@ def do_static_security_check():
         do_data_store()
 
 def sleep_for_days():
-    log_to_file("机器人休息24*5小时===================================",log_to_file_path)
-    time.sleep(60*60*24*5) 
+    log_to_file("机器人休息24*3小时===================================",log_to_file_path)
+    time.sleep(60*60*24*3) 
 
 def close_all_deals_and_check_PL():
     global sel_coin_global,Entry_pri,profit_count_of_the_day

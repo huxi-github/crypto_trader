@@ -224,11 +224,12 @@ def do_deal_finish_check(data,coin_pair):
             log_to_file("当日总盈利订单金额:"+str(profit_count_of_the_day),log_to_file_path)
             log_to_file("策略盈利"+str(Staic['win_count'])+"次  止损"+str(Staic['lose_count'])+"次", log_to_file_path)
             DealMgr.close_deal(coin_pair,Entry_pri[coin_pair]*(100+SP_per)/100)
+            entry_pri = Entry_pri[coin_pair]
             sel_coin_global.remove(coin_pair)
             del Entry_pri[coin_pair]
             del Last_Entry_TICKDate[coin_pair]
             do_data_store()
-            send_email(coin_pair + "止盈+++++@"+str(Entry_pri[coin_pair]*(100+SP_per)/100), log_to_file_path)
+            send_email(coin_pair + "止盈+++++@"+str(entry_pri*(100+SP_per)/100), log_to_file_path)
 
         elif float(data['Low'].iloc[-1]) < Entry_pri[coin_pair]*(100-SL_per)/100:
             print(coin_pair+"止损@"+str(Entry_pri[coin_pair]*(100-SL_per)/100))
@@ -238,11 +239,12 @@ def do_deal_finish_check(data,coin_pair):
             log_to_file("当日总盈利订单金额:"+str(profit_count_of_the_day),log_to_file_path)
             log_to_file("策略盈利"+str(Staic['win_count'])+"次  止损"+str(Staic['lose_count'])+"次", log_to_file_path)
             DealMgr.close_deal(coin_pair,Entry_pri[coin_pair]*(100-SL_per)/100)
+            entry_pri = Entry_pri[coin_pair]
             sel_coin_global.remove(coin_pair)
             del Entry_pri[coin_pair]
             del Last_Entry_TICKDate[coin_pair]
             do_data_store()
-            send_email(coin_pair + "止损——————@"+str(Entry_pri[coin_pair]*(100-SL_per)/100), log_to_file_path)
+            send_email(coin_pair + "止损——————@"+str(entry_pri*(100-SL_per)/100), log_to_file_path)
         else:
             print(coin_pair+"没有止盈止损")
 
