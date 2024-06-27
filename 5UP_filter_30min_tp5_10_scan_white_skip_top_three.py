@@ -37,9 +37,9 @@ Staic={"inital_dollers":10000,"current_balance":10000,"win_count":0,"lose_count"
 
 #配置数据:策略
 SP_per =5
-SL_per =15
+SL_per =10
 Frame_level= '30m'
-log_to_file_path = "5UP_filter_"+Frame_level+"tp_"+str(SP_per)+"_"+str(SL_per)+"_white_ignore_rank.log"
+log_to_file_path = "5UP_filter_"+Frame_level+"tp_"+str(SP_per)+"_"+str(SL_per)+"white_skip_top_three.log"
 golobal_data ="db_file/json/golobal_data_"+log_to_file_path
 
 
@@ -49,7 +49,7 @@ SCAN_NEW_ARTI_INTERVAL_IN_SEC =60*5
 PROXY_ERRO_INTERVAL_IN_SEC =60*1
 CHOSE_RANGE=40#5.28 15:41 修改 50 改成 25
 
-DealMgr = DEALMGR('db_file/sqlite/trade_list_30m_sqlite_tp_'+str(SP_per)+'_white_ignore_rank.db')
+DealMgr = DEALMGR('db_file/sqlite/trade_list_30m_sqlite_tp_'+str(SP_per)+'white_skip_top_three.db')
 
 # ///////GET /api/v3/ticker/24hr
 def get_top_coin():
@@ -99,16 +99,14 @@ def get_symbol_change_of_last_frame_s(symbol:str="",watch_interval:str="5m",limi
 
     #是否在30 均线上方
 def do_MA_condition_Analysis(data):
-    #前5根(算当前6根)收盘价是否在30均线上方
     print(data.iloc[-5]['MA30'])
+    #前5根(算当前6根)收盘价是否在30均线上方
     if  float(data['Close'].iloc[-6]) > float(data['MA30'].iloc[-6])\
     and float(data['Close'].iloc[-5]) > float(data['MA30'].iloc[-5])\
     and float(data['Close'].iloc[-4]) > float(data['MA30'].iloc[-4])\
     and float(data['Close'].iloc[-3]) > float(data['MA30'].iloc[-3])\
     and float(data['Close'].iloc[-2]) > float(data['MA30'].iloc[-2])\
     and float(data['Close'].iloc[-1]) > float(data['MA30'].iloc[-1]):
-    #(是否SMA做下降行情) 
-    #and float(data['MA30'].iloc[-1]) > float(data['MA99'].iloc[-1]):
         return True
     else:
         return False
@@ -118,7 +116,7 @@ def do_cacu_MA_last5(sysbol_pair:str,frame_level:str):
     if data['klines_not_enough'].all():
         print("klines_not_enough")
         return data
-    MA7_s  = data['Close'][-(7 +6):].rolling(7).mean()
+    MA7_s =  data['Close'][-(7+6):].rolling(7).mean()
     MA30_s = data['Close'][-(30+6):].rolling(30).mean() #data['SMA30']#
     MA99_s = data['Close'][-(99+6):].rolling(99).mean()
     data['MA7'] =  MA7_s
@@ -145,10 +143,17 @@ def get_symbol_data_of_last_frame_s(symbol:str="",watch_interval:str="1h",limit:
 
 def do_the_select_and_decision_fast():
     cur_time = datetime.datetime.now().strftime("%H:%M")
-    log("current time is " + cur_time + "trying to get_white_list_symbol")
+    log("current time is " + cur_time + "trying to get_top_15_symbol")
+    top_symbols = get_top_coin()
+    top3_symbols = list(top_symbols.keys())[:3]
+    print("TOP3:"+str(top3_symbols))
+    # sel = []
+    # start for loop
     for (key) in white_list:
         coin_pair = str(key)
-    
+        if coin_pair in top3_symbols:
+            log_to_file(coin_pair+"冲到涨幅榜前三,跳过",log_to_file_path)
+            continue
         ''' 注释
         price_change_2H = get_symbol_change_of_last_frame(coin_pair, "2H")
         if  -10 < price_change_2H and price_change_2H < -5:  #  2H 涨幅
@@ -171,21 +176,21 @@ def do_the_select_and_decision_fast():
         if five_UP and do_MA_condition_Analysis(data) and not One_KLine_Same_Entry: 
             log_to_file(coin_pair+"符合5UP条件，@"+str(data["Close"].iloc[-1]),log_to_file_path)
             if not coin_pair in sel_coin_global:
-                if coin_pair in white_list:
-                    sel_coin_global.append(coin_pair)
-                    Entry_pri[coin_pair] = float(data["Close"].iloc[-1])
-                    Last_Entry_TICKDate[coin_pair] = pd.to_datetime(data['Date'].iloc[-1]/1000,unit='s')
-                    log_to_file(coin_pair + "符合5UP条件@"+str(Entry_pri[coin_pair])+"启动的交易符号：" + str(sel_coin_global),log_to_file_path)
- 
-                    DealMgr.create_deal(coin_pair,Entry_pri[coin_pair])
-                    do_data_store()
-                    send_email(coin_pair + "符合5UP条件@"+str(Entry_pri[coin_pair])+"启动的交易符号：" + str(sel_coin_global),log_to_file_path)
-                    # start_new_deal(coin_pair) 
-                    # start_new_deal_real(coin_pair)#启动实盘账户
-                else:
-                    print(coin_pair + "不在白名单里")
-                    log_to_file(coin_pair + "不在白名单里,不启动实盘，",log_to_file_path)
-                    # send_email(coin_pair + "不在白名单里,不启动实盘，只记录日志",log_to_file_path)
+                sel_coin_global.append(coin_pair)
+                Entry_pri[coin_pair] = float(data["Close"].iloc[-1])
+                Last_Entry_TICKDate[coin_pair] = pd.to_datetime(data['Date'].iloc[-1]/1000,unit='s')
+                log_to_file(coin_pair + "符合5UP条件@"+str(Entry_pri[coin_pair])+"启动的交易符号：" + str(sel_coin_global),log_to_file_path)
+                 # if coin_pair in white_list:
+                # start_new_deal(coin_pair) 
+                # start_new_deal_real(coin_pair)#启动实盘账户 
+                # else:
+                #     print(coin_pair + "不在白名单里")
+                #     log_to_file(coin_pair + "不在白名单里,不启动实盘，",log_to_file_path)
+                #     send_email(coin_pair + "不在白名单里,不启动实盘，只记录日志",log_to_file_path)
+                DealMgr.create_deal(coin_pair,Entry_pri[coin_pair])
+                do_data_store()
+                send_email(coin_pair + "符合5UP条件@"+str(Entry_pri[coin_pair])+"启动的交易符号：" + str(sel_coin_global),log_to_file_path)
+
             else:
                 print(coin_pair+"有尚未结束的交易单...,不重复进入")
         else:
@@ -201,10 +206,9 @@ def do_the_select_and_decision_fast():
         time.sleep(0.2)
 
 def do_5_continous_up_Analysis(data):
-    #4连阳线
     if  data['Close'].iloc[-6] < data['Close'].iloc[-5]\
-    and data['Close'].iloc[-5] < data['Close'].iloc[-4]\
-    and data['Close'].iloc[-4] < data['Close'].iloc[-3]\
+    and data['Close'].iloc[-5] < data['Close'].iloc[-4] \
+    and data['Close'].iloc[-4] < data['Close'].iloc[-3] \
     and data['Close'].iloc[-3] < data['Close'].iloc[-2]:
     # and data['Close'].iloc[-2] < data['Close'].iloc[-1]:
     # ['Close'].iloc[-1] 时刻变化的，就是最新价格
@@ -263,15 +267,15 @@ def do_static_security_check():
         send_flag = False
         do_data_store()
         
-    if profit_count_of_the_day>=8: #当日收益大于阈值，发送警告报告邮件，(并对上一日订单数清零？) 并关闭所有订单，记录关闭造成的盈亏
+    if profit_count_of_the_day>=9: #当日收益大于阈值，发送警告报告邮件，(并对上一日订单数清零？) 并关闭所有订单，记录关闭造成的盈亏
         log_to_file("当日总盈利订单额大于阈值120，市场过热告警，强行关闭所有订单--------------",log_to_file_path)
         send_email("当日总盈利订单额大于阈值120，市场过热告警，强行关闭所有订单","市场OVER_CEAZY告警"+log_to_file_path)
         close_all_deals_and_check_PL()
         sleep_for_days()
 
-    if profit_count_of_the_day<=-16 and not send_flag: #当日收益大于阈值，发送警告报告邮件，(并对上一日订单数清零？) 并关闭所有订单，记录关闭造成的盈亏
-        log_to_file("当日总盈利订单额大于阈值-240(16)，市场快速下行--------------",log_to_file_path+log_to_file_path)
-        send_email("当日总盈利订单额大于阈值-240(16)，市场快速下行 ","市场draw_down 告警")
+    if profit_count_of_the_day<=-12 and not send_flag: #当日收益大于阈值，发送警告报告邮件，(并对上一日订单数清零？) 并关闭所有订单，记录关闭造成的盈亏
+        log_to_file("当日总盈利订单额大于阈值-240(16)，市场快速下行--------------",log_to_file_path)
+        send_email("当日总盈利订单额大于阈值-240(16)，市场快速下行 ","市场draw_down 告警"+log_to_file_path)
         send_flag =True
         do_data_store()
 
@@ -314,7 +318,6 @@ def do_data_store():
         db['Last_Entry_TICKDate'] = Last_Entry_TICKDate
         db['profit_count_of_the_day'] = profit_count_of_the_day
         db['send_flag'] = send_flag
-    print("持久化完成")
 
 def init_form_data_store():
     import shelve
@@ -349,24 +352,11 @@ def start_the_filter():
     time.sleep(POLL_INTERVAL_IN_SEC)
 
 
-
-
-def start_balance_checker_app():
-    # 使用 os.system 启动后台服务
-    os.system("nohup Python3 auto_balance_checker.py &")
-    print("auto_balance_checker后台服务已启动")
-
-
 if __name__ == '__main__':
     #  拉盘启动模拟账户交易
     #意外终止读取 上次存储的数据
-
+    # start_new_deal_real("GMXUSDT") 
     init_form_data_store() 
-    # start_balance_checker_app()
-    # Staic['win_count'] =121
-    # profit_count_of_the_day=1
-    # do_data_store()
-
 
     # 循环监测GUI的运行状态
     while True:
@@ -385,3 +375,7 @@ if __name__ == '__main__':
             log_to_file("网络问题崩溃,等待 " + str(PROXY_ERRO_INTERVAL_IN_SEC / 60) + "min 再次查找",log_to_file_path)
             time.sleep(PROXY_ERRO_INTERVAL_IN_SEC)
             continue
+
+
+    # data = get_symbol_data_of_last_frame_s("MDXUSDT", "1m", '105')
+    # print(data["Close"].iloc[-1]) #-1 表示 未完成的收盘价，,-2 表示已完成的最近一个收盘价

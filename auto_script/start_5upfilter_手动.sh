@@ -20,6 +20,7 @@ echo " "
 echo [`date +%Y-%m-%d-%H:%M:%S`]
 # start_service /Users/huxi/Downloads/crypto_trade_test 5UP_filter.py
 start_service /Users/huxi/Downloads/crypto_trade_test 5UP_filter_30min_tp5_10.py
+start_service /Users/huxi/Downloads/crypto_trade_test 5UP_filter_30min_tp5_10_scan_white_skip_top_three.py
 # start_service /Users/huxi/Downloads/crypto_trade_test 5UP_filter_plus_ma_day_30min.py
 start_service /Users/huxi/Downloads/crypto_trade_test 5UP_filter_30min_tp5_10_white_list.py
 start_service /Users/huxi/Downloads/crypto_trade_test 5UP_filter_30min_tp5_sl_15_white_list_ignore_toprank.py
