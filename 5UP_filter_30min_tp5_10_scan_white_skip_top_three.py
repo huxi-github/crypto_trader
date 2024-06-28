@@ -230,7 +230,7 @@ def do_deal_finish_check(data,coin_pair):
             log_to_file("当日总盈利订单金额:"+str(profit_count_of_the_day),log_to_file_path)
             log_to_file("策略盈利"+str(Staic['win_count'])+"次  止损"+str(Staic['lose_count'])+"次", log_to_file_path)
             entry_pri = Entry_pri[coin_pair]
-            DealMgr.close_deal(coin_pair,Entry_pri[coin_pair]*(100+SP_per)/100)
+            DealMgr.close_deal(coin_pair,Entry_pri[coin_pair]*(100+SP_per)/100,"止盈")
             sel_coin_global.remove(coin_pair)
             del Entry_pri[coin_pair]
             del Last_Entry_TICKDate[coin_pair]
@@ -244,7 +244,7 @@ def do_deal_finish_check(data,coin_pair):
             log_to_file("当日总盈利订单金额:"+str(profit_count_of_the_day),log_to_file_path)
             log_to_file("策略盈利"+str(Staic['win_count'])+"次  止损"+str(Staic['lose_count'])+"次", log_to_file_path)
             entry_pri = Entry_pri[coin_pair]
-            DealMgr.close_deal(coin_pair,Entry_pri[coin_pair]*(100-SL_per)/100)
+            DealMgr.close_deal(coin_pair,Entry_pri[coin_pair]*(100-SL_per)/100,"止损")
             sel_coin_global.remove(coin_pair)
             del Entry_pri[coin_pair]
             del Last_Entry_TICKDate[coin_pair]
@@ -297,7 +297,7 @@ def close_all_deals_and_check_PL():
         profit_balance_of_the_day_by_all_close = profit_balance_of_the_day_by_all_close + pair_profit
         del Entry_pri[coin_pair]
         del Last_Entry_TICKDate[coin_pair]
-        DealMgr.close_deal(coin_pair,float(data['Close'].iloc[-1]))
+        DealMgr.close_deal(coin_pair,float(data['Close'].iloc[-1]),"市场价")
     sel_coin_global.clear()
     # Last_Entry_TICKDate.clear()
     log_to_file("强行关闭所有订单产生的盈亏为"+str(profit_balance_of_the_day_by_all_close)+"USD", log_to_file_path)
