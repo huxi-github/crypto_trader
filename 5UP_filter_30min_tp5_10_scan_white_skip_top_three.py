@@ -180,16 +180,11 @@ def do_the_select_and_decision_fast():
                 Entry_pri[coin_pair] = float(data["Close"].iloc[-1])
                 Last_Entry_TICKDate[coin_pair] = pd.to_datetime(data['Date'].iloc[-1]/1000,unit='s')
                 log_to_file(coin_pair + "符合5UP条件@"+str(Entry_pri[coin_pair])+"启动的交易符号：" + str(sel_coin_global),log_to_file_path)
-                 # if coin_pair in white_list:
-                # start_new_deal(coin_pair) 
-                # start_new_deal_real(coin_pair)#启动实盘账户 
-                # else:
-                #     print(coin_pair + "不在白名单里")
-                #     log_to_file(coin_pair + "不在白名单里,不启动实盘，",log_to_file_path)
-                #     send_email(coin_pair + "不在白名单里,不启动实盘，只记录日志",log_to_file_path)
                 DealMgr.create_deal(coin_pair,Entry_pri[coin_pair])
                 do_data_store()
                 send_email(coin_pair + "符合5UP条件@"+str(Entry_pri[coin_pair])+"启动的交易符号：" + str(sel_coin_global),log_to_file_path)
+                # start_new_deal(coin_pair) 
+                # start_new_deal_real(coin_pair)#启动实盘账户 
 
             else:
                 print(coin_pair+"有尚未结束的交易单...,不重复进入")
@@ -375,7 +370,4 @@ if __name__ == '__main__':
             log_to_file("网络问题崩溃,等待 " + str(PROXY_ERRO_INTERVAL_IN_SEC / 60) + "min 再次查找",log_to_file_path)
             time.sleep(PROXY_ERRO_INTERVAL_IN_SEC)
             continue
-
-
-    # data = get_symbol_data_of_last_frame_s("MDXUSDT", "1m", '105')
-    # print(data["Close"].iloc[-1]) #-1 表示 未完成的收盘价，,-2 表示已完成的最近一个收盘价
+            
