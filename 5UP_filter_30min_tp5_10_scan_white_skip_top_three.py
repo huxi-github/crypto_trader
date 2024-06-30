@@ -262,9 +262,9 @@ def do_static_security_check():
         send_flag = False
         do_data_store()
         
-    if profit_count_of_the_day>=9: #当日收益大于阈值，发送警告报告邮件，(并对上一日订单数清零？) 并关闭所有订单，记录关闭造成的盈亏
-        log_to_file("当日总盈利订单额大于阈值120，市场过热告警，强行关闭所有订单--------------",log_to_file_path)
-        send_email("当日总盈利订单额大于阈值120，市场过热告警，强行关闭所有订单","市场OVER_CEAZY告警"+log_to_file_path)
+    if profit_count_of_the_day>=10: #当日收益大于阈值，发送警告报告邮件，(并对上一日订单数清零？) 并关闭所有订单，记录关闭造成的盈亏
+        log_to_file("当日总盈利订单额大于阈值165，市场过热告警，强行关闭所有订单--------------",log_to_file_path)
+        send_email("当日总盈利订单额大于阈值165，市场过热告警，强行关闭所有订单","市场OVER_CEAZY告警"+log_to_file_path)
         close_all_deals_and_check_PL()
         sleep_for_days()
 

@@ -37,9 +37,10 @@ class DEALMGR:
         entry_time = record[2]
         entry_price = record[3]
         print("entry_time:"+str(entry_time))
-        deal_duration = str(datetime.now() - datetime.strptime(entry_time,'%Y-%m-%d %H:%M:%S'))
+        deal_duration = str(datetime.now() - datetime.strptime(entry_time,'%Y-%m-%d %H:%M:%S')).split('.')[0]
         print("deal_duration:"+str(deal_duration))
-        PNL_per = (exit_price - entry_price)/entry_price*100
+        PNL_per = "{:.2f}".format((exit_price - entry_price)/entry_price*100)
+        print("PNL_per:"+str(PNL_per))
         print("entry_price:"+str(entry_price))
         print("exit_reason:"+str(exit_reason))
 
