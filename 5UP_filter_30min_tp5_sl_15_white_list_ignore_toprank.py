@@ -263,17 +263,17 @@ def do_static_security_check():
         send_flag = False
         do_data_store()
         
-    if profit_count_of_the_day>=8: #当日收益大于阈值，发送警告报告邮件，(并对上一日订单数清零？) 并关闭所有订单，记录关闭造成的盈亏
-        log_to_file("当日总盈利订单额大于阈值120，市场过热告警，强行关闭所有订单--------------",log_to_file_path)
-        send_email("当日总盈利订单额大于阈值120，市场过热告警，强行关闭所有订单","市场OVER_CEAZY告警"+log_to_file_path)
+    if profit_count_of_the_day>=12: #当日收益大于阈值，发送警告报告邮件，(并对上一日订单数清零？) 并关闭所有订单，记录关闭造成的盈亏
+        log_to_file("当日总盈利订单额大于阈值180，市场过热告警，强行关闭所有订单--------------",log_to_file_path)
+        send_email("当日总盈利订单额大于阈值180，市场过热告警，强行关闭所有订单","市场OVER_CEAZY告警"+log_to_file_path)
         close_all_deals_and_check_PL()
         profit_count_of_the_day = 0
         do_data_store()
         sleep_for_days()
 
-    if profit_count_of_the_day<=-9 and not send_flag: #当日收益大于阈值，发送警告报告邮件，(并对上一日订单数清零？) 并关闭所有订单，记录关闭造成的盈亏
-        log_to_file("当日总盈利订单额大于阈值-135(9)，市场快速下行--------------",log_to_file_path)
-        send_email("当日总盈利订单额大于阈值-135(9)，市场快速下行 ","市场draw_down 告警"+log_to_file_path)
+    if profit_count_of_the_day<=-10 and not send_flag: #当日收益大于阈值，发送警告报告邮件，(并对上一日订单数清零？) 并关闭所有订单，记录关闭造成的盈亏
+        log_to_file("当日总盈利订单额大于阈值-150(10)，市场快速下行--------------",log_to_file_path)
+        send_email("当日总盈利订单额大于阈值-150(10)，市场快速下行 ","市场draw_down 告警"+log_to_file_path)
         close_all_deals_and_check_PL()
         send_flag =True
         profit_count_of_the_day = 0
@@ -373,7 +373,8 @@ if __name__ == '__main__':
     # profit_count_of_the_day=1
     # do_data_store()
 
-
+    # sel_coin_global.remove("TRXUSDT")
+    # do_data_store()
     # 循环监测GUI的运行状态
     while True:
         try:
@@ -387,7 +388,7 @@ if __name__ == '__main__':
             print("等待 " + str(POLL_INTERVAL_IN_SEC / 60) + "min 再次查找")
             time.sleep(POLL_INTERVAL_IN_SEC)
         except Exception as e:
-            log_to_file(f"GUI发生异常: {e}",log_to_file_path)
+            log_to_file(f"GUI发生异常: {e}",log_to_file_path)#m每个子函数 内部catch 异常打印，原因
             log_to_file("网络问题崩溃,等待 " + str(PROXY_ERRO_INTERVAL_IN_SEC / 60) + "min 再次查找",log_to_file_path)
             time.sleep(PROXY_ERRO_INTERVAL_IN_SEC)
             continue

@@ -151,9 +151,9 @@ def do_the_select_and_decision_fast():
     # start for loop
     for (key) in white_list:
         coin_pair = str(key)
-        if coin_pair in top3_symbols:
-            log_to_file(coin_pair+"冲到涨幅榜前三,跳过",log_to_file_path)
-            continue
+        # if coin_pair in top3_symbols:
+        #     log_to_file(coin_pair+"冲到涨幅榜前三,跳过",log_to_file_path)
+        #     continue
         ''' 注释
         price_change_2H = get_symbol_change_of_last_frame(coin_pair, "2H")
         if  -10 < price_change_2H and price_change_2H < -5:  #  2H 涨幅
@@ -262,9 +262,9 @@ def do_static_security_check():
         send_flag = False
         do_data_store()
         
-    if profit_count_of_the_day>=10: #当日收益大于阈值，发送警告报告邮件，(并对上一日订单数清零？) 并关闭所有订单，记录关闭造成的盈亏
-        log_to_file("当日总盈利订单额大于阈值165，市场过热告警，强行关闭所有订单--------------",log_to_file_path)
-        send_email("当日总盈利订单额大于阈值165，市场过热告警，强行关闭所有订单","市场OVER_CEAZY告警"+log_to_file_path)
+    if profit_count_of_the_day>=14: #当日收益大于阈值，发送警告报告邮件，(并对上一日订单数清零？) 并关闭所有订单，记录关闭造成的盈亏
+        log_to_file("当日总盈利订单额大于阈值210(14)，市场过热告警，强行关闭所有订单--------------",log_to_file_path)
+        send_email("当日总盈利订单额大于阈值210(14)，市场过热告警，强行关闭所有订单","市场OVER_CEAZY告警"+log_to_file_path)
         close_all_deals_and_check_PL()
         sleep_for_days()
 
@@ -352,6 +352,9 @@ if __name__ == '__main__':
     #意外终止读取 上次存储的数据
     # start_new_deal_real("GMXUSDT") 
     init_form_data_store() 
+
+    # sel_coin_global.remove("TRXUSDT")
+    # do_data_store()
 
     # 循环监测GUI的运行状态
     while True:

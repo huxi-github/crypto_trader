@@ -33,21 +33,21 @@ class DEALMGR:
 
     def close_deal(self, symbol, exit_price, exit_reason ='stop_limit'):
         exit_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        record = self.cursor.execute("SELECT * FROM DEAL WHERE symbol =? and status =?",(symbol,'open')).fetchone()
-        entry_time = record[2]
-        entry_price = record[3]
-        print("entry_time:"+str(entry_time))
-        deal_duration = str(datetime.now() - datetime.strptime(entry_time,'%Y-%m-%d %H:%M:%S')).split('.')[0]
-        print("deal_duration:"+str(deal_duration))
-        PNL_per = "{:.2f}".format((exit_price - entry_price)/entry_price*100)
-        print("PNL_per:"+str(PNL_per))
-        print("entry_price:"+str(entry_price))
-        print("exit_reason:"+str(exit_reason))
+        # record = self.cursor.execute("SELECT * FROM DEAL WHERE symbol =? and status =?",(symbol,'open')).fetchone()
+        # entry_time = record[2]
+        # entry_price = record[3]
+        # print("entry_time:"+str(entry_time))
+        # deal_duration = str(datetime.now() - datetime.strptime(entry_time,'%Y-%m-%d %H:%M:%S')).split('.')[0]
+        # print("deal_duration:"+str(deal_duration))
+        # PNL_per = "{:.2f}".format((exit_price - entry_price)/entry_price*100)
+        # print("PNL_per:"+str(PNL_per))
+        # print("entry_price:"+str(entry_price))
+        # print("exit_reason:"+str(exit_reason))
 
         status = 'closed'
         # deal_duration = None
-        self.cursor.execute("UPDATE DEAL SET exit_price=?, exit_time=?, deal_duration=?,status=?,PNL_per=?,exit_reason=? WHERE symbol=? and status=?", (exit_price, exit_time, deal_duration,status, PNL_per,exit_reason,symbol,'open'))
-        self.conn.commit()
+        # self.cursor.execute("UPDATE DEAL SET exit_price=?, exit_time=?, deal_duration=?,status=?,PNL_per=?,exit_reason=? WHERE symbol=? and status=?", (exit_price, exit_time, deal_duration,status, PNL_per,exit_reason,symbol,'open'))
+        # self.conn.commit()
 
     def get_all_unclosed_deal(self):
         self.cursor.execute("SELECT * FROM DEAL WHERE status ='open' ")
