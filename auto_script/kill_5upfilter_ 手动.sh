@@ -4,7 +4,7 @@ wait_for_process_exit() {
         local pidKilled=$1
         local begin=$(date +%s)
         local end
-        while kill -9 $pidKilled > /dev/null 2>&1
+        while kill -15 $pidKilled > /dev/null 2>&1
         do
                 echo -n "."
                 sleep 1;
@@ -16,34 +16,6 @@ wait_for_process_exit() {
         done
 }
 
-stop_service1() {
-    # 查询进程ID
-    local pid=$(ps -ef | grep -i "5UP_filter.py" | grep -v grep | awk '{print $2}')
-        # 如果进程ID不为空
-        echo "Try to kill...."
-    if [[ -n $pid ]]; then
-        echo "Try to kill 5UP_filter.py"
-                # 杀死进程并等待进程退出  
-        kill $pid && wait_for_process_exit "$pid"
-    else 
-        echo "5UP_filter_30min.py is killed"
-    fi
-}
-
-stop_service2() {
-    # 查询Java进程ID
-    local pid=$(ps -ef | grep -i "5UP_filter_30min.py" | grep -v grep | awk '{print $2}')
-        # 如果进程ID不为空
-        
-    if [[ -n $pid ]]; then
-        echo "Try to kill 5UP_filter_30min.py"
-                # 杀死进程并等待进程退出  
-        kill $pid && wait_for_process_exit "$pid"
-    else 
-        echo "5UP_filter_30min.py is killed"
-        #statements
-    fi
-}
 
 stop_service() {
     serv=$1  #$var表示以字符串形式获取var的值，类似于 get_Val(var)， serv表示定义一个变量 ，$var 是${var} 的简写
@@ -54,7 +26,7 @@ stop_service() {
     if [[ -n $pid ]]; then
         echo "Try to kill "$serv
                 # 杀死进程并等待进程退出  
-        kill $pid && wait_for_process_exit "$pid"
+        kill -15 $pid && wait_for_process_exit "$pid"
     else 
         echo $serv" is killed"
         #statements

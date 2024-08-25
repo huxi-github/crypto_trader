@@ -9,7 +9,7 @@ start_service() {
        echo -n [`date +%Y-%m-%d-%H:%M:%S`]
        echo "$serv" " is down,try start" "$serv"".........................."  #有try_start $server_name 就说明server_name 发生过重启
        cd $serv_path
-       nohup python3 ./$serv &#现在每个后台进程都有自己的服务日志,不用记录标志输出
+       nohup python3 -u ./$serv > log/running_log/$serv.log &#记录运行日志，方便排查
        # echo "5UP_filter_30min.py(crashed) restart date is : `date +%Y%m%d-%H:%M:%S`">>./log/5UP_filter_30min.py-restart.log         #重启进程的重启日志
     else
        echo [`date +%Y-%m-%d-%H:%M:%S`]$serv "already running"
