@@ -25,8 +25,6 @@ import re
 
 def log(msg:str="kong msg"): #level:LOG_LEVEL=LOG_LEVEL.INFO,
     path = "log/"
-    if sys.platform=='linux':
-        path = "/root/"
     path_log = Path(path+"altcoin_trend_rank.txt")
     if not path_log.exists():
         print("第一次执行，创建日志文件..")
@@ -42,8 +40,6 @@ def log(msg:str="kong msg"): #level:LOG_LEVEL=LOG_LEVEL.INFO,
 #//记录日志,指定文件
 def log_to_file(msg:str="kong msg",file_name:str="aaa"):
     pre_path = "log"
-    if sys.platform=='linux':
-        pre_path = "/root"
     log_f_path = pre_path+'/'+file_name #全路径
     if not os.path.exists(log_f_path):
         print("新文件,创建"+log_f_path)
@@ -65,8 +61,6 @@ def warn(msg:str="kong warning msg"):
 
 def read_log_file_last_profit_count(file_name:str=""):
     pre_path = "log"
-    if sys.platform=='linux':
-        pre_path = "/root"
     log_f_path = pre_path+'/'+file_name #全路径
     if not os.path.exists(log_f_path):
         print("文件不存在.."+log_f_path)
@@ -106,8 +100,6 @@ def read_log_file_last_profit_count(file_name:str=""):
 
 # def parse_log_file_last_profit_count(file_name:str=""):
 #     pre_path = "log"
-#     if sys.platform=='linux':
-#         pre_path = "/root"
 #     log_f_path = pre_path+'/'+file_name #全路径
 #     if not os.path.exists(log_f_path):
 #         print("文件不存在.."+log_f_path)
@@ -150,8 +142,6 @@ def read_log_file_last_profit_count(file_name:str=""):
 
 def simu_test(file_name:str="",stop_profit_count=1):
     pre_path = "log"
-    if sys.platform=='linux':
-        pre_path = "/root"
     log_f_path = pre_path+'/'+file_name #全路径
     if not os.path.exists(log_f_path):
         print("文件不存在.."+log_f_path)
@@ -296,8 +286,6 @@ def send_email(mail_msg:str,mail_title:str='数字货币_活跃交易'):
 
 def check_and_update_msg(msg_id:str="kong msg",exc_name:str=""):
     path = "new_msg_id_folder"
-    if sys.platform=='linux':
-        path = "/root"
     isExists = os.path.exists(path)
     # 判断结果
     if not isExists:
@@ -378,8 +366,6 @@ def SMA(data, smaPeriod):
 
 def simu_test_real_with_stop(file_name:str="",stop_profit_count=1):
     pre_path = "log"
-    if sys.platform=='linux':
-        pre_path = "/root"
     log_f_path = pre_path+'/'+file_name #全路径
     if not os.path.exists(log_f_path):
         print("文件不存在.."+log_f_path)
@@ -502,8 +488,6 @@ def simu_test_real_with_stop(file_name:str="",stop_profit_count=1):
 
 def simu_test_real(file_name:str="",stop_profit_count=1):
     pre_path = "log"
-    if sys.platform=='linux':
-        pre_path = "/root"
     log_f_path = pre_path+'/'+file_name #全路径
     if not os.path.exists(log_f_path):
         print("文件不存在.."+log_f_path)
