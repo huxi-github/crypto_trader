@@ -1,3 +1,5 @@
 pandas
 shelve
 playsound
+pyttsx3
+numpy

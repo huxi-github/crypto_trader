@@ -18,12 +18,14 @@ start_service() {
 
 echo " "
 echo [`date +%Y-%m-%d-%H:%M:%S`]
-# start_service /Users/huxi/Downloads/crypto_trade_test 5UP_filter.py
-start_service /Users/huxi/Downloads/crypto_trade_test 5UP_filter_30min_tp5_10.py
-# start_service /Users/huxi/Downloads/crypto_trade_test 5UP_filter_plus_ma_day_30min.py
-start_service /Users/huxi/Downloads/crypto_trade_test 5UP_filter_30min_tp5_10_white_list.py
-start_service /Users/huxi/Downloads/crypto_trade_test 5UP_filter_30min_tp5_10_scan_white_skip_top_three.py
-start_service /Users/huxi/Downloads/crypto_trade_test 5UP_filter_30min_tp5_sl_15_white_list_ignore_toprank.py
+
+WROKING_DIR="/Users/huxi/Downloads/crypto_trade_test"
+# start_service $WROKING_DIR 5UP_filter.py
+start_service $WROKING_DIR 5UP_filter_30min_tp5_10.py
+# start_service $WROKING_DIR 5UP_filter_plus_ma_day_30min.py
+start_service $WROKING_DIR 5UP_filter_30min_tp5_10_white_list.py
+start_service $WROKING_DIR 5UP_filter_30min_tp5_10_scan_white_skip_top_three.py
+start_service $WROKING_DIR 5UP_filter_30min_tp5_sl_15_white_list_ignore_toprank.py
 # start_service /Users/huxi/Downloads/crypto_trade_test 5UP_filter_30min_tp5_10_MA_grow_white_list.py
 # start_service /Users/huxi/Downloads/crypto_trade_test 5UP_filter_30min_tp5_10_white_list_no_liandan.py
 # start_service /Users/huxi/Downloads/crypto_trade_test 5UP_filter_30m_tp5_white_no极限_阴跌_拉伸.py
